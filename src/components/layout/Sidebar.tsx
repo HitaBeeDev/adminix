@@ -1,12 +1,20 @@
 import { NavLink } from "react-router";
 
+// placeholder until auth store is wired up
+const MOCK_USER = {
+  name: "Ali Etebari",
+  email: "ali@adminix.io",
+  role: "Super Admin",
+  initials: "AE",
+};
+
 const links = [
-  { to: "/dashboard", label: "Dashboard", short: "Da" },
-  { to: "/users", label: "Users", short: "Us" },
-  { to: "/accounts", label: "Accounts", short: "Ac" },
-  { to: "/roles", label: "Roles", short: "Ro" },
-  { to: "/activity", label: "Activity", short: "Ac" },
-  { to: "/settings", label: "Settings", short: "Se" },
+  { to: "/dashboard", label: "Dashboard", short: "DB" },
+  { to: "/users", label: "Users", short: "US" },
+  { to: "/accounts", label: "Accounts", short: "AC" },
+  { to: "/roles", label: "Roles", short: "RO" },
+  { to: "/activity", label: "Activity", short: "AV" },
+  { to: "/settings", label: "Settings", short: "ST" },
 ];
 
 interface SidebarProps {
@@ -26,39 +34,80 @@ export default function Sidebar({
     <>
       {/* desktop sidebar */}
       <div
-        className={`hidden md:flex flex-col h-screen bg-gray-900 text-white transition-all duration-200 ${collapsed ? "w-16" : "w-56"}`}
+        className={`hidden md:flex flex-col h-screen bg-gray-900 text-white transition-all duration-300 ease-in-out ${collapsed ? "w-16" : "w-56"}`}
       >
-        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-          {!collapsed && <span className="text-xl font-bold">Adminix</span>}
+        {/* header */}
+        <div className="h-14 px-3 border-b border-gray-700 flex items-center justify-between shrink-0">
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              className="text-lg font-bold tracking-wide truncate hover:text-gray-300 transition-colors"
+            >
+              Adminix
+            </button>
+          )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="text-gray-400 hover:text-white text-sm ml-auto"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-white transition-colors shrink-0 ${collapsed ? "mx-auto" : "ml-auto"}`}
           >
-            {collapsed ? ">>" : "<<"}
+            {collapsed ? "→" : "←"}
           </button>
         </div>
 
-        <nav className="flex-1 p-2 flex flex-col gap-1">
+        {/* nav */}
+        <nav className="flex-1 p-2 flex flex-col gap-1 overflow-hidden">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
+              title={collapsed ? link.label : undefined}
               className={({ isActive }) =>
-                `px-3 py-2 rounded text-sm ${isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`
+                `flex items-center gap-3 rounded text-sm transition-colors
+                ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2"}
+                ${isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`
               }
             >
-              {collapsed ? link.short : link.label}
+              {collapsed ? (
+                <span className="text-xs font-semibold tracking-wider">{link.short}</span>
+              ) : (
+                link.label
+              )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
-          {!collapsed && (
-            <div className="text-sm text-gray-400 mb-2">Admin User</div>
+        {/* footer — user widget */}
+        <div className="p-3 border-t border-gray-700 shrink-0">
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-2">
+              <div
+                title={`${MOCK_USER.name} — ${MOCK_USER.role}`}
+                className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0"
+              >
+                {MOCK_USER.initials}
+              </div>
+              <button
+                title="Logout"
+                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+              >
+                Lo
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                {MOCK_USER.initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-white truncate">{MOCK_USER.name}</div>
+                <div className="text-xs text-gray-400 truncate">{MOCK_USER.role}</div>
+              </div>
+              <button className="text-xs text-red-400 hover:text-red-300 transition-colors shrink-0">
+                Out
+              </button>
+            </div>
           )}
-          <button className="text-sm text-red-400 hover:text-red-300">
-            {collapsed ? "Lo" : "Logout"}
-          </button>
         </div>
       </div>
 
@@ -91,11 +140,19 @@ export default function Sidebar({
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-700">
-          <div className="text-sm text-gray-400 mb-2">Admin User</div>
-          <button className="text-sm text-red-400 hover:text-red-300">
-            Logout
-          </button>
+        <div className="p-3 border-t border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+              {MOCK_USER.initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-white truncate">{MOCK_USER.name}</div>
+              <div className="text-xs text-gray-400 truncate">{MOCK_USER.role}</div>
+            </div>
+            <button className="text-xs text-red-400 hover:text-red-300 transition-colors shrink-0">
+              Out
+            </button>
+          </div>
         </div>
       </div>
     </>
