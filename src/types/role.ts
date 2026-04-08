@@ -24,6 +24,18 @@ export interface Permission {
   group: 'Users' | 'Accounts' | 'Roles' | 'Activity' | 'Settings';
 }
 
+export interface UpdateRolePayload {
+  name?: string;
+  description?: string;
+  permissions?: PermissionKey[];
+}
+
+export interface CreateRolePayload {
+  name: string;
+  description: string;
+  permissions: PermissionKey[];
+}
+
 export interface Role {
   id: string;
   name: string;

@@ -15,6 +15,22 @@ export interface Account {
   domain?: string;
 }
 
+export interface CreateAccountPayload {
+  name: string;
+  plan: AccountPlan;
+  ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
+  domain?: string;
+}
+
+export interface UpdateAccountPayload {
+  name?: string;
+  plan?: AccountPlan;
+  status?: AccountStatus;
+  domain?: string;
+}
+
 export interface AccountFilters {
   search?: string;
   plan?: AccountPlan | '';

@@ -16,6 +16,20 @@ export interface User {
   accountId?: string; // org/tenant they belong to
 }
 
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  role: UserRole;
+  accountId: string;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  email?: string;
+  role?: UserRole;
+  status?: UserStatus;
+}
+
 export interface UserFilters {
   search?: string;
   role?: UserRole | '';
