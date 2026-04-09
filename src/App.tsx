@@ -6,6 +6,7 @@ import UsersPage from "@/pages/UsersPage";
 import AccountsPage from "@/pages/AccountsPage";
 import RolesPage from "@/pages/RolesPage";
 import ActivityPage from "@/pages/ActivityPage";
+import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/accounts" element={<AccountsPage />} />
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>

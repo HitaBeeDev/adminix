@@ -14,6 +14,7 @@ const links = [
   { to: "/accounts", label: "Accounts", short: "AC" },
   { to: "/roles", label: "Roles", short: "RO" },
   { to: "/activity", label: "Activity", short: "AV" },
+  { to: "/reports",  label: "Reports",  short: "RP" },
   { to: "/settings", label: "Settings", short: "ST" },
 ];
 
