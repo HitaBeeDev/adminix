@@ -7,6 +7,7 @@ import AccountsPage from "@/pages/AccountsPage";
 import RolesPage from "@/pages/RolesPage";
 import ActivityPage from "@/pages/ActivityPage";
 import ReportsPage from "@/pages/ReportsPage";
+import UserDetailPage from "@/pages/UserDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/accounts" element={<AccountsPage />} />
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/activity" element={<ActivityPage />} />
