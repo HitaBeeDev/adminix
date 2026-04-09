@@ -34,6 +34,16 @@ export function useUpdateUser(id: string) {
   });
 }
 
+// For list-context mutations where the id comes per-action, not per-hook
+export function useUpdateUserInline() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateUserPayload }) =>
+      updateUser(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+  });
+}
+
 export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
