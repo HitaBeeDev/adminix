@@ -61,10 +61,21 @@ export const dashboardHandlers = [
       activityByDay.push({ date: dateStr, events });
     }
 
+    // --- Activity by day of week (Mon–Sun) ---
+    const dowLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const activityByDayOfWeek = dowLabels.map((day, i) => ({
+      day,
+      // getDay(): 0=Sun … 6=Sat  →  map to Mon=1 … Sun=0
+      events: mockActivity.filter((e) => {
+        const d = new Date(e.timestamp).getDay();
+        return d === (i + 1) % 7;
+      }).length,
+    }));
+
     // --- Recent activity (latest 5 events) ---
     const recentActivity = [...mockActivity]
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 5);
+      .slice(0, 10);
 
     return HttpResponse.json({
       kpis: {
@@ -80,6 +91,7 @@ export const dashboardHandlers = [
       accountsByPlan,
       registrationsByMonth,
       activityByDay,
+      activityByDayOfWeek,
       recentActivity,
     });
   }),

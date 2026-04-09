@@ -1,15 +1,157 @@
-import { Users, UserCheck, UserPlus, UserX } from 'lucide-react';
+import { Users, UserCheck, UserPlus, UserX, UserRoundPlus, Building2, ShieldPlus, ScrollText } from 'lucide-react';
+import { Link } from 'react-router';
+import type { ActivityEvent } from '@/types/activity';
 import {
   ResponsiveContainer,
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import { useDashboardStats } from '@/hooks/useDashboard';
+
+const ROLE_COLORS: Record<string, string> = {
+  super_admin: '#f43f5e',
+  admin:       '#6366f1',
+  manager:     '#8b5cf6',
+  editor:      '#f59e0b',
+  viewer:      '#10b981',
+  guest:       '#94a3b8',
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  super_admin: 'Super Admin',
+  admin:       'Admin',
+  manager:     'Manager',
+  editor:      'Editor',
+  viewer:      'Viewer',
+  guest:       'Guest',
+};
+
+const QUICK_ACTIONS = [
+  {
+    label: 'Invite User',
+    description: 'Add a new team member',
+    to: '/users',
+    icon: UserRoundPlus,
+    color: 'bg-indigo-500',
+  },
+  {
+    label: 'New Account',
+    description: 'Create an organization',
+    to: '/accounts',
+    icon: Building2,
+    color: 'bg-violet-500',
+  },
+  {
+    label: 'Add Role',
+    description: 'Define permissions',
+    to: '/roles',
+    icon: ShieldPlus,
+    color: 'bg-emerald-500',
+  },
+  {
+    label: 'View Logs',
+    description: 'Browse audit trail',
+    to: '/activity',
+    icon: ScrollText,
+    color: 'bg-amber-500',
+  },
+];
+
+const ACTION_LABEL: Record<string, string> = {
+  'user:created':        'Created user',
+  'user:updated':        'Updated user',
+  'user:deleted':        'Deleted user',
+  'user:suspended':      'Suspended user',
+  'user:reactivated':    'Reactivated user',
+  'user:password_reset': 'Reset password',
+  'user:role_changed':   'Changed role',
+  'account:created':     'Created account',
+  'account:updated':     'Updated account',
+  'account:suspended':   'Suspended account',
+  'account:deleted':     'Deleted account',
+  'role:created':        'Created role',
+  'role:updated':        'Updated role',
+  'role:deleted':        'Deleted role',
+  'auth:login':          'Logged in',
+  'auth:logout':         'Logged out',
+  'settings:updated':    'Updated settings',
+};
+
+const ACTION_COLOR: Record<string, string> = {
+  'user:deleted':     'bg-rose-500',
+  'user:suspended':   'bg-amber-500',
+  'account:deleted':  'bg-rose-500',
+  'account:suspended':'bg-amber-500',
+  'role:deleted':     'bg-rose-500',
+  'auth:login':       'bg-emerald-500',
+  'auth:logout':      'bg-gray-400',
+};
+
+function activityDot(action: ActivityEvent['action']) {
+  return ACTION_COLOR[action] ?? 'bg-indigo-500';
+}
+
+function formatRelative(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function ChartSkeleton({ variant = 'line' }: { variant?: 'line' | 'bar' | 'donut' }) {
+  if (variant === 'donut') {
+    return (
+      <div className="h-64 flex items-center justify-center gap-8">
+        <div className="w-36 h-36 rounded-full border-[18px] border-gray-100 dark:border-gray-800 animate-pulse" />
+        <div className="space-y-2.5">
+          {[80, 60, 72, 48, 56, 40].map((w, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
+              <div className={`h-2.5 rounded bg-gray-100 dark:bg-gray-800 animate-pulse`} style={{ width: w }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === 'bar') {
+    const heights = [55, 80, 40, 90, 65, 75, 50];
+    return (
+      <div className="h-64 flex items-end justify-around gap-2 px-4 pb-6 pt-4">
+        {heights.map((h, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-t bg-gray-100 dark:bg-gray-800 animate-pulse"
+            style={{ height: `${h}%` }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // line
+  return (
+    <div className="h-64 px-4 pb-6 pt-4 space-y-3">
+      {[45, 55, 35, 65, 50, 70, 40].map((_, i) => (
+        <div key={i} className="h-2 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" style={{ width: `${60 + (i * 7) % 35}%` }} />
+      ))}
+    </div>
+  );
+}
 
 interface KpiCardProps {
   label: string;
@@ -83,6 +225,32 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <div>
+        <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {QUICK_ACTIONS.map(({ label, description, to, icon: Icon, color }) => (
+            <Link
+              key={label}
+              to={to}
+              className="group flex flex-col gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-sm transition-all"
+            >
+              <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', color)}>
+                <Icon size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  {label}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Registrations Line Chart */}
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
@@ -91,7 +259,7 @@ export default function DashboardPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">New sign-ups over the last 12 months</p>
 
         {isLoading ? (
-          <div className="h-64 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+          <ChartSkeleton variant="line" />
         ) : (
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data?.registrationsByMonth} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
@@ -130,6 +298,147 @@ export default function DashboardPage() {
               />
             </LineChart>
           </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Users by Role Donut Chart */}
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+          Users by Role
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Distribution across permission levels</p>
+
+        {isLoading ? (
+          <ChartSkeleton variant="donut" />
+        ) : (
+          <ResponsiveContainer width="100%" height={260}>
+            <PieChart>
+              <Pie
+                data={data?.usersByRole}
+                dataKey="count"
+                nameKey="role"
+                innerRadius="55%"
+                outerRadius="80%"
+                paddingAngle={3}
+              >
+                {data?.usersByRole.map((entry) => (
+                  <Cell key={entry.role} fill={ROLE_COLORS[entry.role] ?? '#94a3b8'} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: number, name: string) => [value, ROLE_LABELS[name] ?? name]}
+                contentStyle={{
+                  backgroundColor: 'var(--tooltip-bg, #fff)',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.8125rem',
+                }}
+              />
+              <Legend
+                formatter={(value) => (
+                  <span style={{ fontSize: '0.75rem', color: 'inherit' }}>
+                    {ROLE_LABELS[value] ?? value}
+                  </span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Activity by Day of Week Bar Chart */}
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+          Activity by Day of Week
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Total audit events per weekday</p>
+
+        {isLoading ? (
+          <ChartSkeleton variant="bar" />
+        ) : (
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={data?.activityByDayOfWeek} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" vertical={false} />
+              <XAxis
+                dataKey="day"
+                tick={{ fontSize: 12, fill: 'currentColor' }}
+                className="text-gray-400 dark:text-gray-500"
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 12, fill: 'currentColor' }}
+                className="text-gray-400 dark:text-gray-500"
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'var(--tooltip-bg, #fff)',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.8125rem',
+                }}
+                labelStyle={{ fontWeight: 600 }}
+                cursor={{ fill: 'rgb(243 244 246)' }}
+              />
+              <Bar dataKey="events" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={48} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Recent Activity Feed */}
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Latest 10 audit events</p>
+          </div>
+          <Link
+            to="/activity"
+            className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+          >
+            View all →
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <div className="mt-1 w-2.5 h-2.5 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-48 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                  <div className="h-3 w-32 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                </div>
+                <div className="h-3 w-12 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <ul className="divide-y divide-gray-50 dark:divide-gray-800">
+            {data?.recentActivity.map((event) => (
+              <li key={event.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                <span className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${activityDot(event.action)}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-800 dark:text-gray-100">
+                    <span className="font-medium">{event.actorName}</span>
+                    {' '}
+                    <span className="text-gray-500 dark:text-gray-400">{ACTION_LABEL[event.action] ?? event.action}</span>
+                    {event.targetName && (
+                      <> <span className="font-medium">{event.targetName}</span></>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{event.actorEmail}</p>
+                </div>
+                <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0 mt-0.5">
+                  {formatRelative(event.timestamp)}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>

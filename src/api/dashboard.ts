@@ -1,3 +1,5 @@
+import type { ActivityEvent } from '@/types/activity';
+
 export interface DashboardKpis {
   totalUsers: number;
   activeUsers: number;
@@ -14,7 +16,8 @@ export interface DashboardStats {
   usersByStatus: { status: string; count: number }[];
   accountsByPlan: { plan: string; count: number }[];
   activityByDay: { date: string; events: number }[];
-  recentActivity: unknown[];
+  activityByDayOfWeek: { day: string; events: number }[];
+  recentActivity: ActivityEvent[];
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
