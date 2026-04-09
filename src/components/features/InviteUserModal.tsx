@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Modal from '@/components/ui/Modal';
 import { fetchAccounts } from '@/api/accounts';
 import { useCreateUser } from '@/hooks/useUsers';
+import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
 
 const schema = z.object({
@@ -58,8 +59,13 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
   }
 
   async function onSubmit(values: FormValues) {
-    await createUser.mutateAsync(values);
-    handleClose();
+    try {
+      const user = await createUser.mutateAsync(values);
+      toast.success(`${user.name} has been invited.`);
+      handleClose();
+    } catch {
+      toast.error('Failed to invite user. Please try again.');
+    }
   }
 
   return (
@@ -136,11 +142,6 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
           </button>
         </div>
 
-        {createUser.isError && (
-          <p className="text-xs text-rose-500 text-center">
-            {(createUser.error as Error).message}
-          </p>
-        )}
       </form>
     </Modal>
   );

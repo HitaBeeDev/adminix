@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import CommandPalette from "./CommandPalette";
+import Toaster from "@/components/ui/Toaster";
 
 export default function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
@@ -49,6 +50,7 @@ export default function AppShell() {
       </div>
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <Toaster />
     </div>
   );
 }
