@@ -4,10 +4,17 @@ import { mockUsers, mockAccounts, mockActivity } from '@/mocks/seeds';
 export const dashboardHandlers = [
   http.get('/api/dashboard/stats', () => {
     // --- KPI counts ---
-    const totalUsers    = mockUsers.length;
-    const activeUsers   = mockUsers.filter((u) => u.status === 'active').length;
-    const totalAccounts = mockAccounts.length;
+    const totalUsers     = mockUsers.length;
+    const activeUsers    = mockUsers.filter((u) => u.status === 'active').length;
+    const suspendedUsers = mockUsers.filter((u) => u.status === 'suspended').length;
+    const totalAccounts  = mockAccounts.length;
     const activeAccounts = mockAccounts.filter((a) => a.status === 'active').length;
+
+    const now = new Date('2026-04-08T00:00:00Z');
+    const newThisMonth = mockUsers.filter((u) => {
+      const d = new Date(u.dateJoined);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }).length;
 
     // --- Users by role (for pie/bar chart) ---
     const usersByRole = ['super_admin', 'admin', 'manager', 'editor', 'viewer', 'guest'].map(
@@ -29,6 +36,21 @@ export const dashboardHandlers = [
       count: mockAccounts.filter((a) => a.plan === plan).length,
     }));
 
+    // --- Registrations over last 12 months (for line chart) ---
+    const registrationsByMonth: { month: string; registrations: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date('2026-04-01T00:00:00Z');
+      d.setMonth(d.getMonth() - i);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const label = d.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+      const registrations = mockUsers.filter((u) => {
+        const joined = new Date(u.dateJoined);
+        return joined.getFullYear() === year && joined.getMonth() === month;
+      }).length;
+      registrationsByMonth.push({ month: label, registrations });
+    }
+
     // --- Activity over the last 14 days (for line chart) ---
     const activityByDay: { date: string; events: number }[] = [];
     for (let i = 13; i >= 0; i--) {
@@ -48,12 +70,15 @@ export const dashboardHandlers = [
       kpis: {
         totalUsers,
         activeUsers,
+        suspendedUsers,
+        newThisMonth,
         totalAccounts,
         activeAccounts,
       },
       usersByRole,
       usersByStatus,
       accountsByPlan,
+      registrationsByMonth,
       activityByDay,
       recentActivity,
     });
