@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,9 @@ interface ModalProps {
 }
 
 export default function Modal({ open, onClose, title, description, children, className }: ModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -21,6 +24,21 @@ export default function Modal({ open, onClose, title, description, children, cla
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
+  // Focus panel on open, restore focus on close
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    return () => previous?.focus();
+  }, [open]);
+
+  // Lock body scroll while open
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   if (!open) return null;
 
@@ -34,8 +52,13 @@ export default function Modal({ open, onClose, title, description, children, cla
 
       {/* Panel */}
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        tabIndex={-1}
         className={cn(
-          'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800',
+          'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 outline-none',
           className ?? 'max-w-md',
         )}
         onClick={(e) => e.stopPropagation()}
@@ -43,7 +66,7 @@ export default function Modal({ open, onClose, title, description, children, cla
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800">
           <div>
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+            <h2 id="modal-title" className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
             {description && (
               <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
             )}
