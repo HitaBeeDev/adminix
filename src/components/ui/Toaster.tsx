@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useToastStore } from '@/stores/toastStore';
 import type { ToastType } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,11 @@ const STYLES: Record<ToastType, { container: string; icon: string; Icon: React.E
     container: 'bg-white dark:bg-gray-900 border-rose-200 dark:border-rose-800',
     icon: 'text-rose-500',
     Icon: XCircle,
+  },
+  warning: {
+    container: 'bg-white dark:bg-gray-900 border-amber-200 dark:border-amber-800',
+    icon: 'text-amber-500',
+    Icon: AlertTriangle,
   },
   info: {
     container: 'bg-white dark:bg-gray-900 border-indigo-200 dark:border-indigo-800',

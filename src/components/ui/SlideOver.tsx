@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -11,6 +11,9 @@ interface SlideOverProps {
 }
 
 export default function SlideOver({ open, onClose, title, description, children }: SlideOverProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -20,6 +23,21 @@ export default function SlideOver({ open, onClose, title, description, children 
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  // Focus panel on open, restore focus on close
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+    return () => previous?.focus();
+  }, [open]);
+
+  // Lock body scroll while open
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
   if (!open) return null;
 
   return createPortal(
@@ -28,17 +46,25 @@ export default function SlideOver({ open, onClose, title, description, children 
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="slideover-title"
+        tabIndex={-1}
+        className="relative w-full max-w-md bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col outline-none"
+      >
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+            <h2 id="slideover-title" className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
             {description && (
               <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
+            aria-label="Close panel"
             className="ml-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <X size={16} />
