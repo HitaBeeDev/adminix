@@ -1,11 +1,23 @@
-import { Link } from "react-router";
+import { Link } from 'react-router';
+import { Home } from 'lucide-react';
 
 export default function NotFoundPage() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen gap-4">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="text-gray-500">Page not found</p>
-      <Link to="/dashboard" className="text-blue-500 hover:underline">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-6">
+      <p className="text-8xl font-black text-indigo-100 dark:text-indigo-950 select-none leading-none">
+        404
+      </p>
+      <div className="-mt-4 text-center space-y-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Page not found</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+          The page you're looking for doesn't exist or has been moved.
+        </p>
+      </div>
+      <Link
+        to="/dashboard"
+        className="mt-8 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+      >
+        <Home size={15} />
         Back to Dashboard
       </Link>
     </div>

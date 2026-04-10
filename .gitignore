@@ -14,6 +14,8 @@ dist-ssr
 
 # Claude Code instructions (local only)
 CLAUDE.md
+PROJECT_OVERVIEW.md
+PROJECT_CHECKLIST.md
 
 # Editor directories and files
 .vscode/*
