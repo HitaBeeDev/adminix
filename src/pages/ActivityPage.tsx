@@ -163,7 +163,7 @@ export default function ActivityPage() {
   const page       = Number(searchParams.get('page') ?? 1);
 
   const { data, isLoading } = useActivity({ userId, actionType: actionType as ActionType | '', dateFrom, dateTo, page, pageSize: 20 });
-  const { data: usersData } = useUsers({ pageSize: 100 });
+  const { data: usersData, isLoading: isUsersLoading } = useUsers({ pageSize: 100 });
 
   function setParam(key: string, value: string | null) {
     setSearchParams((prev) => {
@@ -192,7 +192,9 @@ export default function ActivityPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Activity Log</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {isLoading ? 'Loading…' : `${data?.total ?? 0} events`}
+            {isLoading ? (
+              <span className="block h-4 w-20 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+            ) : `${data?.total ?? 0} events`}
           </p>
         </div>
         <button
@@ -206,16 +208,20 @@ export default function ActivityPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         {/* User */}
-        <select
-          value={userId}
-          onChange={(e) => handleFilter('userId', e.target.value)}
-          className={selectClass}
-        >
-          <option value="">All users</option>
-          {usersData?.data.map((u) => (
-            <option key={u.id} value={u.id}>{u.name}</option>
-          ))}
-        </select>
+        {isUsersLoading ? (
+          <div className="h-10 w-32 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
+        ) : (
+          <select
+            value={userId}
+            onChange={(e) => handleFilter('userId', e.target.value)}
+            className={selectClass}
+          >
+            <option value="">All users</option>
+            {usersData?.data.map((u) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+        )}
 
         {/* Action type */}
         <select
