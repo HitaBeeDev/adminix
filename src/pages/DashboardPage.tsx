@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import { useDashboardStats } from '@/hooks/useDashboard';
+import ErrorState from '@/components/ui/ErrorState';
 
 const ROLE_COLORS: Record<string, string> = {
   super_admin: '#f43f5e',
@@ -180,7 +181,7 @@ function KpiCard({ label, value, icon: Icon, color, loading }: KpiCardProps) {
 }
 
 export default function DashboardPage() {
-  const { data, isLoading } = useDashboardStats();
+  const { data, isLoading, isError, error, refetch } = useDashboardStats();
 
   const cards = [
     {
@@ -218,12 +219,20 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {isError && (
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <ErrorState error={error} onRetry={() => void refetch()} />
+        </div>
+      )}
+
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {cards.map((card) => (
-          <KpiCard key={card.label} {...card} loading={isLoading} />
-        ))}
-      </div>
+      {!isError && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {cards.map((card) => (
+            <KpiCard key={card.label} {...card} loading={isLoading} />
+          ))}
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div>
@@ -252,7 +261,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Registrations Line Chart */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
           User Registrations
         </h2>
@@ -299,10 +308,10 @@ export default function DashboardPage() {
             </LineChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </div>}
 
       {/* Users by Role Donut Chart */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
           Users by Role
         </h2>
@@ -326,7 +335,10 @@ export default function DashboardPage() {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number, name: string) => [value, ROLE_LABELS[name] ?? name]}
+                formatter={(value, name) => [
+                  Number(value ?? 0),
+                  ROLE_LABELS[String(name)] ?? String(name),
+                ]}
                 contentStyle={{
                   backgroundColor: 'var(--tooltip-bg, #fff)',
                   border: '1px solid #e5e7eb',
@@ -344,10 +356,10 @@ export default function DashboardPage() {
             </PieChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </div>}
 
       {/* Activity by Day of Week Bar Chart */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
         <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
           Activity by Day of Week
         </h2>
@@ -387,10 +399,10 @@ export default function DashboardPage() {
             </BarChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </div>}
 
       {/* Recent Activity Feed */}
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-base font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
@@ -440,7 +452,7 @@ export default function DashboardPage() {
             ))}
           </ul>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

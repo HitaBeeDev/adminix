@@ -3,7 +3,9 @@ import { Download } from 'lucide-react';
 import { useActivity } from '@/hooks/useActivity';
 import { useUsers } from '@/hooks/useUsers';
 import { fetchActivity } from '@/api/activity';
+import ErrorState from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/errors';
 import type { ActionType, ActivityEvent } from '@/types/activity';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -162,8 +164,14 @@ export default function ActivityPage() {
   const dateTo     = searchParams.get('dateTo')     ?? '';
   const page       = Number(searchParams.get('page') ?? 1);
 
-  const { data, isLoading } = useActivity({ userId, actionType: actionType as ActionType | '', dateFrom, dateTo, page, pageSize: 20 });
-  const { data: usersData, isLoading: isUsersLoading } = useUsers({ pageSize: 100 });
+  const { data, isLoading, isError, error, refetch } = useActivity({ userId, actionType: actionType as ActionType | '', dateFrom, dateTo, page, pageSize: 20 });
+  const {
+    data: usersData,
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+    error: usersError,
+    refetch: refetchUsers,
+  } = useUsers({ pageSize: 100 });
 
   function setParam(key: string, value: string | null) {
     setSearchParams((prev) => {
@@ -210,6 +218,13 @@ export default function ActivityPage() {
         {/* User */}
         {isUsersLoading ? (
           <div className="h-10 w-32 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
+        ) : isUsersError ? (
+          <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+            <span>{getErrorMessage(usersError, 'Failed to load users')}</span>
+            <button type="button" onClick={() => void refetchUsers()} className="font-medium underline">
+              Retry
+            </button>
+          </div>
         ) : (
           <select
             value={userId}
@@ -270,6 +285,8 @@ export default function ActivityPage() {
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4">
         {isLoading ? (
           Array.from({ length: 10 }).map((_, i) => <RowSkeleton key={i} />)
+        ) : isError ? (
+          <ErrorState error={error} onRetry={() => void refetch()} />
         ) : events.length === 0 ? (
           <div className="py-16 flex flex-col items-center gap-3 text-center">
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xl">📋</div>

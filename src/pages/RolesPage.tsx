@@ -6,6 +6,7 @@ import { ShieldCheck, Trash2, Plus, Users } from 'lucide-react';
 import { useRoles, useCreateRole, useTogglePermission, useDeleteRole } from '@/hooks/useRoles';
 import SlideOver from '@/components/ui/SlideOver';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import ErrorState from '@/components/ui/ErrorState';
 import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
 import type { Role, PermissionKey, Permission } from '@/types/role';
@@ -131,7 +132,7 @@ function MatrixSkeleton() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function RolesPage() {
-  const { data, isLoading } = useRoles();
+  const { data, isLoading, isError, error, refetch } = useRoles();
   const togglePermission = useTogglePermission();
   const deleteRole = useDeleteRole();
 
@@ -191,6 +192,10 @@ export default function RolesPage() {
             Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
             ))
+          ) : isError ? (
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+              <ErrorState error={error} onRetry={() => void refetch()} className="px-4 py-10" />
+            </div>
           ) : (
             roles.map((role) => (
               <div
@@ -231,6 +236,8 @@ export default function RolesPage() {
         <div className="flex-1 min-w-0 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
           {isLoading ? (
             <MatrixSkeleton />
+          ) : isError ? (
+            <ErrorState error={error} onRetry={() => void refetch()} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

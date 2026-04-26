@@ -4,13 +4,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  ChevronRight, Shield, Clock, Globe, Pencil, X, Check,
+  ChevronRight, Shield, Clock, Pencil, X, Check,
   ShieldCheck, ShieldOff, Fingerprint,
 } from 'lucide-react';
 import { useUser, useUpdateUser, useDeleteUser } from '@/hooks/useUsers';
 import { useActivity } from '@/hooks/useActivity';
 import { toast } from '@/stores/toastStore';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import ErrorState from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
 import type { User, UserRole, UserStatus } from '@/types/user';
 import type { ActivityEvent } from '@/types/activity';
@@ -153,10 +154,14 @@ function ProfileTab({ user, onUpdate }: ProfileTabProps) {
   });
 
   async function onSubmit(values: EditValues) {
-    await updateUser.mutateAsync(values);
-    toast.success('Profile updated.');
-    setIsEditing(false);
-    onUpdate();
+    try {
+      await updateUser.mutateAsync(values);
+      toast.success('Profile updated.');
+      setIsEditing(false);
+      onUpdate();
+    } catch {
+      toast.error('Failed to update profile.');
+    }
   }
 
   function handleCancel() {
@@ -266,7 +271,7 @@ function ActivityEvent({ event }: { event: ActivityEvent }) {
 }
 
 function ActivityTab({ userId }: { userId: string }) {
-  const { data, isLoading } = useActivity({ userId, page: 1, pageSize: 10 });
+  const { data, isLoading, isError, error, refetch } = useActivity({ userId, page: 1, pageSize: 10 });
   const events = data?.data ?? [];
 
   return (
@@ -293,6 +298,8 @@ function ActivityTab({ userId }: { userId: string }) {
             </div>
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState error={error} onRetry={() => void refetch()} className="py-12" />
       ) : events.length === 0 ? (
         <div className="py-12 flex flex-col items-center gap-2 text-center">
           <Clock size={28} className="text-gray-300 dark:text-gray-600" />
@@ -375,11 +382,19 @@ export default function UserDetailPage() {
   const [tab, setTab] = useState<Tab>('profile');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { data: user, isLoading, refetch } = useUser(id ?? '');
+  const { data: user, isLoading, isError, error, refetch } = useUser(id ?? '');
   const updateUser = useUpdateUser(id ?? '');
   const deleteUser = useDeleteUser();
 
   if (isLoading) return <ProfileSkeleton />;
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <ErrorState error={error} onRetry={() => void refetch()} />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -394,18 +409,26 @@ export default function UserDetailPage() {
 
   async function handleSuspendToggle() {
     const newStatus: UserStatus = user!.status === 'active' ? 'suspended' : 'active';
-    await updateUser.mutateAsync({ status: newStatus });
-    toast.success(
-      newStatus === 'suspended'
-        ? `${user!.name} has been suspended.`
-        : `${user!.name} has been reactivated.`,
-    );
+    try {
+      await updateUser.mutateAsync({ status: newStatus });
+      toast.success(
+        newStatus === 'suspended'
+          ? `${user!.name} has been suspended.`
+          : `${user!.name} has been reactivated.`,
+      );
+    } catch {
+      toast.error(`Failed to ${newStatus === 'suspended' ? 'suspend' : 'reactivate'} ${user!.name}.`);
+    }
   }
 
   async function handleDelete() {
-    await deleteUser.mutateAsync(user!.id);
-    toast.success(`${user!.name} has been deleted.`);
-    navigate('/users');
+    try {
+      await deleteUser.mutateAsync(user!.id);
+      toast.success(`${user!.name} has been deleted.`);
+      navigate('/users');
+    } catch {
+      toast.error(`Failed to delete ${user!.name}.`);
+    }
   }
 
   const tabs: { key: Tab; label: string }[] = [

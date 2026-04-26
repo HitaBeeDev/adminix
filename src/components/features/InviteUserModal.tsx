@@ -7,6 +7,7 @@ import { fetchAccounts } from '@/api/accounts';
 import { useCreateUser } from '@/hooks/useUsers';
 import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
+import { getErrorMessage } from '@/lib/errors';
 
 const schema = z.object({
   name:      z.string().min(2, 'Name must be at least 2 characters'),
@@ -40,7 +41,13 @@ interface InviteUserModalProps {
 export default function InviteUserModal({ open, onClose }: InviteUserModalProps) {
   const createUser = useCreateUser();
 
-  const { data: accountsData } = useQuery({
+  const {
+    data: accountsData,
+    isLoading: isAccountsLoading,
+    isError: isAccountsError,
+    error: accountsError,
+    refetch: refetchAccounts,
+  } = useQuery({
     queryKey: ['accounts', { pageSize: 100 }],
     queryFn: () => fetchAccounts({ pageSize: 100 }),
     enabled: open,
@@ -112,15 +119,27 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
         {/* Account */}
         <div>
           <label className={labelClass}>Account</label>
-          <select
-            {...register('accountId')}
-            className={cn(fieldClass, 'appearance-none cursor-pointer', errors.accountId ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700')}
-          >
-            <option value="">Select an account…</option>
-            {accountsData?.data.map((acc) => (
-              <option key={acc.id} value={acc.id}>{acc.name}</option>
-            ))}
-          </select>
+          {isAccountsError ? (
+            <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+              <div className="flex items-center justify-between gap-3">
+                <span>{getErrorMessage(accountsError, 'Failed to load accounts.')}</span>
+                <button type="button" onClick={() => void refetchAccounts()} className="shrink-0 font-medium underline">
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : (
+            <select
+              {...register('accountId')}
+              disabled={isAccountsLoading}
+              className={cn(fieldClass, 'appearance-none cursor-pointer disabled:opacity-60', errors.accountId ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700')}
+            >
+              <option value="">{isAccountsLoading ? 'Loading accounts…' : 'Select an account…'}</option>
+              {accountsData?.data.map((acc) => (
+                <option key={acc.id} value={acc.id}>{acc.name}</option>
+              ))}
+            </select>
+          )}
           {errors.accountId && <p className={errorClass}>{errors.accountId.message}</p>}
         </div>
 
@@ -135,7 +154,7 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isAccountsLoading || isAccountsError}
             className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50 transition-colors"
           >
             {isSubmitting ? 'Inviting…' : 'Invite user'}

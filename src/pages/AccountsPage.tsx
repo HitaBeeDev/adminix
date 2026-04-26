@@ -5,6 +5,7 @@ import { useAccounts, useUpdateAccountInline } from '@/hooks/useAccounts';
 import { useDebounce } from '@/hooks/useDebounce';
 import { toast } from '@/stores/toastStore';
 import CreateAccountModal from '@/components/features/CreateAccountModal';
+import ErrorState from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
 import type { AccountPlan, AccountStatus, Account } from '@/types/account';
 
@@ -116,7 +117,7 @@ export default function AccountsPage() {
   const status      = (searchParams.get('status') ?? '') as AccountStatus | '';
   const debouncedSearch = useDebounce(searchInput, 300);
 
-  const { data, isLoading } = useAccounts({
+  const { data, isLoading, isError, error, refetch } = useAccounts({
     search: debouncedSearch,
     plan,
     status,
@@ -222,6 +223,12 @@ export default function AccountsPage() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => <RowSkeleton key={i} />)
+              ) : isError ? (
+                <tr>
+                  <td colSpan={7}>
+                    <ErrorState error={error} onRetry={() => void refetch()} />
+                  </td>
+                </tr>
               ) : accounts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-20 text-center">

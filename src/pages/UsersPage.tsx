@@ -3,7 +3,9 @@ import { useSearchParams, Link, useNavigate } from 'react-router';
 import { Search, ChevronUp, ChevronDown, ChevronsUpDown, MoreHorizontal, Eye, Pencil, Ban, RefreshCw, Trash2, X } from 'lucide-react';
 import { useUsers, useUpdateUserInline, useDeleteUser } from '@/hooks/useUsers';
 import InviteUserModal from '@/components/features/InviteUserModal';
+import ErrorState from '@/components/ui/ErrorState';
 import { useDebounce } from '@/hooks/useDebounce';
+import { toast } from '@/stores/toastStore';
 import type { UserRole, UserStatus, UserFilters, User } from '@/types/user';
 import { cn } from '@/lib/utils';
 
@@ -153,7 +155,7 @@ export default function UsersPage() {
   const sortDir     = (searchParams.get('sortDir') ?? 'asc') as 'asc' | 'desc';
   const debouncedSearch = useDebounce(searchInput, 300);
 
-  const { data, isLoading } = useUsers({
+  const { data, isLoading, isError, error, refetch } = useUsers({
     search: debouncedSearch,
     role,
     status,
@@ -208,15 +210,25 @@ export default function UsersPage() {
   const deleteUser = useDeleteUser();
 
   async function handleBulkDelete() {
-    await Promise.all([...selected].map((id) => deleteUser.mutateAsync(id)));
-    setSelected(new Set());
+    try {
+      await Promise.all([...selected].map((id) => deleteUser.mutateAsync(id)));
+      setSelected(new Set());
+      toast.success('Selected users deleted.');
+    } catch {
+      toast.error('Failed to delete selected users.');
+    }
   }
 
   async function handleBulkSuspend() {
-    await Promise.all(
-      [...selected].map((id) => updateUser.mutateAsync({ id, payload: { status: 'suspended' } }))
-    );
-    setSelected(new Set());
+    try {
+      await Promise.all(
+        [...selected].map((id) => updateUser.mutateAsync({ id, payload: { status: 'suspended' } }))
+      );
+      setSelected(new Set());
+      toast.success('Selected users suspended.');
+    } catch {
+      toast.error('Failed to suspend selected users.');
+    }
   }
   const users: User[] = data?.data ?? [];
 
@@ -371,6 +383,12 @@ export default function UsersPage() {
             <tbody>
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => <UserRowSkeleton key={i} />)
+              ) : isError ? (
+                <tr>
+                  <td colSpan={7}>
+                    <ErrorState error={error} onRetry={() => void refetch()} />
+                  </td>
+                </tr>
               ) : users.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-20 text-center">
@@ -440,8 +458,18 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <RowActionMenu
                         user={user}
-                        onUpdate={(args) => updateUser.mutate(args)}
-                        onDelete={(id) => deleteUser.mutate(id)}
+                        onUpdate={(args) => {
+                          updateUser.mutate(args, {
+                            onSuccess: () => toast.success(`${user.name} updated.`),
+                            onError: () => toast.error(`Failed to update ${user.name}.`),
+                          });
+                        }}
+                        onDelete={(id) => {
+                          deleteUser.mutate(id, {
+                            onSuccess: () => toast.success(`${user.name} deleted.`),
+                            onError: () => toast.error(`Failed to delete ${user.name}.`),
+                          });
+                        }}
                       />
                     </td>
                   </tr>
