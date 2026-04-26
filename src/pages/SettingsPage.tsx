@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
+import { useTheme, type ThemeOption } from '@/lib/theme';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -60,7 +61,7 @@ function ProfileTab() {
     return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   }
 
-  async function onSubmit(_values: ProfileValues) {
+  async function onSubmit() {
     setSaving(true);
     await new Promise((r) => setTimeout(r, 700));
     setSaving(false);
@@ -232,8 +233,6 @@ function NotificationsTab() {
 
 // ─── Appearance Tab ───────────────────────────────────────────────────────────
 
-type ThemeOption = 'light' | 'dark' | 'system';
-
 const THEMES: { value: ThemeOption; label: string; icon: React.ElementType; desc: string }[] = [
   { value: 'light',  label: 'Light',  icon: Sun,     desc: 'Classic light background' },
   { value: 'dark',   label: 'Dark',   icon: Moon,    desc: 'Easy on the eyes' },
@@ -247,23 +246,11 @@ const DENSITY_OPTIONS = [
 ] as const;
 
 function AppearanceTab() {
-  const [theme, setTheme] = useState<ThemeOption>(() => {
-    if (document.documentElement.classList.contains('dark')) return 'dark';
-    return 'light';
-  });
+  const { theme, setTheme } = useTheme();
   const [density, setDensity] = useState<'compact' | 'comfortable' | 'spacious'>('comfortable');
 
   function applyTheme(value: ThemeOption) {
     setTheme(value);
-    if (value === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else if (value === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      // system
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.toggle('dark', prefersDark);
-    }
     toast.success('Appearance updated.');
   }
 
@@ -579,14 +566,11 @@ function SecurityTab() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<TabId>('profile');
-
-  // Sync tab with ?tab= query param
-  useEffect(() => {
+  const [activeTab, setActiveTab] = useState<TabId>(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab') as TabId | null;
-    if (tab && TABS.some((t) => t.id === tab)) setActiveTab(tab);
-  }, []);
+    return tab && TABS.some((t) => t.id === tab) ? tab : 'profile';
+  });
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, Link } from "react-router";
+import { useTheme } from "@/lib/theme";
 
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
@@ -61,8 +62,8 @@ export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps
   const { pathname } = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -94,10 +95,7 @@ export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps
     );
   }
 
-  function toggleDarkMode() {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle("dark");
-  }
+  const darkMode = resolvedTheme === "dark";
 
   return (
     <div className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 relative">
@@ -215,7 +213,7 @@ export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps
 
         {/* dark mode toggle */}
         <button
-          onClick={toggleDarkMode}
+          onClick={toggleTheme}
           title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
