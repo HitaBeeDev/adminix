@@ -1,5 +1,8 @@
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Info } from 'lucide-react';
 import Modal from './Modal';
+import { cn } from '@/lib/utils';
+
+type Intent = 'destructive' | 'default';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -8,8 +11,29 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  cancelLabel?: string;
+  loadingLabel?: string;
   loading?: boolean;
+  intent?: Intent;
 }
+
+const intentConfig: Record<
+  Intent,
+  { icon: React.ReactNode; iconWrap: string; confirmBtn: string }
+> = {
+  destructive: {
+    icon: <AlertTriangle size={16} className="text-rose-600 dark:text-rose-400" />,
+    iconWrap: 'bg-rose-100 dark:bg-rose-900/30',
+    confirmBtn:
+      'bg-rose-600 hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600 text-white',
+  },
+  default: {
+    icon: <Info size={16} className="text-indigo-600 dark:text-indigo-400" />,
+    iconWrap: 'bg-indigo-100 dark:bg-indigo-900/30',
+    confirmBtn:
+      'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white',
+  },
+};
 
 export default function ConfirmDialog({
   open,
@@ -18,30 +42,47 @@ export default function ConfirmDialog({
   title,
   description,
   confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  loadingLabel,
   loading = false,
+  intent = 'destructive',
 }: ConfirmDialogProps) {
+  const config = intentConfig[intent];
+
   return (
     <Modal open={open} onClose={onClose} title={title} className="max-w-sm">
       <div className="flex flex-col gap-4">
         <div className="flex gap-3">
-          <div className="w-9 h-9 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center shrink-0">
-            <AlertTriangle size={16} className="text-rose-600 dark:text-rose-400" />
+          <div
+            className={cn(
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+              config.iconWrap,
+            )}
+          >
+            {config.icon}
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{description}</p>
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+            {description}
+          </p>
         </div>
+
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            disabled={loading}
+            className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
           >
-            Cancel
+            {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 text-sm rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium disabled:opacity-50 transition-colors"
+            className={cn(
+              'rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50',
+              config.confirmBtn,
+            )}
           >
-            {loading ? 'Deleting…' : confirmLabel}
+            {loading ? (loadingLabel ?? `${confirmLabel}…`) : confirmLabel}
           </button>
         </div>
       </div>
