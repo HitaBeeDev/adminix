@@ -7,6 +7,7 @@ import { useRoles, useCreateRole, useTogglePermission, useDeleteRole } from '@/h
 import SlideOver from '@/components/ui/SlideOver';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import ErrorState from '@/components/ui/ErrorState';
+import EmptyState from '@/components/ui/EmptyState';
 import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
 import type { Role, PermissionKey, Permission } from '@/types/role';
@@ -196,6 +197,16 @@ export default function RolesPage() {
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <ErrorState error={error} onRetry={() => void refetch()} className="px-4 py-10" />
             </div>
+          ) : roles.length === 0 ? (
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+              <EmptyState
+                icon={<ShieldCheck size={22} />}
+                title="No roles yet"
+                description="Create your first role to manage user permissions."
+                action={{ label: 'Add role', onClick: () => setSlideOverOpen(true) }}
+                className="py-10"
+              />
+            </div>
           ) : (
             roles.map((role) => (
               <div
@@ -238,6 +249,13 @@ export default function RolesPage() {
             <MatrixSkeleton />
           ) : isError ? (
             <ErrorState error={error} onRetry={() => void refetch()} />
+          ) : roles.length === 0 ? (
+            <EmptyState
+              icon={<ShieldCheck size={22} />}
+              title="No roles to display"
+              description="Add a role to see the permission matrix."
+              action={{ label: 'Add role', onClick: () => setSlideOverOpen(true) }}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

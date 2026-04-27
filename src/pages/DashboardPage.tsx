@@ -429,6 +429,11 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+        ) : (data?.recentActivity?.length ?? 0) === 0 ? (
+          <div className="py-10 flex flex-col items-center gap-2 text-center">
+            <ScrollText size={24} className="text-gray-300 dark:text-gray-600" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">No recent activity</p>
+          </div>
         ) : (
           <ul className="divide-y divide-gray-50 dark:divide-gray-800">
             {data?.recentActivity.map((event) => (

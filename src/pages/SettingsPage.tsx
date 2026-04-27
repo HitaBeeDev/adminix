@@ -527,6 +527,13 @@ function SecurityTab() {
             Revoke all others
           </button>
         </div>
+        {sessions.length === 0 ? (
+          <div className="py-10 flex flex-col items-center gap-2 text-center">
+            <LogOut size={22} className="text-gray-300 dark:text-gray-600" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">All other sessions have been revoked.</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">You'll be re-authenticated on your next visit.</p>
+          </div>
+        ) : (
         <div className="space-y-0 divide-y divide-gray-100 dark:divide-gray-800">
           {sessions.map((session) => (
             <div key={session.id} className="flex items-center gap-4 py-3.5">
@@ -558,6 +565,7 @@ function SecurityTab() {
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );
