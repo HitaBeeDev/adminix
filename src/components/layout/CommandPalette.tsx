@@ -16,6 +16,12 @@ interface CommandPaletteProps {
 }
 
 export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
+  if (!open) return null;
+
+  return <CommandPaletteContent onClose={onClose} />;
+}
+
+function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,19 +32,9 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     item.description.toLowerCase().includes(query.toLowerCase())
   );
 
-  // Reset state when opened
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActiveIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 10);
-    }
-  }, [open]);
-
-  // Reset active index when filtered results change
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
+    setTimeout(() => inputRef.current?.focus(), 10);
+  }, []);
 
   function handleSelect(path: string) {
     navigate(path);
@@ -59,8 +55,6 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
   }
 
-  if (!open) return null;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
@@ -79,7 +73,10 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Search pages..."
             className="flex-1 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none bg-transparent"

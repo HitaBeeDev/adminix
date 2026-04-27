@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
 import { mockActivity } from '@/mocks/seeds';
-import type { ActivityFilters } from '@/types/activity';
 
 export const activityHandlers = [
   http.get('/api/activity', ({ request }) => {

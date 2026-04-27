@@ -15,7 +15,8 @@ const schema = z.object({
   domain:     z.string().optional(),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormValues = z.output<typeof schema>;
 
 const PLAN_OPTIONS = [
   { value: 'free',       label: 'Free' },
@@ -41,7 +42,7 @@ export default function CreateAccountModal({ open, onClose }: CreateAccountModal
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormInput, unknown, FormValues>({ resolver: zodResolver(schema) });
 
   function handleClose() {
     reset();

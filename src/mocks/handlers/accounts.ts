@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { mockAccounts } from '@/mocks/seeds';
-import type { Account, AccountFilters, CreateAccountPayload, UpdateAccountPayload } from '@/types/account';
+import type { Account, CreateAccountPayload, UpdateAccountPayload } from '@/types/account';
 
 export const accountsHandlers = [
   http.get('/api/accounts', ({ request }) => {
