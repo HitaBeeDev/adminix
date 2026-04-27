@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { ClipboardList, Download } from 'lucide-react';
-import { useActivity } from '@/hooks/useActivity';
+import { fetchAllActivity, useActivity } from '@/hooks/useActivity';
 import { useUsers } from '@/hooks/useUsers';
-import { fetchActivity } from '@/api/activity';
 import ErrorState from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
 import { getErrorMessage } from '@/lib/errors';
 import { toast } from '@/stores/toastStore';
-import type { ActionType, ActivityEvent } from '@/types/activity';
+import type { ActionType, ActivityEvent, ActivityFilters } from '@/types/activity';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -71,22 +70,13 @@ function formatRelative(iso: string) {
 
 // ─── CSV Export ───────────────────────────────────────────────────────────────
 
-type ActivityFetchFilters = Parameters<typeof fetchActivity>[0];
-
 function csvCell(value: string | undefined) {
   const text = value ?? '';
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
-async function exportCsv(filters: ActivityFetchFilters) {
-  const firstPage = await fetchActivity({ ...filters, page: 1, pageSize: 100 });
-  const events = [...firstPage.data];
-
-  for (let page = 2; page <= firstPage.totalPages; page += 1) {
-    const nextPage = await fetchActivity({ ...filters, page, pageSize: firstPage.pageSize });
-    events.push(...nextPage.data);
-  }
-
+async function exportCsv(filters: ActivityFilters) {
+  const events = await fetchAllActivity(filters);
   const rows = [
     ['Timestamp', 'Actor', 'Email', 'Action', 'Target', 'IP'].join(','),
     ...events.map((e) =>

@@ -3,7 +3,7 @@ import { useLocation, Link, useNavigate } from "react-router";
 import { useTheme } from "@/lib/theme";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
-import { logout as logoutRequest } from "@/api/auth";
+import { useLogout } from "@/hooks/useAuth";
 
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
@@ -66,7 +66,7 @@ export default function Topbar() {
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const logout = useLogout();
   const navigate = useNavigate();
 
   const notifRef = useRef<HTMLDivElement>(null);
@@ -112,8 +112,7 @@ export default function Topbar() {
     .toUpperCase();
 
   async function handleLogout() {
-    await logoutRequest().catch(() => undefined);
-    logout();
+    await logout.mutateAsync();
     setUserMenuOpen(false);
     navigate("/login", { replace: true });
   }

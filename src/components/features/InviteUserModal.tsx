@@ -1,9 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery } from '@tanstack/react-query';
 import Modal from '@/components/ui/Modal';
-import { fetchAccounts } from '@/api/accounts';
+import { useAccountOptions } from '@/hooks/useAccounts';
 import { useCreateUser } from '@/hooks/useUsers';
 import { toast } from '@/stores/toastStore';
 import { cn } from '@/lib/utils';
@@ -47,11 +46,7 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
     isError: isAccountsError,
     error: accountsError,
     refetch: refetchAccounts,
-  } = useQuery({
-    queryKey: ['accounts', { pageSize: 100 }],
-    queryFn: () => fetchAccounts({ pageSize: 100 }),
-    enabled: open,
-  });
+  } = useAccountOptions(open);
 
   const {
     register,

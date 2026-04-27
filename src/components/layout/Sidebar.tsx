@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router";
 import { LogOut } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
-import { logout as logoutRequest } from "@/api/auth";
+import { useLogout } from "@/hooks/useAuth";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", short: "DB" },
@@ -21,7 +21,7 @@ export default function Sidebar() {
   const mobileOpen = useUiStore((s) => s.mobileOpen);
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
+  const logout = useLogout();
   const navigate = useNavigate();
 
   const userName = user?.name ?? "Admin User";
@@ -44,8 +44,7 @@ export default function Sidebar() {
   }, [setCollapsed]);
 
   async function handleLogout() {
-    await logoutRequest().catch(() => undefined);
-    logout();
+    await logout.mutateAsync();
     setMobileOpen(false);
     navigate("/login", { replace: true });
   }

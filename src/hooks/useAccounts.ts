@@ -18,6 +18,14 @@ export function useAccount(id: string) {
   });
 }
 
+export function useAccountOptions(enabled = true) {
+  return useQuery({
+    queryKey: ['accounts', { pageSize: 100 }],
+    queryFn: () => fetchAccounts({ pageSize: 100 }),
+    enabled,
+  });
+}
+
 export function useCreateAccount() {
   const qc = useQueryClient();
   return useMutation({
