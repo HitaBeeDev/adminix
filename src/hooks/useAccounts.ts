@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAccounts, fetchAccount, createAccount, updateAccount } from '@/api/accounts';
+import { fetchAccounts, fetchAccount, createAccount, updateAccount, deleteAccount } from '@/api/accounts';
 import type { AccountFilters, CreateAccountPayload, UpdateAccountPayload } from '@/types/account';
 
 export function useAccounts(filters: AccountFilters = {}) {
@@ -26,11 +26,27 @@ export function useCreateAccount() {
   });
 }
 
+export function useUpdateAccount(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateAccountPayload) => updateAccount(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['accounts'] }),
+  });
+}
+
 export function useUpdateAccountInline() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateAccountPayload }) =>
       updateAccount(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['accounts'] }),
+  });
+}
+
+export function useDeleteAccount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteAccount(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['accounts'] }),
   });
 }

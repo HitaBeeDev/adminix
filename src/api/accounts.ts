@@ -41,3 +41,8 @@ export async function updateAccount(id: string, payload: UpdateAccountPayload): 
   if (!res.ok) throw new Error('Failed to update account');
   return res.json() as Promise<Account>;
 }
+
+export async function deleteAccount(id: string): Promise<void> {
+  const res = await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete account');
+}

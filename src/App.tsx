@@ -8,6 +8,7 @@ import RolesPage from "@/pages/RolesPage";
 import ActivityPage from "@/pages/ActivityPage";
 import ReportsPage from "@/pages/ReportsPage";
 import UserDetailPage from "@/pages/UserDetailPage";
+import AccountDetailPage from "@/pages/AccountDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/accounts" element={<AccountsPage />} />
+          <Route path="/accounts/:id" element={<AccountDetailPage />} />
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/activity" element={<ActivityPage />} />
           <Route path="/reports" element={<ReportsPage />} />

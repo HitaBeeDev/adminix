@@ -88,4 +88,13 @@ export const accountsHandlers = [
 
     return HttpResponse.json(updated);
   }),
+
+  http.delete('/api/accounts/:id', ({ params }) => {
+    const index = mockAccounts.findIndex((a) => a.id === params.id);
+    if (index === -1) {
+      return HttpResponse.json({ message: 'Account not found' }, { status: 404 });
+    }
+    mockAccounts.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
 ];

@@ -34,6 +34,7 @@ export interface UserFilters {
   search?: string;
   role?: UserRole | '';
   status?: UserStatus | '';
+  accountId?: string;
   sortBy?: keyof Pick<User, 'name' | 'email' | 'role' | 'status' | 'lastActive' | 'dateJoined'>;
   sortDir?: 'asc' | 'desc';
   page?: number;

@@ -2,13 +2,14 @@ import type { PaginatedUsers, UserFilters, CreateUserPayload, UpdateUserPayload,
 
 function buildQuery(filters: UserFilters): string {
   const params = new URLSearchParams();
-  if (filters.search)   params.set('search', filters.search);
-  if (filters.role)     params.set('role', filters.role);
-  if (filters.status)   params.set('status', filters.status);
-  if (filters.sortBy)   params.set('sortBy', filters.sortBy);
-  if (filters.sortDir)  params.set('sortDir', filters.sortDir);
-  if (filters.page)     params.set('page', String(filters.page));
-  if (filters.pageSize) params.set('pageSize', String(filters.pageSize));
+  if (filters.search)    params.set('search', filters.search);
+  if (filters.role)      params.set('role', filters.role);
+  if (filters.status)    params.set('status', filters.status);
+  if (filters.accountId) params.set('accountId', filters.accountId);
+  if (filters.sortBy)    params.set('sortBy', filters.sortBy);
+  if (filters.sortDir)   params.set('sortDir', filters.sortDir);
+  if (filters.page)      params.set('page', String(filters.page));
+  if (filters.pageSize)  params.set('pageSize', String(filters.pageSize));
   return params.toString();
 }
 

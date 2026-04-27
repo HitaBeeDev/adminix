@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ChevronRight, Shield, Clock, Pencil, X, Check,
-  ShieldCheck, ShieldOff, Fingerprint, Key, Monitor,
+  ShieldCheck, ShieldOff, Fingerprint, Monitor,
   Smartphone, Globe, RotateCcw,
 } from 'lucide-react';
 import { useUser, useUpdateUser, useDeleteUser } from '@/hooks/useUsers';

@@ -6,17 +6,21 @@ export const usersHandlers = [
   http.get('/api/users', ({ request }) => {
     const url = new URL(request.url);
 
-    const search   = url.searchParams.get('search')?.toLowerCase() ?? '';
-    const role     = url.searchParams.get('role') ?? '';
-    const status   = url.searchParams.get('status') ?? '';
-    const sortBy   = (url.searchParams.get('sortBy') ?? 'name') as UserFilters['sortBy'];
-    const sortDir  = (url.searchParams.get('sortDir') ?? 'asc') as 'asc' | 'desc';
-    const page     = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
-    const pageSize = Math.min(100, parseInt(url.searchParams.get('pageSize') ?? '10', 10));
+    const search    = url.searchParams.get('search')?.toLowerCase() ?? '';
+    const role      = url.searchParams.get('role') ?? '';
+    const status    = url.searchParams.get('status') ?? '';
+    const accountId = url.searchParams.get('accountId') ?? '';
+    const sortBy    = (url.searchParams.get('sortBy') ?? 'name') as UserFilters['sortBy'];
+    const sortDir   = (url.searchParams.get('sortDir') ?? 'asc') as 'asc' | 'desc';
+    const page      = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+    const pageSize  = Math.min(100, parseInt(url.searchParams.get('pageSize') ?? '10', 10));
 
     let results: User[] = [...mockUsers];
 
     // --- Filter ---
+    if (accountId) {
+      results = results.filter((u) => u.accountId === accountId);
+    }
     if (search) {
       results = results.filter(
         (u) =>
