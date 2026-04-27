@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 type ReportType   = 'Users' | 'Accounts' | 'Activity';
 type ReportFormat = 'CSV' | 'JSON';
 type ReportStatus = 'ready' | 'generating';
+type ReportTypeFilter = ReportType | '';
 
 interface Report {
   id: string;
@@ -35,6 +36,11 @@ const INITIAL_REPORTS: Report[] = [
   { id: 'r5', name: 'Login Audit Log',             type: 'Activity', dateRange: 'Last 30 days',        format: 'CSV',  generated: '2026-04-08T07:00:00Z', status: 'ready', rows: 1042 },
   { id: 'r6', name: 'Permission Change Activity',  type: 'Activity', dateRange: 'Q1 2026',             format: 'JSON', generated: '2026-04-03T16:20:00Z', status: 'ready', rows: 55   },
 ];
+
+const reportFilterSchema = z.object({
+  typeFilter: z.enum(['', 'Users', 'Accounts', 'Activity']),
+});
+type ReportFilterValues = z.infer<typeof reportFilterSchema>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -288,10 +294,14 @@ function RowSkeleton() {
 
 export default function ReportsPage() {
   const [reports, setReports]         = useState<Report[]>(INITIAL_REPORTS);
-  const [typeFilter, setTypeFilter]   = useState<ReportType | ''>('');
   const [generateOpen, setGenerateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [isLoading, setIsLoading]     = useState(true);
+  const { control: filterControl, setValue: setFilterValue } = useForm<ReportFilterValues>({
+    resolver: zodResolver(reportFilterSchema),
+    defaultValues: { typeFilter: '' },
+  });
+  const typeFilter = useWatch({ control: filterControl, name: 'typeFilter' }) ?? '';
 
   // Simulate initial table fetch
   useEffect(() => {
@@ -356,8 +366,8 @@ export default function ReportsPage() {
 
       {/* Type filter */}
       <div className="flex items-center gap-2 flex-wrap">
-        {(['', 'Users', 'Accounts', 'Activity'] as (ReportType | '')[]).map((type) => (
-          <button key={type} onClick={() => setTypeFilter(type)}
+        {(['', 'Users', 'Accounts', 'Activity'] as ReportTypeFilter[]).map((type) => (
+          <button key={type} onClick={() => setFilterValue('typeFilter', type, { shouldValidate: true })}
             className={cn(
               'px-3 py-1.5 text-sm rounded-lg border transition-colors',
               typeFilter === type
@@ -399,7 +409,7 @@ export default function ReportsPage() {
                         </p>
                       </div>
                       {typeFilter ? (
-                        <button onClick={() => setTypeFilter('')} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+                        <button onClick={() => setFilterValue('typeFilter', '', { shouldValidate: true })} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
                           Clear filter
                         </button>
                       ) : (

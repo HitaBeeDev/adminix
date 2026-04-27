@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -42,6 +42,21 @@ const profileSchema = z.object({
   bio:   z.string().max(200, 'Max 200 characters').optional(),
 });
 type ProfileValues = z.infer<typeof profileSchema>;
+
+const appearanceSchema = z.object({
+  density: z.enum(['compact', 'comfortable', 'spacious']),
+});
+type AppearanceValues = z.infer<typeof appearanceSchema>;
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, 'Enter your current password'),
+  newPassword: z.string().min(8, 'Use at least 8 characters'),
+  confirmPassword: z.string().min(1, 'Confirm your new password'),
+}).refine((values) => values.newPassword === values.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+type PasswordValues = z.infer<typeof passwordSchema>;
 
 function ProfileTab() {
   const user = useAuthStore((s) => s.user);
@@ -247,7 +262,11 @@ const DENSITY_OPTIONS = [
 
 function AppearanceTab() {
   const { theme, setTheme } = useTheme();
-  const [density, setDensity] = useState<'compact' | 'comfortable' | 'spacious'>('comfortable');
+  const { register, control } = useForm<AppearanceValues>({
+    resolver: zodResolver(appearanceSchema),
+    defaultValues: { density: 'comfortable' },
+  });
+  const density = useWatch({ control, name: 'density' }) ?? 'comfortable';
 
   function applyTheme(value: ThemeOption) {
     setTheme(value);
@@ -316,10 +335,8 @@ function AppearanceTab() {
             >
               <input
                 type="radio"
-                name="density"
                 value={value}
-                checked={density === value}
-                onChange={() => setDensity(value)}
+                {...register('density')}
                 className="accent-indigo-600"
               />
               <div>
@@ -369,6 +386,21 @@ function SecurityTab() {
   const [showQr, setShowQr] = useState(false);
   const [sessions, setSessions] = useState<Session[]>(MOCK_SESSIONS);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    reset: resetPassword,
+    formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
+  } = useForm<PasswordValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
+  });
+
+  async function updatePassword() {
+    await new Promise((r) => setTimeout(r, 600));
+    resetPassword();
+    toast.success('Password changed successfully.');
+  }
 
   function handleToggle2FA() {
     if (twoFaEnabled) {
@@ -400,27 +432,31 @@ function SecurityTab() {
       <div className={sectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Password</h3>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">Update your account password</p>
-        <div className="space-y-3 max-w-sm">
+        <form onSubmit={handlePasswordSubmit(updatePassword)} className="space-y-3 max-w-sm">
           <div>
             <label className={labelClass}>Current Password</label>
-            <input type="password" className={fieldClass} placeholder="••••••••" />
+            <input type="password" {...registerPassword('currentPassword')} className={fieldClass} placeholder="••••••••" />
+            {passwordErrors.currentPassword && <p className={errorClass}>{passwordErrors.currentPassword.message}</p>}
           </div>
           <div>
             <label className={labelClass}>New Password</label>
-            <input type="password" className={fieldClass} placeholder="••••••••" />
+            <input type="password" {...registerPassword('newPassword')} className={fieldClass} placeholder="••••••••" />
+            {passwordErrors.newPassword && <p className={errorClass}>{passwordErrors.newPassword.message}</p>}
           </div>
           <div>
             <label className={labelClass}>Confirm New Password</label>
-            <input type="password" className={fieldClass} placeholder="••••••••" />
+            <input type="password" {...registerPassword('confirmPassword')} className={fieldClass} placeholder="••••••••" />
+            {passwordErrors.confirmPassword && <p className={errorClass}>{passwordErrors.confirmPassword.message}</p>}
           </div>
           <button
-            onClick={() => toast.success('Password changed successfully.')}
+            type="submit"
+            disabled={isPasswordSubmitting}
             className="mt-1 flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
           >
             <Key size={14} />
-            Update Password
+            {isPasswordSubmitting ? 'Updating...' : 'Update Password'}
           </button>
-        </div>
+        </form>
       </div>
 
       {/* 2FA */}

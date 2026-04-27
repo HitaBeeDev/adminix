@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useNavigate } from "react-router";
 
 const allItems = [
@@ -16,6 +19,12 @@ interface CommandPaletteProps {
   onClose: () => void;
 }
 
+const commandSearchSchema = z.object({
+  query: z.string(),
+});
+
+type CommandSearchValues = z.infer<typeof commandSearchSchema>;
+
 export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
   if (!open) return null;
 
@@ -23,10 +32,13 @@ export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
 }
 
 function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">) {
-  const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { register, control, setFocus } = useForm<CommandSearchValues>({
+    resolver: zodResolver(commandSearchSchema),
+    defaultValues: { query: "" },
+  });
+  const query = useWatch({ control, name: "query" }) ?? "";
 
   const filtered = allItems.filter((item) =>
     item.label.toLowerCase().includes(query.toLowerCase()) ||
@@ -34,8 +46,8 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
   );
 
   useEffect(() => {
-    setTimeout(() => inputRef.current?.focus(), 10);
-  }, []);
+    setTimeout(() => setFocus("query"), 10);
+  }, [setFocus]);
 
   function handleSelect(path: string) {
     navigate(path);
@@ -72,12 +84,7 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <span className="text-gray-400 dark:text-gray-500 text-sm">⌘</span>
           <input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActiveIndex(0);
-            }}
+            {...register("query", { onChange: () => setActiveIndex(0) })}
             onKeyDown={handleKeyDown}
             placeholder="Search pages..."
             className="flex-1 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none bg-transparent"
