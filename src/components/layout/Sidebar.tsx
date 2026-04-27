@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { LogOut } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
@@ -33,6 +34,15 @@ export default function Sidebar() {
     .join("")
     .toUpperCase();
 
+  // Collapse automatically on md (768–1023 px), expand on lg+
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setCollapsed(!mql.matches);
+    const handler = (e: MediaQueryListEvent) => setCollapsed(!e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [setCollapsed]);
+
   async function handleLogout() {
     await logoutRequest().catch(() => undefined);
     logout();
@@ -58,7 +68,7 @@ export default function Sidebar() {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-white transition-colors shrink-0 ${collapsed ? "mx-auto" : "ml-auto"}`}
           >
             {collapsed ? "→" : "←"}

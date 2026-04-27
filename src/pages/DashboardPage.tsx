@@ -260,146 +260,151 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Registrations Line Chart */}
-      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-          User Registrations
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">New sign-ups over the last 12 months</p>
+      {/* Charts — 2-col on lg+, stack on mobile */}
+      {!isError && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Registrations Line Chart — spans full width */}
+          <div className="lg:col-span-2 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              User Registrations
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">New sign-ups over the last 12 months</p>
 
-        {isLoading ? (
-          <ChartSkeleton variant="line" />
-        ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={data?.registrationsByMonth} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" />
-              <XAxis
-                dataKey="month"
-                tick={{ fontSize: 12, fill: 'currentColor' }}
-                className="text-gray-400 dark:text-gray-500"
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ fontSize: 12, fill: 'currentColor' }}
-                className="text-gray-400 dark:text-gray-500"
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg)',
-                  border: '1px solid var(--tooltip-border)',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                }}
-                labelStyle={{ fontWeight: 600 }}
-                cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="registrations"
-                stroke="#6366f1"
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: '#6366f1', strokeWidth: 0 }}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </div>}
+            {isLoading ? (
+              <ChartSkeleton variant="line" />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={data?.registrationsByMonth} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                    className="text-gray-400 dark:text-gray-500"
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                    className="text-gray-400 dark:text-gray-500"
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--tooltip-bg)',
+                      border: '1px solid var(--tooltip-border)',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.8125rem',
+                    }}
+                    labelStyle={{ fontWeight: 600 }}
+                    cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="registrations"
+                    stroke="#6366f1"
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#6366f1', strokeWidth: 0 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
-      {/* Users by Role Donut Chart */}
-      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-          Users by Role
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Distribution across permission levels</p>
+          {/* Users by Role Donut Chart */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Users by Role
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Distribution across permission levels</p>
 
-        {isLoading ? (
-          <ChartSkeleton variant="donut" />
-        ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              <Pie
-                data={data?.usersByRole}
-                dataKey="count"
-                nameKey="role"
-                innerRadius="55%"
-                outerRadius="80%"
-                paddingAngle={3}
-              >
-                {data?.usersByRole.map((entry) => (
-                  <Cell key={entry.role} fill={ROLE_COLORS[entry.role] ?? '#94a3b8'} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value, name) => [
-                  Number(value ?? 0),
-                  ROLE_LABELS[String(name)] ?? String(name),
-                ]}
-                contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg)',
-                  border: '1px solid var(--tooltip-border)',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                }}
-              />
-              <Legend
-                formatter={(value) => (
-                  <span style={{ fontSize: '0.75rem', color: 'inherit' }}>
-                    {ROLE_LABELS[value] ?? value}
-                  </span>
-                )}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
-      </div>}
+            {isLoading ? (
+              <ChartSkeleton variant="donut" />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={data?.usersByRole}
+                    dataKey="count"
+                    nameKey="role"
+                    innerRadius="55%"
+                    outerRadius="80%"
+                    paddingAngle={3}
+                  >
+                    {data?.usersByRole.map((entry) => (
+                      <Cell key={entry.role} fill={ROLE_COLORS[entry.role] ?? '#94a3b8'} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name) => [
+                      Number(value ?? 0),
+                      ROLE_LABELS[String(name)] ?? String(name),
+                    ]}
+                    contentStyle={{
+                      backgroundColor: 'var(--tooltip-bg)',
+                      border: '1px solid var(--tooltip-border)',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.8125rem',
+                    }}
+                  />
+                  <Legend
+                    formatter={(value) => (
+                      <span style={{ fontSize: '0.75rem', color: 'inherit' }}>
+                        {ROLE_LABELS[value] ?? value}
+                      </span>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
-      {/* Activity by Day of Week Bar Chart */}
-      {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-          Activity by Day of Week
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Total audit events per weekday</p>
+          {/* Activity by Day of Week Bar Chart */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Activity by Day of Week
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Total audit events per weekday</p>
 
-        {isLoading ? (
-          <ChartSkeleton variant="bar" />
-        ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={data?.activityByDayOfWeek} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" vertical={false} />
-              <XAxis
-                dataKey="day"
-                tick={{ fontSize: 12, fill: 'currentColor' }}
-                className="text-gray-400 dark:text-gray-500"
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                allowDecimals={false}
-                tick={{ fontSize: 12, fill: 'currentColor' }}
-                className="text-gray-400 dark:text-gray-500"
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg)',
-                  border: '1px solid var(--tooltip-border)',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                }}
-                labelStyle={{ fontWeight: 600 }}
-                cursor={{ fill: 'rgb(243 244 246)' }}
-              />
-              <Bar dataKey="events" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={48} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>}
+            {isLoading ? (
+              <ChartSkeleton variant="bar" />
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={data?.activityByDayOfWeek} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" vertical={false} />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                    className="text-gray-400 dark:text-gray-500"
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 12, fill: 'currentColor' }}
+                    className="text-gray-400 dark:text-gray-500"
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--tooltip-bg)',
+                      border: '1px solid var(--tooltip-border)',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.8125rem',
+                    }}
+                    labelStyle={{ fontWeight: 600 }}
+                    cursor={{ fill: 'rgb(243 244 246)' }}
+                  />
+                  <Bar dataKey="events" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={48} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Recent Activity Feed */}
       {!isError && <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">

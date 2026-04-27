@@ -366,6 +366,7 @@ export default function AccountDetailPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400">No members found</p>
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40">
@@ -418,6 +419,7 @@ export default function AccountDetailPage() {
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 
