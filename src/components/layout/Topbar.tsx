@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, Link } from "react-router";
+import { useLocation, Link, useNavigate } from "react-router";
 import { useTheme } from "@/lib/theme";
 import { useUiStore } from "@/stores/uiStore";
+import { useAuthStore } from "@/stores/authStore";
+import { logout as logoutRequest } from "@/api/auth";
 
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
@@ -9,6 +11,7 @@ const segmentLabels: Record<string, string> = {
   accounts: "Accounts",
   roles: "Roles",
   activity: "Activity",
+  reports: "Reports",
   settings: "Settings",
 };
 
@@ -62,6 +65,9 @@ export default function Topbar() {
   const { resolvedTheme, toggleTheme } = useTheme();
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -94,6 +100,23 @@ export default function Topbar() {
   }
 
   const darkMode = resolvedTheme === "dark";
+  const userName = user?.name ?? "Admin User";
+  const userEmail = user?.email ?? "admin@adminix.io";
+  const firstName = userName.split(/\s+/)[0] ?? "Admin";
+  const initials = userName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  async function handleLogout() {
+    await logoutRequest().catch(() => undefined);
+    logout();
+    setUserMenuOpen(false);
+    navigate("/login", { replace: true });
+  }
 
   return (
     <div className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 relative">
@@ -236,9 +259,9 @@ export default function Topbar() {
             className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-              AE
+              {initials}
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">Ali</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">{firstName}</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -249,11 +272,11 @@ export default function Topbar() {
               {/* user info header */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                 <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
-                  AE
+                  {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Ali Etebari</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">ali@adminix.io</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{userName}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{userEmail}</p>
                 </div>
               </div>
 
@@ -284,7 +307,10 @@ export default function Topbar() {
               </div>
 
               <div className="border-t border-gray-100 dark:border-gray-700 py-1">
-                <button className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />

@@ -7,6 +7,7 @@ const allItems = [
   { label: "Accounts", path: "/accounts", description: "Manage organizations" },
   { label: "Roles", path: "/roles", description: "Permissions matrix" },
   { label: "Activity", path: "/activity", description: "Audit log" },
+  { label: "Reports", path: "/reports", description: "Exports & analytics" },
   { label: "Settings", path: "/settings", description: "Profile & preferences" },
 ];
 

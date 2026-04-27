@@ -1,13 +1,8 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { LogOut } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
-
-// placeholder until auth store is wired up
-const MOCK_USER = {
-  name: "Ali Etebari",
-  email: "ali@adminix.io",
-  role: "Super Admin",
-  initials: "AE",
-};
+import { useAuthStore } from "@/stores/authStore";
+import { logout as logoutRequest } from "@/api/auth";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", short: "DB" },
@@ -24,6 +19,26 @@ export default function Sidebar() {
   const setCollapsed = useUiStore((s) => s.setSidebarCollapsed);
   const mobileOpen = useUiStore((s) => s.mobileOpen);
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const navigate = useNavigate();
+
+  const userName = user?.name ?? "Admin User";
+  const userRole = user?.role.replace(/_/g, " ") ?? "admin";
+  const initials = userName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  async function handleLogout() {
+    await logoutRequest().catch(() => undefined);
+    logout();
+    setMobileOpen(false);
+    navigate("/login", { replace: true });
+  }
 
   return (
     <>
@@ -77,29 +92,35 @@ export default function Sidebar() {
           {collapsed ? (
             <div className="flex flex-col items-center gap-2">
               <div
-                title={`${MOCK_USER.name} — ${MOCK_USER.role}`}
+                title={`${userName} - ${userRole}`}
                 className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0"
               >
-                {MOCK_USER.initials}
+                {initials}
               </div>
               <button
                 title="Logout"
-                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                onClick={handleLogout}
+                aria-label="Logout"
+                className="text-red-400 hover:text-red-300 transition-colors"
               >
-                Lo
+                <LogOut size={16} />
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {MOCK_USER.initials}
+                {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white truncate">{MOCK_USER.name}</div>
-                <div className="text-xs text-gray-400 truncate">{MOCK_USER.role}</div>
+                <div className="text-sm font-medium text-white truncate">{userName}</div>
+                <div className="text-xs text-gray-400 truncate capitalize">{userRole}</div>
               </div>
-              <button className="text-xs text-red-400 hover:text-red-300 transition-colors shrink-0">
-                Out
+              <button
+                onClick={handleLogout}
+                aria-label="Logout"
+                className="text-red-400 hover:text-red-300 transition-colors shrink-0"
+              >
+                <LogOut size={16} />
               </button>
             </div>
           )}
@@ -114,6 +135,7 @@ export default function Sidebar() {
           <span className="text-xl font-bold">Adminix</span>
           <button
             onClick={() => setMobileOpen(false)}
+            aria-label="Close navigation"
             className="text-gray-400 hover:text-white text-sm"
           >
             X
@@ -138,14 +160,18 @@ export default function Sidebar() {
         <div className="p-3 border-t border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-              {MOCK_USER.initials}
+              {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{MOCK_USER.name}</div>
-              <div className="text-xs text-gray-400 truncate">{MOCK_USER.role}</div>
+              <div className="text-sm font-medium text-white truncate">{userName}</div>
+              <div className="text-xs text-gray-400 truncate capitalize">{userRole}</div>
             </div>
-            <button className="text-xs text-red-400 hover:text-red-300 transition-colors shrink-0">
-              Out
+            <button
+              onClick={handleLogout}
+              aria-label="Logout"
+              className="text-red-400 hover:text-red-300 transition-colors shrink-0"
+            >
+              <LogOut size={16} />
             </button>
           </div>
         </div>
