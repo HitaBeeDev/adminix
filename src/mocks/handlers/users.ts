@@ -19,6 +19,11 @@ const createdUsers: User[] = [];
 const userOverrides = new Map<string, UpdateUserPayload>();
 const deletedUserIds = new Set<string>();
 
+type UserRef =
+  | { type: 'seed'; user: User }
+  | { type: 'generated'; index: number }
+  | { type: 'created'; user: User };
+
 function seededRandom(seed: number) {
   let value = seed;
   return () => {
@@ -71,21 +76,44 @@ function makeGeneratedUser(index: number): User {
   return { ...user, ...userOverrides.get(id) };
 }
 
-function getSeedUsers(): User[] {
-  return mockUsers
-    .filter((user) => !deletedUserIds.has(user.id))
-    .map((user) => ({ ...user, ...userOverrides.get(user.id) }));
+function getUserRefs(): UserRef[] {
+  const refs: UserRef[] = [];
+
+  for (const user of mockUsers) {
+    if (!deletedUserIds.has(user.id)) refs.push({ type: 'seed', user });
+  }
+
+  for (let index = mockUsers.length + 1; index <= GENERATED_USER_TARGET; index += 1) {
+    if (!deletedUserIds.has(generatedUserId(index))) refs.push({ type: 'generated', index });
+  }
+
+  for (const user of createdUsers) {
+    refs.push({ type: 'created', user });
+  }
+
+  return refs;
 }
 
-function getGeneratedUsers(): User[] {
-  return Array.from(
-    { length: GENERATED_USER_TARGET - mockUsers.length },
-    (_, offset) => makeGeneratedUser(mockUsers.length + offset + 1),
-  ).filter((user) => !deletedUserIds.has(user.id));
+function resolveUserRef(ref: UserRef, generatedCache: Map<number, User>) {
+  if (ref.type === 'generated') {
+    const cached = generatedCache.get(ref.index);
+    if (cached) return cached;
+
+    const generated = makeGeneratedUser(ref.index);
+    generatedCache.set(ref.index, generated);
+    return generated;
+  }
+
+  return { ...ref.user, ...userOverrides.get(ref.user.id) };
 }
 
-function getAllUsers() {
-  return [...getSeedUsers(), ...getGeneratedUsers(), ...createdUsers];
+function isEmailTaken(email: string, excludeUserId?: string) {
+  const generatedCache = new Map<number, User>();
+
+  return getUserRefs().some((ref) => {
+    const user = resolveUserRef(ref, generatedCache);
+    return user.email === email && user.id !== excludeUserId;
+  });
 }
 
 function getUserById(id: string) {
@@ -114,42 +142,50 @@ export const usersHandlers = [
     const page      = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
     const pageSize  = Math.min(100_000, parseInt(url.searchParams.get('pageSize') ?? '10', 10));
 
-    let results: User[] = getAllUsers();
+    const generatedCache = new Map<number, User>();
+    let results = getUserRefs();
 
     // --- Filter ---
     if (accountId) {
-      results = results.filter((u) => u.accountId === accountId);
+      results = results.filter((ref) => resolveUserRef(ref, generatedCache).accountId === accountId);
     }
     if (search) {
-      results = results.filter(
-        (u) =>
-          u.name.toLowerCase().includes(search) ||
-          u.email.toLowerCase().includes(search),
-      );
+      results = results.filter((ref) => {
+        const user = resolveUserRef(ref, generatedCache);
+        return (
+          user.name.toLowerCase().includes(search) ||
+          user.email.toLowerCase().includes(search)
+        );
+      });
     }
-    if (role) {
-      results = results.filter((u) => u.role === role);
-    }
-    if (status) {
-      results = results.filter((u) => u.status === status);
+    if (role || status) {
+      results = results.filter((ref) => {
+        const user = resolveUserRef(ref, generatedCache);
+        return (
+          (!role || user.role === role) &&
+          (!status || user.status === status)
+        );
+      });
     }
 
-    // --- Sort ---
     if (sortBy) {
       results.sort((a, b) => {
-        const aVal = a[sortBy] ?? '';
-        const bVal = b[sortBy] ?? '';
+        const userA = resolveUserRef(a, generatedCache);
+        const userB = resolveUserRef(b, generatedCache);
+        const aVal = userA[sortBy] ?? '';
+        const bVal = userB[sortBy] ?? '';
         const cmp  = String(aVal).localeCompare(String(bVal));
         return sortDir === 'asc' ? cmp : -cmp;
       });
     }
 
-    // --- Paginate ---
     const total      = results.length;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
     const safePage   = Math.min(page, totalPages);
     const start      = (safePage - 1) * pageSize;
-    const data       = results.slice(start, start + pageSize);
+    const data       = results
+      .slice(start, start + pageSize)
+      .map((ref) => resolveUserRef(ref, generatedCache));
 
     return HttpResponse.json({
       data,
@@ -178,7 +214,7 @@ export const usersHandlers = [
       return HttpResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
-    const emailTaken = getAllUsers().some((u) => u.email === body.email);
+    const emailTaken = isEmailTaken(body.email);
     if (emailTaken) {
       return HttpResponse.json({ message: 'Email already in use' }, { status: 409 });
     }
@@ -212,9 +248,7 @@ export const usersHandlers = [
     const body = await request.json() as UpdateUserPayload;
 
     if (body.email) {
-      const emailTaken = getAllUsers().some(
-        (u) => u.email === body.email && u.id !== id,
-      );
+      const emailTaken = isEmailTaken(body.email, id);
       if (emailTaken) {
         return HttpResponse.json({ message: 'Email already in use' }, { status: 409 });
       }

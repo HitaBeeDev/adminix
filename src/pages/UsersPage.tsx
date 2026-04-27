@@ -240,10 +240,14 @@ export default function UsersPage() {
   });
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   // Clear selection when page/filters change
   const pageKey = searchParams.toString();
-  useEffect(() => { setSelected(new Set()); }, [pageKey]);
+  useEffect(() => {
+    setSelected(new Set());
+    setExpanded(new Set());
+  }, [pageKey]);
 
   const allLoadedSelected = users.length > 0 && users.every((u) => selected.has(u.id));
   const someLoadedSelected = users.some((u) => selected.has(u.id)) && !allLoadedSelected;
@@ -266,6 +270,15 @@ export default function UsersPage() {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }
+
+  function toggleExpanded(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+    window.requestAnimationFrame(() => rowVirtualizer.measure());
   }
 
   return (
@@ -428,6 +441,7 @@ export default function UsersPage() {
                   {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                     const user = users[virtualRow.index];
                     if (!user) return null;
+                    const isExpanded = expanded.has(user.id);
 
                     return (
                       <div
@@ -455,14 +469,25 @@ export default function UsersPage() {
                           />
                         </div>
                         <div className="px-4 py-3 min-w-0">
-                          <Link to={`/users/${user.id}`} className="flex items-center gap-3 group min-w-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <button
+                              type="button"
+                              onClick={() => toggleExpanded(user.id)}
+                              aria-label={isExpanded ? `Collapse ${user.name}` : `Expand ${user.name}`}
+                              aria-expanded={isExpanded}
+                              className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition-colors"
+                            >
+                              <ChevronDown size={14} className={cn('transition-transform', isExpanded ? 'rotate-0' : '-rotate-90')} />
+                            </button>
+                            <Link to={`/users/${user.id}`} className="flex items-center gap-3 group min-w-0">
                             <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
                               {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
                             </div>
                             <span className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                               {user.name}
                             </span>
-                          </Link>
+                            </Link>
+                          </div>
                         </div>
                         <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
                         <div className="px-4 py-3 flex items-center text-gray-600 dark:text-gray-300">{ROLE_LABELS[user.role]}</div>
@@ -489,6 +514,31 @@ export default function UsersPage() {
                             }}
                           />
                         </div>
+                        {isExpanded && (
+                          <div className="col-span-full border-t border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-950/30 px-4 py-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+                              <div>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">User ID</p>
+                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.id}</p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">Account</p>
+                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.accountId ?? 'Unassigned'}</p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">Last active</p>
+                                <p className="mt-1 text-gray-800 dark:text-gray-100">{formatDate(user.lastActive)}</p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">Security</p>
+                                <p className="mt-1 text-gray-800 dark:text-gray-100">
+                                  {user.twoFactorEnabled ? '2FA enabled' : '2FA disabled'}
+                                  {user.lastIp ? ` · ${user.lastIp}` : ''}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

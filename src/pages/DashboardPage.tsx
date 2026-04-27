@@ -1,4 +1,4 @@
-import { Users, UserCheck, UserPlus, UserX, UserRoundPlus, Building2, ShieldPlus, ScrollText } from 'lucide-react';
+import { Users, UserCheck, UserPlus, UserX, UserRoundPlus, Building2, ShieldPlus, ScrollText, TrendingDown, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router';
 import type { ActivityEvent } from '@/types/activity';
 import {
@@ -36,6 +36,12 @@ const ROLE_LABELS: Record<string, string> = {
   editor:      'Editor',
   viewer:      'Viewer',
   guest:       'Guest',
+};
+
+type KpiTrend = {
+  delta: string;
+  direction: 'up' | 'down';
+  label: string;
 };
 
 const QUICK_ACTIONS = [
@@ -159,21 +165,40 @@ interface KpiCardProps {
   value: number | undefined;
   icon: React.ElementType;
   color: string;
+  trend: KpiTrend;
   loading: boolean;
 }
 
-function KpiCard({ label, value, icon: Icon, color, loading }: KpiCardProps) {
+function KpiCard({ label, value, icon: Icon, color, trend, loading }: KpiCardProps) {
+  const TrendIcon = trend.direction === 'up' ? TrendingUp : TrendingDown;
+
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex items-center gap-5">
       <div className={cn('flex-shrink-0 rounded-xl p-3', color)}>
         <Icon size={22} className="text-white" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{label}</p>
         {loading ? (
-          <div className="mt-1 h-7 w-16 rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
+          <div className="mt-1 space-y-2">
+            <div className="h-7 w-16 rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
+            <div className="h-5 w-28 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
+          </div>
         ) : (
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{value ?? '—'}</p>
+          <>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value ?? '—'}</p>
+            <span
+              className={cn(
+                'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
+                trend.direction === 'up'
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                  : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+              )}
+            >
+              <TrendIcon size={12} />
+              {trend.delta} {trend.label}
+            </span>
+          </>
         )}
       </div>
     </div>
@@ -183,30 +208,34 @@ function KpiCard({ label, value, icon: Icon, color, loading }: KpiCardProps) {
 export default function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useDashboardStats();
 
-  const cards = [
+  const cards: Array<Omit<KpiCardProps, 'loading'>> = [
     {
       label: 'Total Users',
       value: data?.kpis.totalUsers,
       icon: Users,
       color: 'bg-indigo-500',
+      trend: { delta: '+12%', direction: 'up', label: 'vs last month' },
     },
     {
       label: 'Active',
       value: data?.kpis.activeUsers,
       icon: UserCheck,
       color: 'bg-emerald-500',
+      trend: { delta: '+8%', direction: 'up', label: 'vs last month' },
     },
     {
       label: 'New This Month',
       value: data?.kpis.newThisMonth,
       icon: UserPlus,
       color: 'bg-violet-500',
+      trend: { delta: '+24%', direction: 'up', label: 'vs last month' },
     },
     {
       label: 'Suspended',
       value: data?.kpis.suspendedUsers,
       icon: UserX,
       color: 'bg-rose-500',
+      trend: { delta: '-5%', direction: 'down', label: 'vs last month' },
     },
   ];
 
