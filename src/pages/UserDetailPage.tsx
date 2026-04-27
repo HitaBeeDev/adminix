@@ -5,10 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   ChevronRight, Shield, Clock, Pencil, X, Check,
-  ShieldCheck, ShieldOff, Fingerprint,
+  ShieldCheck, ShieldOff, Fingerprint, Key, Monitor,
+  Smartphone, Globe, RotateCcw,
 } from 'lucide-react';
 import { useUser, useUpdateUser, useDeleteUser } from '@/hooks/useUsers';
 import { useActivity } from '@/hooks/useActivity';
+import { useRoles } from '@/hooks/useRoles';
 import { toast } from '@/stores/toastStore';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import ErrorState from '@/components/ui/ErrorState';
@@ -139,12 +141,7 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 // ─── Profile Tab ──────────────────────────────────────────────────────────────
 
-interface ProfileTabProps {
-  user: User;
-  onUpdate: () => void;
-}
-
-function ProfileTab({ user, onUpdate }: ProfileTabProps) {
+function ProfileTab({ user, onUpdate }: { user: User; onUpdate: () => void }) {
   const [isEditing, setIsEditing] = useState(false);
   const updateUser = useUpdateUser(user.id);
 
@@ -245,7 +242,7 @@ function ProfileTab({ user, onUpdate }: ProfileTabProps) {
 
 // ─── Activity Tab ─────────────────────────────────────────────────────────────
 
-function ActivityEvent({ event }: { event: ActivityEvent }) {
+function ActivityItem({ event }: { event: ActivityEvent }) {
   const dot = DOT_COLORS[event.action] ?? 'bg-indigo-500';
   return (
     <div className="flex gap-3 py-3 first:pt-0">
@@ -307,7 +304,229 @@ function ActivityTab({ userId }: { userId: string }) {
         </div>
       ) : (
         <div className="divide-y divide-gray-50 dark:divide-gray-800/50">
-          {events.map((e) => <ActivityEvent key={e.id} event={e} />)}
+          {events.map((e) => <ActivityItem key={e.id} event={e} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Sessions Tab ─────────────────────────────────────────────────────────────
+
+type SessionIcon = 'desktop' | 'mobile' | 'globe';
+
+interface MockSession {
+  id: string;
+  device: string;
+  location: string;
+  ip: string;
+  lastActive: string;
+  current: boolean;
+  icon: SessionIcon;
+}
+
+function SessionDeviceIcon({ type }: { type: SessionIcon }) {
+  if (type === 'mobile') return <Smartphone size={15} className="text-gray-500 dark:text-gray-400" />;
+  if (type === 'globe')  return <Globe      size={15} className="text-gray-500 dark:text-gray-400" />;
+  return <Monitor size={15} className="text-gray-500 dark:text-gray-400" />;
+}
+
+function SessionsTab({ user }: { user: User }) {
+  // Deterministic mock sessions seeded from user data
+  const [sessions, setSessions] = useState<MockSession[]>(() => [
+    {
+      id: `${user.id}-s1`,
+      device: 'Chrome on macOS',
+      location: 'San Francisco, CA',
+      ip: user.lastIp ?? '192.168.1.42',
+      lastActive: user.lastActive,
+      current: true,
+      icon: 'desktop',
+    },
+    {
+      id: `${user.id}-s2`,
+      device: 'Safari on iPhone',
+      location: 'San Francisco, CA',
+      ip: '192.168.1.55',
+      lastActive: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      current: false,
+      icon: 'mobile',
+    },
+    {
+      id: `${user.id}-s3`,
+      device: 'Firefox on Windows',
+      location: 'New York, NY',
+      ip: '203.0.113.12',
+      lastActive: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      current: false,
+      icon: 'desktop',
+    },
+  ]);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+
+  async function revokeSession(id: string) {
+    setRevokingId(id);
+    await new Promise((r) => setTimeout(r, 500));
+    setSessions((s) => s.filter((sess) => sess.id !== id));
+    setRevokingId(null);
+    toast.success('Session revoked.');
+  }
+
+  if (user.status === 'suspended') {
+    return (
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-5">Active Sessions</h2>
+        <div className="py-10 flex flex-col items-center gap-2 text-center">
+          <Monitor size={24} className="text-gray-300 dark:text-gray-600" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">No active sessions</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">This account is suspended.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Active Sessions</h2>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Devices currently signed in</p>
+        </div>
+        {sessions.length > 1 && (
+          <button
+            onClick={() => {
+              setSessions((s) => s.filter((sess) => sess.current));
+              toast.success('All other sessions revoked.');
+            }}
+            className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition"
+          >
+            Revoke all others
+          </button>
+        )}
+      </div>
+
+      {sessions.length === 0 ? (
+        <div className="py-10 flex flex-col items-center gap-2 text-center">
+          <Monitor size={24} className="text-gray-300 dark:text-gray-600" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">All sessions have been revoked.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+          {sessions.map((session) => (
+            <div key={session.id} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0">
+              <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                <SessionDeviceIcon type={session.icon} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{session.device}</p>
+                  {session.current && (
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 shrink-0">
+                      Current
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
+                  {session.location} · {session.ip} · {fmtRelative(session.lastActive)}
+                </p>
+              </div>
+              {!session.current && (
+                <button
+                  onClick={() => revokeSession(session.id)}
+                  disabled={revokingId === session.id}
+                  className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition disabled:opacity-50 shrink-0"
+                >
+                  {revokingId === session.id ? 'Revoking…' : 'Revoke'}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Permissions Tab ──────────────────────────────────────────────────────────
+
+function PermissionsTab({ user }: { user: User }) {
+  const { data, isLoading, isError, error, refetch } = useRoles();
+
+  const roleRecord = data?.data.find(
+    (r) => r.name.toLowerCase().replace(/\s+/g, '_') === user.role,
+  );
+  const allPermissions = data?.permissions ?? [];
+  const groups = [...new Set(allPermissions.map((p) => p.group))];
+
+  return (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Permissions</h2>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            Granted via the <span className={cn('font-medium', ROLE_COLORS[user.role]?.split(' ')[1])}>{ROLE_LABELS[user.role]}</span> role
+          </p>
+        </div>
+        <Link to="/roles" className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+          Manage roles →
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-4 animate-pulse">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <div className="h-3 w-20 rounded bg-gray-100 dark:bg-gray-800" />
+              {Array.from({ length: 3 }).map((_, j) => (
+                <div key={j} className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800" />
+                  <div className="h-3 w-32 rounded bg-gray-100 dark:bg-gray-800" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : isError ? (
+        <ErrorState error={error} onRetry={() => void refetch()} className="py-12" />
+      ) : (
+        <div className="space-y-5">
+          {groups.map((group) => (
+            <div key={group}>
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
+                {group}
+              </p>
+              <div className="space-y-1.5">
+                {allPermissions.filter((p) => p.group === group).map((perm) => {
+                  const granted = roleRecord?.permissions.includes(perm.key) ?? false;
+                  return (
+                    <div key={perm.key} className="flex items-start gap-2.5">
+                      <div className={cn(
+                        'mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 text-white',
+                        granted
+                          ? 'bg-indigo-500 dark:bg-indigo-600'
+                          : 'bg-gray-100 dark:bg-gray-800',
+                      )}>
+                        {granted && (
+                          <Check size={10} strokeWidth={3} />
+                        )}
+                      </div>
+                      <div>
+                        <p className={cn(
+                          'text-sm',
+                          granted
+                            ? 'text-gray-800 dark:text-gray-100'
+                            : 'text-gray-400 dark:text-gray-600 line-through',
+                        )}>
+                          {perm.label}
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{perm.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -322,7 +541,6 @@ function SecurityTab({ user }: { user: User }) {
       <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-5">Security & Access</h2>
 
       <div className="space-y-4">
-        {/* 2FA card */}
         <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
           <div className={cn(
             'w-10 h-10 rounded-full flex items-center justify-center shrink-0',
@@ -341,12 +559,11 @@ function SecurityTab({ user }: { user: User }) {
           <div className="ml-auto shrink-0">
             {user.twoFactorEnabled
               ? <ShieldCheck size={18} className="text-emerald-500" />
-              : <ShieldOff size={18} className="text-gray-300 dark:text-gray-600" />
+              : <ShieldOff  size={18} className="text-gray-300 dark:text-gray-600" />
             }
           </div>
         </div>
 
-        {/* Info rows */}
         <div className="px-1">
           <InfoRow
             label="Last IP address"
@@ -374,13 +591,16 @@ function SecurityTab({ user }: { user: User }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'profile' | 'activity' | 'security';
+type Tab = 'profile' | 'activity' | 'sessions' | 'permissions' | 'security';
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('profile');
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmDelete, setConfirmDelete]   = useState(false);
+  const [confirmSuspend, setConfirmSuspend] = useState(false);
+  const [confirmReset, setConfirmReset]     = useState(false);
+  const [resetting, setResetting]           = useState(false);
 
   const { data: user, isLoading, isError, error, refetch } = useUser(id ?? '');
   const updateUser = useUpdateUser(id ?? '');
@@ -416,9 +636,18 @@ export default function UserDetailPage() {
           ? `${user!.name} has been suspended.`
           : `${user!.name} has been reactivated.`,
       );
+      setConfirmSuspend(false);
     } catch {
       toast.error(`Failed to ${newStatus === 'suspended' ? 'suspend' : 'reactivate'} ${user!.name}.`);
     }
+  }
+
+  async function handleResetPassword() {
+    setResetting(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setResetting(false);
+    setConfirmReset(false);
+    toast.success(`Password reset email sent to ${user!.email}.`);
   }
 
   async function handleDelete() {
@@ -432,10 +661,14 @@ export default function UserDetailPage() {
   }
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'profile',  label: 'Profile' },
-    { key: 'activity', label: 'Activity' },
-    { key: 'security', label: 'Security' },
+    { key: 'profile',     label: 'Profile' },
+    { key: 'activity',    label: 'Activity' },
+    { key: 'sessions',    label: 'Sessions' },
+    { key: 'permissions', label: 'Permissions' },
+    { key: 'security',    label: 'Security' },
   ];
+
+  const isSuspended = user.status === 'suspended';
 
   return (
     <div className="space-y-6">
@@ -450,7 +683,7 @@ export default function UserDetailPage() {
 
       {/* Header card */}
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             {user.avatarUrl ? (
               <img src={user.avatarUrl} alt={user.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800" />
@@ -479,13 +712,19 @@ export default function UserDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={handleSuspendToggle}
+              onClick={() => setConfirmReset(true)}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <RotateCcw size={13} /> Reset Password
+            </button>
+            <button
+              onClick={() => setConfirmSuspend(true)}
               disabled={updateUser.isPending}
               className="px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
             >
-              {user.status === 'active' ? 'Suspend' : 'Reactivate'}
+              {isSuspended ? 'Reactivate' : 'Suspend'}
             </button>
             <button
               onClick={() => setConfirmDelete(true)}
@@ -499,13 +738,13 @@ export default function UserDetailPage() {
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-800">
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={cn(
-                'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+                'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
                 tab === t.key
                   ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
@@ -518,10 +757,39 @@ export default function UserDetailPage() {
       </div>
 
       {/* Tab content */}
-      {tab === 'profile'  && <ProfileTab user={user} onUpdate={() => void refetch()} />}
-      {tab === 'activity' && <ActivityTab userId={user.id} />}
-      {tab === 'security' && <SecurityTab user={user} />}
+      {tab === 'profile'     && <ProfileTab     user={user} onUpdate={() => void refetch()} />}
+      {tab === 'activity'    && <ActivityTab    userId={user.id} />}
+      {tab === 'sessions'    && <SessionsTab    user={user} />}
+      {tab === 'permissions' && <PermissionsTab user={user} />}
+      {tab === 'security'    && <SecurityTab    user={user} />}
 
+      {/* Suspend / Reactivate confirm */}
+      <ConfirmDialog
+        open={confirmSuspend}
+        onClose={() => setConfirmSuspend(false)}
+        onConfirm={handleSuspendToggle}
+        title={isSuspended ? 'Reactivate User' : 'Suspend User'}
+        description={
+          isSuspended
+            ? `Reactivate ${user.name}'s account? They will regain access immediately.`
+            : `Suspend ${user.name}'s account? They will lose access until reactivated.`
+        }
+        confirmLabel={isSuspended ? 'Reactivate' : 'Suspend'}
+        loading={updateUser.isPending}
+      />
+
+      {/* Reset Password confirm */}
+      <ConfirmDialog
+        open={confirmReset}
+        onClose={() => setConfirmReset(false)}
+        onConfirm={handleResetPassword}
+        title="Reset Password"
+        description={`Send a password reset email to ${user.email}?`}
+        confirmLabel="Send Reset Email"
+        loading={resetting}
+      />
+
+      {/* Delete confirm */}
       <ConfirmDialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
