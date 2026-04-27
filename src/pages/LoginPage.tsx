@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
-import type { LoginResponse } from '@/types/auth';
+import { login as loginRequest } from '@/api/auth';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email address'),
@@ -34,23 +34,12 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setServerError(null);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        setServerError((err as { message?: string }).message ?? 'Login failed. Please try again.');
-        return;
-      }
-
-      const { user, token } = (await res.json()) as LoginResponse;
+      const { user, token } = await loginRequest({ email: data.email, password: data.password });
       login(user, token, data.rememberMe ?? false);
       navigate('/dashboard', { replace: true });
-    } catch {
-      setServerError('Network error. Please try again.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Network error. Please try again.';
+      setServerError(message);
     }
   };
 

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   ChevronRight, Building2, Globe, Users, Calendar,
   Crown, AlertTriangle, Pencil, X, Check,
@@ -118,6 +121,14 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+// ─── Edit schema ──────────────────────────────────────────────────────────────
+
+const editSchema = z.object({
+  name:   z.string().min(1, 'Name is required'),
+  domain: z.string().optional(),
+});
+type EditValues = z.infer<typeof editSchema>;
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AccountDetailPage() {
@@ -127,8 +138,10 @@ export default function AccountDetailPage() {
   const [confirmSuspend, setConfirmSuspend] = useState(false);
   const [confirmDelete, setConfirmDelete]   = useState(false);
   const [isEditing, setIsEditing]           = useState(false);
-  const [editName, setEditName]             = useState('');
-  const [editDomain, setEditDomain]         = useState('');
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditValues>({
+    resolver: zodResolver(editSchema),
+  });
 
   const { data: account, isLoading, isError, error, refetch } = useAccount(id ?? '');
   const updateAccount = useUpdateAccount(id ?? '');
@@ -165,14 +178,16 @@ export default function AccountDetailPage() {
   const weeklyData  = mockWeeklyActivity(currentAccount.id, currentAccount.membersCount);
 
   function startEditing() {
-    setEditName(currentAccount.name);
-    setEditDomain(currentAccount.domain ?? '');
+    reset({
+      name: currentAccount.name,
+      domain: currentAccount.domain ?? '',
+    });
     setIsEditing(true);
   }
 
-  async function saveEdit() {
+  async function saveEdit(values: EditValues) {
     try {
-      await updateAccount.mutateAsync({ name: editName, domain: editDomain || undefined });
+      await updateAccount.mutateAsync({ name: values.name, domain: values.domain || undefined });
       toast.success('Account updated.');
       setIsEditing(false);
     } catch {
@@ -224,11 +239,16 @@ export default function AccountDetailPage() {
             </div>
             <div>
               {isEditing ? (
-                <input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="text-xl font-bold w-full px-2 py-1 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                <div>
+                  <input
+                    {...register('name')}
+                    aria-invalid={errors.name ? 'true' : 'false'}
+                    className="text-xl font-bold w-full px-2 py-1 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.name.message}</p>
+                  )}
+                </div>
               ) : (
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">{account.name}</h1>
               )}
@@ -261,7 +281,7 @@ export default function AccountDetailPage() {
                   <X size={13} /> Cancel
                 </button>
                 <button
-                  onClick={saveEdit}
+                  onClick={() => void handleSubmit(saveEdit)()}
                   disabled={updateAccount.isPending}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50 transition-colors"
                 >
@@ -302,8 +322,7 @@ export default function AccountDetailPage() {
               value={
                 isEditing ? (
                   <input
-                    value={editDomain}
-                    onChange={(e) => setEditDomain(e.target.value)}
+                    {...register('domain')}
                     placeholder="e.g. acme.com"
                     className="w-40 px-2 py-1 text-sm rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
