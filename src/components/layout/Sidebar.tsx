@@ -1,4 +1,5 @@
 import { NavLink } from "react-router";
+import { useUiStore } from "@/stores/uiStore";
 
 // placeholder until auth store is wired up
 const MOCK_USER = {
@@ -18,19 +19,12 @@ const links = [
   { to: "/settings", label: "Settings", short: "ST" },
 ];
 
-interface SidebarProps {
-  collapsed: boolean;
-  setCollapsed: (val: boolean) => void;
-  mobileOpen: boolean;
-  setMobileOpen: (val: boolean) => void;
-}
+export default function Sidebar() {
+  const collapsed = useUiStore((s) => s.sidebarCollapsed);
+  const setCollapsed = useUiStore((s) => s.setSidebarCollapsed);
+  const mobileOpen = useUiStore((s) => s.mobileOpen);
+  const setMobileOpen = useUiStore((s) => s.setMobileOpen);
 
-export default function Sidebar({
-  collapsed,
-  setCollapsed,
-  mobileOpen,
-  setMobileOpen,
-}: SidebarProps) {
   return (
     <>
       {/* desktop sidebar */}

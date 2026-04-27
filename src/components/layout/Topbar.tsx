@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, Link } from "react-router";
 import { useTheme } from "@/lib/theme";
+import { useUiStore } from "@/stores/uiStore";
 
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
@@ -53,17 +54,14 @@ const typeColors: Record<Notification["type"], string> = {
   role: "bg-emerald-500",
 };
 
-interface TopbarProps {
-  onMobileMenuClick: () => void;
-  onSearchClick: () => void;
-}
-
-export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps) {
+export default function Topbar() {
   const { pathname } = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const { resolvedTheme, toggleTheme } = useTheme();
+  const setMobileOpen = useUiStore((s) => s.setMobileOpen);
+  const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -103,7 +101,7 @@ export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps
       <div className="flex items-center gap-3">
         <button
           className="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"
-          onClick={onMobileMenuClick}
+          onClick={() => setMobileOpen(true)}
         >
           Menu
         </button>
@@ -134,7 +132,7 @@ export default function Topbar({ onMobileMenuClick, onSearchClick }: TopbarProps
       <div className="flex items-center gap-4">
         {/* search */}
         <button
-          onClick={onSearchClick}
+          onClick={() => setCommandPaletteOpen(true)}
           className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 transition-colors hover:border-gray-300 dark:hover:border-gray-600"
         >
           <span>Search</span>
