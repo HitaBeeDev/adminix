@@ -134,7 +134,13 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
               disabled={isAccountsLoading}
               className={cn(fieldClass, 'appearance-none cursor-pointer disabled:opacity-60', errors.accountId ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700')}
             >
-              <option value="">{isAccountsLoading ? 'Loading accounts…' : 'Select an account…'}</option>
+              <option value="">
+                {isAccountsLoading
+                  ? 'Loading accounts…'
+                  : (accountsData?.data.length ?? 0) === 0
+                    ? 'No accounts available'
+                    : 'Select an account…'}
+              </option>
               {accountsData?.data.map((acc) => (
                 <option key={acc.id} value={acc.id}>{acc.name}</option>
               ))}

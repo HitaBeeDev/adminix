@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Download, RefreshCw, FileText, Trash2 } from 'lucide-react';
+import { Download, RefreshCw, FileText, Trash2, Plus } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { toast } from '@/stores/toastStore';
@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ReportType   = 'Users' | 'Accounts' | 'Activity' | 'Roles';
+type ReportType   = 'Users' | 'Accounts' | 'Activity';
 type ReportFormat = 'CSV' | 'JSON';
 type ReportStatus = 'ready' | 'generating';
 
@@ -33,8 +33,7 @@ const INITIAL_REPORTS: Report[] = [
   { id: 'r3', name: 'Account Plan Distribution',   type: 'Accounts', dateRange: 'All time',            format: 'JSON', generated: '2026-04-06T11:00:00Z', status: 'ready', rows: 84   },
   { id: 'r4', name: 'Enterprise Account Activity', type: 'Accounts', dateRange: 'Mar 2026',            format: 'CSV',  generated: '2026-04-05T08:45:00Z', status: 'ready', rows: 312  },
   { id: 'r5', name: 'Login Audit Log',             type: 'Activity', dateRange: 'Last 30 days',        format: 'CSV',  generated: '2026-04-08T07:00:00Z', status: 'ready', rows: 1042 },
-  { id: 'r6', name: 'Role Permission Changes',     type: 'Activity', dateRange: 'Q1 2026',             format: 'JSON', generated: '2026-04-03T16:20:00Z', status: 'ready', rows: 55   },
-  { id: 'r7', name: 'Role Distribution Report',    type: 'Roles',    dateRange: 'All time',            format: 'CSV',  generated: '2026-04-01T12:00:00Z', status: 'ready', rows: 6    },
+  { id: 'r6', name: 'Permission Change Activity',  type: 'Activity', dateRange: 'Q1 2026',             format: 'JSON', generated: '2026-04-03T16:20:00Z', status: 'ready', rows: 55   },
 ];
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -43,7 +42,6 @@ const REPORT_TYPE_OPTIONS: { value: ReportType; label: string }[] = [
   { value: 'Users',    label: 'User Summary' },
   { value: 'Accounts', label: 'Account Summary' },
   { value: 'Activity', label: 'Activity Log' },
-  { value: 'Roles',    label: 'Role Report' },
 ];
 
 const DATE_PRESETS = [
@@ -59,7 +57,6 @@ const TYPE_STYLES: Record<ReportType, string> = {
   Users:    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
   Accounts: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
   Activity: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  Roles:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
 };
 
 const FORMAT_STYLES: Record<ReportFormat, string> = {
@@ -85,6 +82,18 @@ function formatRelative(iso: string) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function csvCell(value: string | number | undefined) {
+  const text = String(value ?? '');
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+function mockRowCount(values: Pick<FormValues, 'name' | 'type' | 'from' | 'to'>) {
+  const seed = `${values.name}:${values.type}:${values.from}:${values.to}`
+    .split('')
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return (seed % 800) + 10;
+}
+
 function mockDownload(report: Report) {
   let content: string;
   let mime: string;
@@ -97,7 +106,7 @@ function mockDownload(report: Report) {
   } else {
     content = [
       ['Report', 'Type', 'Date Range', 'Generated', 'Rows'].join(','),
-      [`"${report.name}"`, report.type, `"${report.dateRange}"`, report.generated, report.rows].join(','),
+      [csvCell(report.name), csvCell(report.type), csvCell(report.dateRange), csvCell(report.generated), csvCell(report.rows)].join(','),
     ].join('\n');
     mime = 'text/csv';
     ext = 'csv';
@@ -108,7 +117,9 @@ function mockDownload(report: Report) {
   const a = document.createElement('a');
   a.href = url;
   a.download = `${report.name.toLowerCase().replace(/\s+/g, '-')}.${ext}`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -116,7 +127,7 @@ function mockDownload(report: Report) {
 
 const schema = z.object({
   name:   z.string().min(3, 'Name must be at least 3 characters'),
-  type:   z.enum(['Users', 'Accounts', 'Activity', 'Roles'], { message: 'Select a report type' }),
+  type:   z.enum(['Users', 'Accounts', 'Activity'], { message: 'Select a report type' }),
   from:   z.string().min(1, 'Select a start date'),
   to:     z.string().min(1, 'Select an end date'),
   format: z.enum(['CSV', 'JSON']),
@@ -133,12 +144,12 @@ function GenerateReportModal({ open, onClose, onGenerate }: {
   onClose: () => void;
   onGenerate: (report: Report) => void;
 }) {
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { format: 'CSV' },
   });
 
-  const format = watch('format');
+  const format = useWatch({ control, name: 'format' });
 
   function applyPreset(from: string, to: string) {
     setValue('from', from, { shouldValidate: true });
@@ -150,15 +161,16 @@ function GenerateReportModal({ open, onClose, onGenerate }: {
   async function onSubmit(values: FormValues) {
     await new Promise((r) => setTimeout(r, 1000));
     const typeLabel = REPORT_TYPE_OPTIONS.find((o) => o.value === values.type)?.label ?? values.type;
+    const generated = new Date().toISOString();
     const newReport: Report = {
-      id: `r${Date.now()}`,
+      id: `r-${generated.replace(/\D/g, '')}`,
       name: values.name,
       type: values.type,
       dateRange: `${values.from} – ${values.to}`,
       format: values.format,
-      generated: new Date().toISOString(),
+      generated,
       status: 'ready',
-      rows: Math.floor(Math.random() * 800) + 10,
+      rows: mockRowCount(values),
     };
     onGenerate(newReport);
     toast.success(`"${typeLabel}" report generated.`);
@@ -323,7 +335,7 @@ export default function ReportsPage() {
         </div>
         <button onClick={() => setGenerateOpen(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
-          + Generate report
+          <Plus size={15} /> Generate report
         </button>
       </div>
 
@@ -344,7 +356,7 @@ export default function ReportsPage() {
 
       {/* Type filter */}
       <div className="flex items-center gap-2 flex-wrap">
-        {(['', 'Users', 'Accounts', 'Activity', 'Roles'] as (ReportType | '')[]).map((type) => (
+        {(['', 'Users', 'Accounts', 'Activity'] as (ReportType | '')[]).map((type) => (
           <button key={type} onClick={() => setTypeFilter(type)}
             className={cn(
               'px-3 py-1.5 text-sm rounded-lg border transition-colors',
