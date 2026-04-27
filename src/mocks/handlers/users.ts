@@ -13,7 +13,7 @@ export const usersHandlers = [
     const sortBy    = (url.searchParams.get('sortBy') ?? 'name') as UserFilters['sortBy'];
     const sortDir   = (url.searchParams.get('sortDir') ?? 'asc') as 'asc' | 'desc';
     const page      = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
-    const pageSize  = Math.min(100, parseInt(url.searchParams.get('pageSize') ?? '10', 10));
+    const pageSize  = Math.min(100_000, parseInt(url.searchParams.get('pageSize') ?? '10', 10));
 
     let results: User[] = [...mockUsers];
 

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search, ChevronUp, ChevronDown, ChevronsUpDown, MoreHorizontal, Eye, Pencil, Ban, RefreshCw, Trash2, X } from 'lucide-react';
 import { useUsers, useUpdateUserInline, useDeleteUser } from '@/hooks/useUsers';
 import InviteUserModal from '@/components/features/InviteUserModal';
@@ -50,6 +51,10 @@ const COLUMNS: { key: SortableColumn; label: string }[] = [
   { key: 'status',     label: 'Status' },
   { key: 'dateJoined', label: 'Joined' },
 ];
+
+const VIRTUAL_PAGE_SIZE = 100_000;
+const USER_ROW_HEIGHT = 60;
+const USER_GRID_COLUMNS = '44px minmax(220px, 1.25fr) minmax(260px, 1.4fr) 140px 130px 130px 64px';
 
 function SortIcon({ col, sortBy, sortDir }: { col: SortableColumn; sortBy: SortableColumn; sortDir: 'asc' | 'desc' }) {
   if (col !== sortBy) return <ChevronsUpDown size={13} className="text-gray-300 dark:text-gray-600" />;
@@ -147,6 +152,7 @@ function RowActionMenu({ user, onUpdate, onDelete }: RowActionMenuProps) {
 
 export default function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const tableScrollRef = useRef<HTMLDivElement>(null);
 
   const searchInput = searchParams.get('search') ?? '';
   const role        = (searchParams.get('role')    ?? '') as UserRole   | '';
@@ -161,17 +167,9 @@ export default function UsersPage() {
     status,
     sortBy,
     sortDir,
-    page: Number(searchParams.get('page') ?? 1),
-    pageSize: 10,
+    page: 1,
+    pageSize: VIRTUAL_PAGE_SIZE,
   });
-
-  function setParam(key: string, value: string | null) {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (value) next.set(key, value); else next.delete(key);
-      return next;
-    });
-  }
 
   function handleSearch(value: string) {
     setSearchParams((prev) => {
@@ -231,6 +229,15 @@ export default function UsersPage() {
     }
   }
   const users: User[] = data?.data ?? [];
+  // TanStack Virtual intentionally returns imperative helpers that React Compiler flags.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const rowVirtualizer = useVirtualizer({
+    count: users.length,
+    getScrollElement: () => tableScrollRef.current,
+    estimateSize: () => USER_ROW_HEIGHT,
+    overscan: 12,
+    getItemKey: (index) => users[index]?.id ?? index,
+  });
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -238,13 +245,13 @@ export default function UsersPage() {
   const pageKey = searchParams.toString();
   useEffect(() => { setSelected(new Set()); }, [pageKey]);
 
-  const allOnPageSelected = users.length > 0 && users.every((u) => selected.has(u.id));
-  const someOnPageSelected = users.some((u) => selected.has(u.id)) && !allOnPageSelected;
+  const allLoadedSelected = users.length > 0 && users.every((u) => selected.has(u.id));
+  const someLoadedSelected = users.some((u) => selected.has(u.id)) && !allLoadedSelected;
 
   function toggleAll() {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (allOnPageSelected) {
+      if (allLoadedSelected) {
         users.forEach((u) => next.delete(u.id));
       } else {
         users.forEach((u) => next.add(u.id));
@@ -351,185 +358,155 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Table */}
+      {/* Virtualized table */}
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                <th className="pl-4 pr-2 py-3 w-10">
-                  <input
-                    type="checkbox"
-                    checked={allOnPageSelected}
-                    ref={(el) => { if (el) el.indeterminate = someOnPageSelected; }}
-                    onChange={toggleAll}
-                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                  />
-                </th>
-                {COLUMNS.map(({ key, label }) => (
-                  <th key={key} className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">
-                    <button
-                      onClick={() => handleSort(key)}
-                      className="flex items-center gap-1.5 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-                    >
-                      {label}
-                      <SortIcon col={key} sortBy={sortBy} sortDir={sortDir} />
-                    </button>
-                  </th>
-                ))}
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                Array.from({ length: 8 }).map((_, i) => <UserRowSkeleton key={i} />)
-              ) : isError ? (
-                <tr>
-                  <td colSpan={7}>
-                    <ErrorState error={error} onRetry={() => void refetch()} />
-                  </td>
-                </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-20 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        <Search size={20} className="text-gray-400 dark:text-gray-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No users found</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                          {debouncedSearch || role || status
-                            ? 'Try adjusting your filters or search term'
-                            : 'Invite your first user to get started'}
-                        </p>
-                      </div>
-                      {(debouncedSearch || role || status) && (
-                        <button
-                          onClick={() => setSearchParams(new URLSearchParams())}
-                          className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
-                        >
-                          Clear all filters
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className={cn(
-                      'border-b border-gray-50 dark:border-gray-800 last:border-0 transition-colors',
-                      selected.has(user.id)
-                        ? 'bg-indigo-50/50 dark:bg-indigo-900/10'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
-                    )}
+          <div className="min-w-[1120px] text-sm">
+            <div
+              className="sticky top-0 z-10 grid border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50"
+              style={{ gridTemplateColumns: USER_GRID_COLUMNS }}
+            >
+              <div className="pl-4 pr-2 py-3">
+                <input
+                  type="checkbox"
+                  checked={allLoadedSelected}
+                  ref={(el) => { if (el) el.indeterminate = someLoadedSelected; }}
+                  onChange={toggleAll}
+                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                />
+              </div>
+              {COLUMNS.map(({ key, label }) => (
+                <div key={key} className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">
+                  <button
+                    onClick={() => handleSort(key)}
+                    className="flex items-center gap-1.5 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                   >
-                    <td className="pl-4 pr-2 py-3">
-                      <input
-                        type="checkbox"
-                        checked={selected.has(user.id)}
-                        onChange={() => toggleOne(user.id)}
-                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Link
-                        to={`/users/${user.id}`}
-                        className="flex items-center gap-3 group"
+                    {label}
+                    <SortIcon col={key} sortBy={sortBy} sortDir={sortDir} />
+                  </button>
+                </div>
+              ))}
+              <div className="px-4 py-3" />
+            </div>
+
+            {isLoading ? (
+              <table className="w-full">
+                <tbody>{Array.from({ length: 8 }).map((_, i) => <UserRowSkeleton key={i} />)}</tbody>
+              </table>
+            ) : isError ? (
+              <ErrorState error={error} onRetry={() => void refetch()} />
+            ) : users.length === 0 ? (
+              <div className="px-4 py-20 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <Search size={20} className="text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No users found</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      {debouncedSearch || role || status
+                        ? 'Try adjusting your filters or search term'
+                        : 'Invite your first user to get started'}
+                    </p>
+                  </div>
+                  {(debouncedSearch || role || status) && (
+                    <button
+                      onClick={() => setSearchParams(new URLSearchParams())}
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                    >
+                      Clear all filters
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div ref={tableScrollRef} className="h-[640px] overflow-auto">
+                <div
+                  className="relative w-full"
+                  style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const user = users[virtualRow.index];
+                    if (!user) return null;
+
+                    return (
+                      <div
+                        key={user.id}
+                        data-index={virtualRow.index}
+                        ref={rowVirtualizer.measureElement}
+                        className={cn(
+                          'absolute left-0 top-0 grid w-full border-b border-gray-50 dark:border-gray-800 transition-colors',
+                          selected.has(user.id)
+                            ? 'bg-indigo-50/50 dark:bg-indigo-900/10'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
+                        )}
+                        style={{
+                          minHeight: USER_ROW_HEIGHT,
+                          gridTemplateColumns: USER_GRID_COLUMNS,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
                       >
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
-                          {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                        <div className="pl-4 pr-2 py-3 flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selected.has(user.id)}
+                            onChange={() => toggleOne(user.id)}
+                            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                          />
                         </div>
-                        <span className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                          {user.name}
-                        </span>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{user.email}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{ROLE_LABELS[user.role]}</td>
-                    <td className="px-4 py-3">
-                      <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize', STATUS_STYLES[user.status])}>
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 dark:text-gray-400">{formatDate(user.dateJoined)}</td>
-                    <td className="px-4 py-3">
-                      <RowActionMenu
-                        user={user}
-                        onUpdate={(args) => {
-                          updateUser.mutate(args, {
-                            onSuccess: () => toast.success(`${user.name} updated.`),
-                            onError: () => toast.error(`Failed to update ${user.name}.`),
-                          });
-                        }}
-                        onDelete={(id) => {
-                          deleteUser.mutate(id, {
-                            onSuccess: () => toast.success(`${user.name} deleted.`),
-                            onError: () => toast.error(`Failed to delete ${user.name}.`),
-                          });
-                        }}
-                      />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                        <div className="px-4 py-3 min-w-0">
+                          <Link to={`/users/${user.id}`} className="flex items-center gap-3 group min-w-0">
+                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
+                              {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                            <span className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                              {user.name}
+                            </span>
+                          </Link>
+                        </div>
+                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
+                        <div className="px-4 py-3 flex items-center text-gray-600 dark:text-gray-300">{ROLE_LABELS[user.role]}</div>
+                        <div className="px-4 py-3 flex items-center">
+                          <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize', STATUS_STYLES[user.status])}>
+                            {user.status}
+                          </span>
+                        </div>
+                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400">{formatDate(user.dateJoined)}</div>
+                        <div className="px-4 py-3 flex items-center justify-end">
+                          <RowActionMenu
+                            user={user}
+                            onUpdate={(args) => {
+                              updateUser.mutate(args, {
+                                onSuccess: () => toast.success(`${user.name} updated.`),
+                                onError: () => toast.error(`Failed to update ${user.name}.`),
+                              });
+                            }}
+                            onDelete={(id) => {
+                              deleteUser.mutate(id, {
+                                onSuccess: () => toast.success(`${user.name} deleted.`),
+                                onError: () => toast.error(`Failed to delete ${user.name}.`),
+                              });
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Pagination */}
-      {data && data.totalPages > 1 && (
+      {data && (
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>
-            Showing {(data.page - 1) * data.pageSize + 1}–{Math.min(data.page * data.pageSize, data.total)} of {data.total}
+            Showing {users.length.toLocaleString()} of {data.total.toLocaleString()} users
           </span>
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setParam('page', String(data.page - 1))}
-              disabled={data.page <= 1}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              Previous
-            </button>
-
-            {Array.from({ length: data.totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === data.totalPages || Math.abs(p - data.page) <= 1)
-              .reduce<(number | '…')[]>((acc, p, i, arr) => {
-                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('…');
-                acc.push(p);
-                return acc;
-              }, [])
-              .map((item, i) =>
-                item === '…' ? (
-                  <span key={`ellipsis-${i}`} className="px-2 py-1.5 text-gray-400 dark:text-gray-600">…</span>
-                ) : (
-                  <button
-                    key={item}
-                    onClick={() => setParam('page', String(item))}
-                    className={cn(
-                      'w-9 py-1.5 rounded-lg border transition-colors',
-                      item === data.page
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium'
-                        : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800',
-                    )}
-                  >
-                    {item}
-                  </button>
-                )
-              )}
-
-            <button
-              onClick={() => setParam('page', String(data.page + 1))}
-              disabled={data.page >= data.totalPages}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              Next
-            </button>
-          </div>
+          <span>
+            Rendering {rowVirtualizer.getVirtualItems().length.toLocaleString()} visible rows
+          </span>
         </div>
       )}
     </div>

@@ -611,3 +611,40 @@ export const mockUsers: User[] = [
     accountId: 'acc_10',
   },
 ];
+
+const GENERATED_USER_TARGET = 100_000;
+const GENERATED_FIRST_NAMES = [
+  'Avery', 'Jordan', 'Taylor', 'Morgan', 'Riley', 'Casey', 'Quinn', 'Rowan',
+  'Skyler', 'Cameron', 'Reese', 'Parker', 'Drew', 'Hayden', 'Emerson', 'Finley',
+] as const;
+const GENERATED_LAST_NAMES = [
+  'Stone', 'Rivera', 'Chen', 'Patel', 'Bennett', 'Hayes', 'Kim', 'Nguyen',
+  'Carter', 'Singh', 'Brooks', 'Reed', 'Foster', 'Cruz', 'Walsh', 'Nair',
+] as const;
+const GENERATED_ROLES: User['role'][] = ['admin', 'manager', 'editor', 'viewer', 'guest'];
+const GENERATED_STATUSES: User['status'][] = ['active', 'active', 'active', 'pending', 'suspended'];
+
+for (let i = mockUsers.length + 1; i <= GENERATED_USER_TARGET; i += 1) {
+  const firstName = GENERATED_FIRST_NAMES[i % GENERATED_FIRST_NAMES.length];
+  const lastName = GENERATED_LAST_NAMES[Math.floor(i / GENERATED_FIRST_NAMES.length) % GENERATED_LAST_NAMES.length];
+  const role = GENERATED_ROLES[i % GENERATED_ROLES.length];
+  const status = GENERATED_STATUSES[i % GENERATED_STATUSES.length];
+  const accountNumber = (i % 10) + 1;
+  const joinedMonth = (i % 12) + 1;
+  const joinedDay = (i % 28) + 1;
+  const activeDayOffset = i % 180;
+
+  mockUsers.push({
+    id: `usr_${String(i).padStart(6, '0')}`,
+    name: `${firstName} ${lastName} ${i}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${i}@example.adminix.dev`,
+    role,
+    status,
+    avatarUrl: `https://i.pravatar.cc/150?u=usr_${i}`,
+    lastActive: new Date(Date.UTC(2026, 3, 8 - activeDayOffset, 9, i % 60, 0)).toISOString(),
+    dateJoined: new Date(Date.UTC(2021 + (i % 5), joinedMonth - 1, joinedDay, 9, 0, 0)).toISOString(),
+    lastIp: `10.${accountNumber}.${Math.floor(i / 255) % 255}.${i % 255}`,
+    twoFactorEnabled: i % 3 === 0,
+    accountId: `acc_${String(accountNumber).padStart(2, '0')}`,
+  });
+}
