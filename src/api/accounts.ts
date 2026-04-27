@@ -1,5 +1,11 @@
 import type { PaginatedAccounts, AccountFilters, Account, CreateAccountPayload, UpdateAccountPayload } from '@/types/account';
 
+export async function fetchAccount(id: string): Promise<Account> {
+  const res = await fetch(`/api/accounts/${id}`);
+  if (!res.ok) throw new Error('Account not found');
+  return res.json() as Promise<Account>;
+}
+
 function buildQuery(filters: AccountFilters): string {
   const params = new URLSearchParams();
   if (filters.search)   params.set('search', filters.search);

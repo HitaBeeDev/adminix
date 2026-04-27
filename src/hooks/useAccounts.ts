@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchAccounts, createAccount, updateAccount } from '@/api/accounts';
+import { fetchAccounts, fetchAccount, createAccount, updateAccount } from '@/api/accounts';
 import type { AccountFilters, CreateAccountPayload, UpdateAccountPayload } from '@/types/account';
 
 export function useAccounts(filters: AccountFilters = {}) {
@@ -7,6 +7,14 @@ export function useAccounts(filters: AccountFilters = {}) {
     queryKey: ['accounts', filters],
     queryFn: () => fetchAccounts(filters),
     placeholderData: (prev) => prev,
+  });
+}
+
+export function useAccount(id: string) {
+  return useQuery({
+    queryKey: ['accounts', id],
+    queryFn: () => fetchAccount(id),
+    enabled: !!id,
   });
 }
 

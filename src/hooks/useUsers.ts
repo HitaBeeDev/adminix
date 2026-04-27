@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchUsers, fetchUser, createUser, updateUser, deleteUser } from '@/api/users';
-import type { UserFilters, CreateUserPayload, UpdateUserPayload } from '@/types/user';
+import type { UserFilters, CreateUserPayload, UpdateUserPayload, User, PaginatedUsers } from '@/types/user';
 
 export function useUsers(filters: UserFilters = {}) {
   return useQuery({
@@ -30,7 +30,30 @@ export function useUpdateUser(id: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: UpdateUserPayload) => updateUser(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+
+    onMutate: async (payload) => {
+      await qc.cancelQueries({ queryKey: ['users'] });
+
+      const prevDetail = qc.getQueryData<User>(['users', id]);
+      if (prevDetail) {
+        qc.setQueryData<User>(['users', id], { ...prevDetail, ...payload });
+      }
+
+      // Patch matching row in every paginated list cache
+      qc.setQueriesData<PaginatedUsers>({ queryKey: ['users'] }, (old) => {
+        if (!old?.data) return old;
+        return { ...old, data: old.data.map((u) => u.id === id ? { ...u, ...payload } : u) };
+      });
+
+      return { prevDetail };
+    },
+
+    onError: (_err, _payload, ctx) => {
+      if (ctx?.prevDetail) qc.setQueryData(['users', id], ctx.prevDetail);
+      void qc.invalidateQueries({ queryKey: ['users'] });
+    },
+
+    onSettled: () => qc.invalidateQueries({ queryKey: ['users'] }),
   });
 }
 
