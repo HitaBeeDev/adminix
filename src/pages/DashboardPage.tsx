@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import type { ActivityEvent } from '@/types/activity';
 import {
   ResponsiveContainer,
+  AreaChart,
+  Area,
   LineChart,
   Line,
   BarChart,
@@ -42,6 +44,18 @@ type KpiTrend = {
   delta: string;
   direction: 'up' | 'down';
   label: string;
+};
+
+type KpiSparklinePoint = {
+  value: number;
+};
+
+type KpiAccent = {
+  border: string;
+  glow: string;
+  icon: string;
+  line: string;
+  gradient: string;
 };
 
 const QUICK_ACTIONS = [
@@ -121,8 +135,8 @@ function formatRelative(iso: string) {
 function ChartSkeleton({ variant = 'line' }: { variant?: 'line' | 'bar' | 'donut' }) {
   if (variant === 'donut') {
     return (
-      <div className="h-64 flex items-center justify-center gap-8">
-        <div className="w-36 h-36 rounded-full border-[18px] border-gray-100 dark:border-gray-800 animate-pulse" />
+      <div className="h-52 flex items-center justify-center gap-6">
+        <div className="w-28 h-28 rounded-full border-[14px] border-gray-100 dark:border-gray-800 animate-pulse" />
         <div className="space-y-2.5">
           {[80, 60, 72, 48, 56, 40].map((w, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -138,7 +152,7 @@ function ChartSkeleton({ variant = 'line' }: { variant?: 'line' | 'bar' | 'donut
   if (variant === 'bar') {
     const heights = [55, 80, 40, 90, 65, 75, 50];
     return (
-      <div className="h-64 flex items-end justify-around gap-2 px-4 pb-6 pt-4">
+      <div className="h-52 flex items-end justify-around gap-2 px-4 pb-6 pt-4">
         {heights.map((h, i) => (
           <div
             key={i}
@@ -152,7 +166,7 @@ function ChartSkeleton({ variant = 'line' }: { variant?: 'line' | 'bar' | 'donut
 
   // line
   return (
-    <div className="h-64 px-4 pb-6 pt-4 space-y-3">
+    <div className="h-52 px-4 pb-6 pt-4 space-y-3">
       {[45, 55, 35, 65, 50, 70, 40].map((_, i) => (
         <div key={i} className="h-2 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" style={{ width: `${60 + (i * 7) % 35}%` }} />
       ))}
@@ -164,41 +178,76 @@ interface KpiCardProps {
   label: string;
   value: number | undefined;
   icon: React.ElementType;
-  color: string;
+  accent: KpiAccent;
   trend: KpiTrend;
+  sparkline: KpiSparklinePoint[];
   loading: boolean;
 }
 
-function KpiCard({ label, value, icon: Icon, color, trend, loading }: KpiCardProps) {
+function KpiCard({ label, value, icon: Icon, accent, trend, sparkline, loading }: KpiCardProps) {
   const TrendIcon = trend.direction === 'up' ? TrendingUp : TrendingDown;
+  const gradientId = `sparkline-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 flex items-center gap-5">
-      <div className={cn('flex-shrink-0 rounded-xl p-3', color)}>
-        <Icon size={22} className="text-white" />
+    <div className={cn(
+      'relative overflow-hidden rounded-2xl border bg-white dark:bg-gray-900 p-5 shadow-sm',
+      accent.border,
+    )}>
+      <div className={cn('absolute inset-y-0 left-0 w-1', accent.glow)} />
+      <div className={cn('absolute inset-x-0 top-0 h-20 bg-gradient-to-br opacity-70 dark:opacity-35', accent.gradient)} />
+      <div className="flex items-start gap-5">
+        <div className={cn('relative flex-shrink-0 rounded-xl p-3 shadow-sm ring-1 ring-white/50 dark:ring-white/10', accent.icon)}>
+          <Icon size={22} className="text-white" />
+        </div>
+        <div className="relative min-w-0 flex-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{label}</p>
+          {loading ? (
+            <div className="mt-1 space-y-2">
+              <div className="h-7 w-16 rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
+              <div className="h-5 w-28 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
+            </div>
+          ) : (
+            <>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{value ?? '—'}</p>
+              <span
+                className={cn(
+                  'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
+                  trend.direction === 'up'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+                )}
+              >
+                <TrendIcon size={12} />
+                {trend.delta} {trend.label}
+              </span>
+            </>
+          )}
+        </div>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{label}</p>
+
+      <div className="mt-3 h-10">
         {loading ? (
-          <div className="mt-1 space-y-2">
-            <div className="h-7 w-16 rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
-            <div className="h-5 w-28 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
-          </div>
+          <div className="h-full rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
         ) : (
-          <>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value ?? '—'}</p>
-            <span
-              className={cn(
-                'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
-                trend.direction === 'up'
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                  : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-              )}
-            >
-              <TrendIcon size={12} />
-              {trend.delta} {trend.label}
-            </span>
-          </>
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={sparkline} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={accent.line} stopOpacity={0.22} />
+                  <stop offset="100%" stopColor={accent.line} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={accent.line}
+                strokeWidth={2}
+                fill={`url(#${gradientId})`}
+                isAnimationActive={false}
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         )}
       </div>
     </div>
@@ -207,40 +256,85 @@ function KpiCard({ label, value, icon: Icon, color, trend, loading }: KpiCardPro
 
 export default function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useDashboardStats();
+  const registrationSparkline = data?.registrationsByMonth.map((entry) => ({ value: entry.registrations })) ?? [];
 
   const cards: Array<Omit<KpiCardProps, 'loading'>> = [
     {
       label: 'Total Users',
       value: data?.kpis.totalUsers,
       icon: Users,
-      color: 'bg-indigo-500',
+      accent: {
+        border: 'border-indigo-200 dark:border-indigo-900/60',
+        glow: 'bg-indigo-500',
+        icon: 'bg-indigo-600',
+        line: '#6366f1',
+        gradient: 'from-indigo-50 via-indigo-50/70 to-transparent dark:from-indigo-950/50 dark:via-indigo-950/25 dark:to-transparent',
+      },
       trend: { delta: '+12%', direction: 'up', label: 'vs last month' },
+      sparkline: registrationSparkline,
     },
     {
       label: 'Active',
       value: data?.kpis.activeUsers,
       icon: UserCheck,
-      color: 'bg-emerald-500',
+      accent: {
+        border: 'border-emerald-200 dark:border-emerald-900/60',
+        glow: 'bg-emerald-500',
+        icon: 'bg-emerald-600',
+        line: '#10b981',
+        gradient: 'from-emerald-50 via-emerald-50/70 to-transparent dark:from-emerald-950/50 dark:via-emerald-950/25 dark:to-transparent',
+      },
       trend: { delta: '+8%', direction: 'up', label: 'vs last month' },
+      sparkline: [
+        { value: 18 },
+        { value: 21 },
+        { value: 20 },
+        { value: 24 },
+        { value: 26 },
+        { value: 29 },
+        { value: 31 },
+      ],
     },
     {
       label: 'New This Month',
       value: data?.kpis.newThisMonth,
       icon: UserPlus,
-      color: 'bg-violet-500',
+      accent: {
+        border: 'border-violet-200 dark:border-violet-900/60',
+        glow: 'bg-violet-500',
+        icon: 'bg-violet-600',
+        line: '#8b5cf6',
+        gradient: 'from-violet-50 via-violet-50/70 to-transparent dark:from-violet-950/50 dark:via-violet-950/25 dark:to-transparent',
+      },
       trend: { delta: '+24%', direction: 'up', label: 'vs last month' },
+      sparkline: registrationSparkline,
     },
     {
       label: 'Suspended',
       value: data?.kpis.suspendedUsers,
       icon: UserX,
-      color: 'bg-rose-500',
+      accent: {
+        border: 'border-rose-200 dark:border-rose-900/60',
+        glow: 'bg-rose-500',
+        icon: 'bg-rose-600',
+        line: '#f43f5e',
+        gradient: 'from-rose-50 via-rose-50/70 to-transparent dark:from-rose-950/50 dark:via-rose-950/25 dark:to-transparent',
+      },
       trend: { delta: '-5%', direction: 'down', label: 'vs last month' },
+      sparkline: [
+        { value: 9 },
+        { value: 8 },
+        { value: 8 },
+        { value: 7 },
+        { value: 6 },
+        { value: 6 },
+        { value: 5 },
+      ],
     },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -273,36 +367,36 @@ export default function DashboardPage() {
             <Link
               key={label}
               to={to}
-              className="group flex flex-col gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-sm transition-all"
+              className="group flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-sm transition-all"
             >
-              <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', color)}>
+              <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', color)}>
                 <Icon size={18} className="text-white" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {label}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{description}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{description}</p>
               </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* Charts — 2-col on lg+, stack on mobile */}
+      {/* Charts — fit in one row on desktop, stack on mobile */}
       {!isError && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Registrations Line Chart — spans full width */}
-          <div className="lg:col-span-2 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          {/* Registrations Line Chart */}
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
               User Registrations
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">New sign-ups over the last 12 months</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">New sign-ups over the last 12 months</p>
 
             {isLoading ? (
               <ChartSkeleton variant="line" />
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={210}>
                 <LineChart data={data?.registrationsByMonth} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" />
                   <XAxis
@@ -343,23 +437,23 @@ export default function DashboardPage() {
           </div>
 
           {/* Users by Role Donut Chart */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
               Users by Role
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Distribution across permission levels</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Distribution across permission levels</p>
 
             {isLoading ? (
               <ChartSkeleton variant="donut" />
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={210}>
                 <PieChart>
                   <Pie
                     data={data?.usersByRole}
                     dataKey="count"
                     nameKey="role"
-                    innerRadius="55%"
-                    outerRadius="80%"
+                    innerRadius="52%"
+                    outerRadius="74%"
                     paddingAngle={3}
                   >
                     {data?.usersByRole.map((entry) => (
@@ -391,16 +485,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Activity by Day of Week Bar Chart */}
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
             <h2 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
               Activity by Day of Week
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Total audit events per weekday</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Total audit events per weekday</p>
 
             {isLoading ? (
               <ChartSkeleton variant="bar" />
             ) : (
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={210}>
                 <BarChart data={data?.activityByDayOfWeek} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" vertical={false} />
                   <XAxis
