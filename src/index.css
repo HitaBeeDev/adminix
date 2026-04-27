@@ -2,20 +2,57 @@
 
 @variant dark (&:is(.dark, .dark *));
 
+/* ── Design tokens — light ──────────────────────────────────── */
+:root {
+  --bg:          #f2eef5;
+  --main:        #ffffff;
+  --headline:    #181818;
+  --paragraph:   #2e2e2e;
+  --stroke:      #181818;
+  --highlight:   #4fc4cf;
+  --secondary:   #994ff3;
+  --tertiary:    #fbdd74;
+  --button:      #4fc4cf;
+  --button-text: #181818;
+
+  --scrollbar-thumb: #d3c9dc;
+  --scrollbar-track: transparent;
+}
+
+/* ── Design tokens — dark ───────────────────────────────────── */
+.dark {
+  --bg:          #f2eef5;
+  --main:        #ffffff;
+  --headline:    #181818;
+  --paragraph:   #2e2e2e;
+  --stroke:      #181818;
+  --highlight:   #4fc4cf;
+  --secondary:   #994ff3;
+  --tertiary:    #fbdd74;
+  --button:      #4fc4cf;
+  --button-text: #181818;
+
+  --scrollbar-thumb: #d3c9dc;
+}
+
+/* ── Tailwind v4 → custom utilities ─────────────────────────── */
+@theme inline {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-bg:          var(--bg);
+  --color-main:        var(--main);
+  --color-headline:    var(--headline);
+  --color-paragraph:   var(--paragraph);
+  --color-stroke:      var(--stroke);
+  --color-highlight:   var(--highlight);
+  --color-secondary:   var(--secondary);
+  --color-tertiary:    var(--tertiary);
+  --color-button:      var(--button);
+  --color-button-text: var(--button-text);
+}
+
 @layer base {
-  :root {
-    --tooltip-bg: #ffffff;
-    --tooltip-border: #e5e7eb;
-    --scrollbar-thumb: #d1d5db;
-    --scrollbar-track: transparent;
-  }
-
-  .dark {
-    --tooltip-bg: #1f2937;
-    --tooltip-border: #374151;
-    --scrollbar-thumb: #374151;
-  }
-
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -23,26 +60,17 @@
   }
 
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+    background:
+      radial-gradient(circle at 85% 5%, color-mix(in srgb, var(--highlight) 18%, transparent) 0, transparent 28rem),
+      radial-gradient(circle at 5% 100%, color-mix(in srgb, var(--secondary) 10%, transparent) 0, transparent 24rem),
+      var(--bg);
+    color: var(--paragraph);
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
 
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 9999px;
-  }
+  ::-webkit-scrollbar            { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track      { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb      { background: var(--scrollbar-thumb); border-radius: 9999px; }
 }

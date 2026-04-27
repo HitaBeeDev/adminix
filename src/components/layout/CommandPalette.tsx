@@ -3,139 +3,199 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router";
+import { Search, LayoutGrid, Users, Building2, Activity, Settings, UserPlus, FileText, Moon, LogOut } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
 
-const allItems = [
-  { label: "Dashboard", path: "/dashboard", description: "Overview & KPIs" },
-  { label: "Users", path: "/users", description: "Manage all users" },
-  { label: "Accounts", path: "/accounts", description: "Manage organizations" },
-  { label: "Roles", path: "/roles", description: "Permissions matrix" },
-  { label: "Activity", path: "/activity", description: "Audit log" },
-  { label: "Reports", path: "/reports", description: "Exports & analytics" },
-  { label: "Settings", path: "/settings", description: "Profile & preferences" },
+const NAV_ITEMS = [
+  { label: "Go to Dashboard",  path: "/dashboard", icon: LayoutGrid, kbd: "" },
+  { label: "Go to Users",      path: "/users",     icon: Users,       kbd: "" },
+  { label: "Go to Accounts",   path: "/accounts",  icon: Building2,   kbd: "" },
+  { label: "Go to Activity",   path: "/activity",  icon: Activity,    kbd: "" },
+  { label: "Go to Settings",   path: "/settings",  icon: Settings,    kbd: "" },
 ];
 
-const commandSearchSchema = z.object({
-  query: z.string(),
-});
+const ACTION_ITEMS = [
+  { label: "Invite user",      path: "/users",    icon: UserPlus, kbd: "" },
+  { label: "Generate report",  path: "/reports",  icon: FileText,  kbd: "" },
+  { label: "Toggle theme",     path: null,        icon: Moon,      kbd: "" },
+  { label: "Sign out",         path: "/login",    icon: LogOut,    kbd: "" },
+];
 
-type CommandSearchValues = z.infer<typeof commandSearchSchema>;
+const schema = z.object({ query: z.string() });
+type FormValues = z.infer<typeof schema>;
+
+type PaletteItem = { label: string; path: string | null; icon: React.ElementType; kbd: string };
 
 export default function CommandPalette() {
   const open = useUiStore((s) => s.commandPaletteOpen);
-
   if (!open) return null;
-
   return <CommandPaletteContent />;
 }
 
 function CommandPaletteContent() {
   const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
-  const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
-  const { register, control, setFocus } = useForm<CommandSearchValues>({
-    resolver: zodResolver(commandSearchSchema),
+  const setOpen = useUiStore((s) => s.setCommandPaletteOpen);
+
+  const { register, control, setFocus } = useForm<FormValues>({
+    resolver: zodResolver(schema),
     defaultValues: { query: "" },
   });
   const query = useWatch({ control, name: "query" }) ?? "";
 
-  const filtered = allItems.filter((item) =>
-    item.label.toLowerCase().includes(query.toLowerCase()) ||
-    item.description.toLowerCase().includes(query.toLowerCase())
-  );
+  const allItems: PaletteItem[] = [...NAV_ITEMS, ...ACTION_ITEMS];
+  const filtered: PaletteItem[] = query.trim()
+    ? allItems.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()))
+    : allItems;
 
-  useEffect(() => {
-    setTimeout(() => setFocus("query"), 10);
-  }, [setFocus]);
+  useEffect(() => { setTimeout(() => setFocus("query"), 10); }, [setFocus]);
 
-  function handleSelect(path: string) {
-    navigate(path);
-    setCommandPaletteOpen(false);
+  function handleSelect(item: PaletteItem) {
+    if (item.path) navigate(item.path);
+    setOpen(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter") {
-      if (filtered[activeIndex]) handleSelect(filtered[activeIndex].path);
-    } else if (e.key === "Escape") {
-      setCommandPaletteOpen(false);
-    }
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => Math.min(i + 1, filtered.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); }
+    else if (e.key === "Enter") { if (filtered[activeIndex]) handleSelect(filtered[activeIndex]); }
+    else if (e.key === "Escape") setOpen(false);
   }
+
+  const navLabels = new Set(NAV_ITEMS.map((i) => i.label));
+  const navFiltered = filtered.filter((i) => navLabels.has(i.label));
+  const actionLabels = new Set(ACTION_ITEMS.map((i) => i.label));
+  const actionFiltered = filtered.filter((i) => actionLabels.has(i.label));
+
+  const navOffset = 0;
+  const actionOffset = navFiltered.length;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) setCommandPaletteOpen(false);
-      }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
     >
-      {/* backdrop */}
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "color-mix(in srgb, var(--stroke) 40%, transparent)", backdropFilter: "blur(4px)" }}
+      />
 
-      {/* palette card */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
-        {/* search input */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-          <span className="text-gray-400 dark:text-gray-500 text-sm">⌘</span>
+      {/* Palette */}
+      <div
+        className="relative w-full max-w-xl bg-main rounded-xl overflow-hidden"
+        style={{ boxShadow: "0 8px 24px -8px color-mix(in srgb, var(--stroke) 18%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--stroke) 8%, transparent)" }}
+      >
+        {/* Search row */}
+        <div className="flex items-center gap-3 px-4 h-12 border-b border-stroke/8">
+          <Search size={16} style={{ color: "color-mix(in srgb, var(--paragraph) 50%, transparent)" }} className="shrink-0" />
           <input
             {...register("query", { onChange: () => setActiveIndex(0) })}
             onKeyDown={handleKeyDown}
-            placeholder="Search pages..."
-            className="flex-1 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none bg-transparent"
+            placeholder="Type a command or search…"
+            className="flex-1 text-sm text-headline placeholder:text-paragraph/50 bg-transparent outline-none"
           />
-          <button
-            onClick={() => setCommandPaletteOpen(false)}
-            className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-600 rounded px-1.5 py-0.5"
+          <kbd
+            className="text-[11px] font-medium px-1.5 py-0.5 rounded shrink-0"
+            style={{ background: "var(--tertiary)", color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
           >
             esc
-          </button>
+          </kbd>
         </div>
 
-        {/* results */}
-        <ul className="max-h-72 overflow-y-auto py-2">
+        {/* Results */}
+        <div className="max-h-80 overflow-y-auto py-1.5">
           {filtered.length === 0 ? (
-            <li className="px-4 py-6 text-sm text-gray-400 dark:text-gray-500 text-center">
-              No results for "{query}"
-            </li>
+            <p className="px-4 py-6 text-sm text-center" style={{ color: "color-mix(in srgb, var(--paragraph) 50%, transparent)" }}>
+              No results for &ldquo;{query}&rdquo;
+            </p>
           ) : (
-            filtered.map((item, i) => (
-              <li key={item.path}>
-                <button
-                  onMouseEnter={() => setActiveIndex(i)}
-                  onClick={() => handleSelect(item.path)}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors ${
-                    i === activeIndex
-                      ? "bg-indigo-50 dark:bg-indigo-900/30"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  }`}
-                >
-                  <div>
-                    <span className={`text-sm font-medium ${i === activeIndex ? "text-indigo-700 dark:text-indigo-300" : "text-gray-800 dark:text-gray-100"}`}>
-                      {item.label}
-                    </span>
-                    <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">{item.description}</span>
-                  </div>
-                  {i === activeIndex && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600 rounded px-1.5 py-0.5">↵</span>
-                  )}
-                </button>
-              </li>
-            ))
+            <>
+              {navFiltered.length > 0 && (
+                <Section label="Navigation" items={navFiltered} offset={navOffset} activeIndex={activeIndex} onSelect={handleSelect} onHover={setActiveIndex} />
+              )}
+              {actionFiltered.length > 0 && (
+                <Section label="Actions" items={actionFiltered} offset={actionOffset} activeIndex={activeIndex} onSelect={handleSelect} onHover={setActiveIndex} />
+              )}
+            </>
           )}
-        </ul>
+        </div>
 
-        {/* footer hint */}
-        <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 flex gap-4 text-xs text-gray-400 dark:text-gray-500">
+        {/* Footer */}
+        <div
+          className="flex gap-4 items-center px-4 py-2.5 border-t border-stroke/8 text-[11px]"
+          style={{ color: "color-mix(in srgb, var(--paragraph) 50%, transparent)" }}
+        >
           <span><kbd className="font-sans">↑↓</kbd> navigate</span>
           <span><kbd className="font-sans">↵</kbd> open</span>
           <span><kbd className="font-sans">esc</kbd> close</span>
         </div>
       </div>
     </div>
+  );
+}
+
+function Section({
+  label,
+  items,
+  offset,
+  activeIndex,
+  onSelect,
+  onHover,
+}: {
+  label: string;
+  items: PaletteItem[];
+  offset: number;
+  activeIndex: number;
+  onSelect: (item: PaletteItem) => void;
+  onHover: (i: number) => void;
+}) {
+  return (
+    <>
+      <p
+        className="px-3 pt-3 pb-1 text-[11px] font-medium tracking-widest uppercase"
+        style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
+      >
+        {label}
+      </p>
+      {items.map((item, localIdx) => {
+        const globalIdx = offset + localIdx;
+        const isActive = globalIdx === activeIndex;
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.label}
+            onMouseEnter={() => onHover(globalIdx)}
+            onClick={() => onSelect(item)}
+            className="w-full flex items-center gap-3 px-3 py-2 text-left transition-colors duration-100 rounded-md mx-1"
+            style={{
+              width: "calc(100% - 8px)",
+              background: isActive ? "var(--tertiary)" : "transparent",
+            }}
+          >
+            <Icon size={16} style={{ color: isActive ? "var(--highlight)" : "color-mix(in srgb, var(--paragraph) 60%, transparent)" }} className="shrink-0" />
+            <span className={`flex-1 text-sm ${isActive ? "text-headline font-medium" : "text-paragraph"}`}>
+              {item.label}
+            </span>
+            {item.kbd && (
+              <kbd
+                className="text-[11px] font-medium px-1.5 py-0.5 rounded"
+                style={{ background: "var(--tertiary)", color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
+              >
+                {item.kbd}
+              </kbd>
+            )}
+            {isActive && (
+              <kbd
+                className="text-[11px] font-medium px-1.5 py-0.5 rounded"
+                style={{ background: "var(--tertiary)", color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
+              >
+                ↵
+              </kbd>
+            )}
+          </button>
+        );
+      })}
+    </>
   );
 }

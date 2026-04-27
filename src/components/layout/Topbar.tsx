@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router";
+import { Search, Bell, Sun, Moon, Menu } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useLogout } from "@/hooks/useAuth";
 
-const segmentLabels: Record<string, string> = {
+const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   users: "Users",
   accounts: "Accounts",
@@ -15,24 +16,19 @@ const segmentLabels: Record<string, string> = {
   settings: "Settings",
 };
 
-// Turns a path like /users/abc123 into breadcrumb segments
 function buildBreadcrumbs(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
-
-  const crumbs = segments.map((seg, i) => {
+  return segments.map((seg, i) => {
     const path = "/" + segments.slice(0, i + 1).join("/");
-    const isId = !segmentLabels[seg]; // segment not in known labels → it's a dynamic id
-    const label = isId
-      ? segments[i - 1] === "users"
+    const label = SEGMENT_LABELS[seg]
+      ? SEGMENT_LABELS[seg]
+      : segments[i - 1] === "users"
         ? "User Detail"
         : segments[i - 1] === "accounts"
           ? "Account Detail"
-          : "Detail"
-      : segmentLabels[seg];
-    return { label, path, isId };
+          : "Detail";
+    return { label, path };
   });
-
-  return crumbs;
 }
 
 type Notification = {
@@ -41,27 +37,17 @@ type Notification = {
   description: string;
   time: string;
   read: boolean;
-  type: "user" | "account" | "role";
 };
 
-const initialNotifications: Notification[] = [
-  { id: 1, title: "New user registered", description: "sarah.k@example.com joined as Viewer", time: "2m ago", read: false, type: "user" },
-  { id: 2, title: "Account suspended", description: "Acme Corp account was suspended", time: "1h ago", read: false, type: "account" },
-  { id: 3, title: "Role updated", description: "Manager permissions were changed", time: "3h ago", read: false, type: "role" },
-  { id: 4, title: "User deleted", description: "john.doe@example.com was removed", time: "5h ago", read: true, type: "user" },
+const INITIAL_NOTIFICATIONS: Notification[] = [
+  { id: 1, title: "New user registered", description: "sarah.k@example.com joined as Viewer", time: "2m ago", read: false },
+  { id: 2, title: "Account suspended", description: "Acme Corp account was suspended", time: "1h ago", read: false },
+  { id: 3, title: "Role updated", description: "Manager permissions were changed", time: "3h ago", read: false },
+  { id: 4, title: "User deleted", description: "john.doe@example.com was removed", time: "5h ago", read: true },
 ];
-
-const typeColors: Record<Notification["type"], string> = {
-  user: "bg-indigo-500",
-  account: "bg-amber-500",
-  role: "bg-emerald-500",
-};
 
 export default function Topbar() {
   const { pathname } = useLocation();
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const { resolvedTheme, toggleTheme } = useTheme();
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
   const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
@@ -69,47 +55,34 @@ export default function Topbar() {
   const logout = useLogout();
   const navigate = useNavigate();
 
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+
   const notifRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unread = notifications.filter((n) => !n.read).length;
   const crumbs = buildBreadcrumbs(pathname);
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setNotifOpen(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }
-
-  function markRead(id: number) {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  }
-
-  const darkMode = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark";
   const userName = user?.name ?? "Admin User";
   const userEmail = user?.email ?? "admin@adminix.io";
-  const firstName = userName.split(/\s+/)[0] ?? "Admin";
   const initials = userName
     .split(/\s+/)
     .filter(Boolean)
-    .map((part) => part[0])
+    .map((p) => p[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
   async function handleLogout() {
     await logout.mutateAsync();
@@ -118,29 +91,44 @@ export default function Topbar() {
   }
 
   return (
-    <div className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 relative">
-      {/* left: mobile menu + breadcrumb */}
+    <header className="min-h-[88px] bg-transparent flex items-center justify-between gap-4 px-5 pt-5 sm:px-7 lg:px-8 shrink-0">
+      {/* Left: mobile menu + breadcrumbs */}
       <div className="flex items-center gap-3">
         <button
-          className="md:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"
+          className="md:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-main text-paragraph/70 shadow-[0_16px_34px_-28px_var(--stroke)] hover:bg-highlight/10 hover:text-headline transition-colors"
           onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation"
         >
-          Menu
+          <Menu size={18} />
         </button>
 
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
-          <Link to="/dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-            Home
+        <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1 text-sm rounded-full bg-main/45 px-4 py-2 border border-stroke/5">
+          <Link
+            to="/dashboard"
+            className="transition-colors"
+            style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
+          >
+            Workspace
           </Link>
           {crumbs.map((crumb, i) => {
             const isLast = i === crumbs.length - 1;
             return (
               <span key={crumb.path} className="flex items-center gap-1">
-                <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">/</span>
+                <span
+                  aria-hidden="true"
+                  className="text-xs"
+                  style={{ color: "color-mix(in srgb, var(--paragraph) 30%, transparent)" }}
+                >
+                  /
+                </span>
                 {isLast ? (
-                  <span aria-current="page" className="text-gray-800 dark:text-gray-100 font-medium">{crumb.label}</span>
+                  <span className="font-medium text-headline">{crumb.label}</span>
                 ) : (
-                  <Link to={crumb.path} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                  <Link
+                    to={crumb.path}
+                    className="transition-colors"
+                    style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}
+                  >
                     {crumb.label}
                   </Link>
                 )}
@@ -150,84 +138,96 @@ export default function Topbar() {
         </nav>
       </div>
 
-      {/* right: actions */}
-      <div className="flex items-center gap-4">
-        {/* search */}
+      {/* Right: search + actions */}
+      <div className="flex items-center gap-3 flex-1 justify-end">
+        {/* Search trigger */}
         <button
           onClick={() => setCommandPaletteOpen(true)}
-          aria-label="Open command palette"
-          className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 transition-colors hover:border-gray-300 dark:hover:border-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          aria-label="Open search"
+          className="hidden sm:flex items-center gap-3 h-14 px-5 rounded-full bg-main border border-stroke/6 text-sm transition-colors hover:border-highlight/25 shadow-[0_18px_48px_-38px_var(--stroke)]"
+          style={{ width: "min(460px, 42vw)" }}
         >
-          <span>Search</span>
-          <kbd className="font-sans text-xs bg-gray-100 dark:bg-gray-800 rounded px-1">⌘K</kbd>
+          <Search size={18} style={{ color: "color-mix(in srgb, var(--paragraph) 65%, transparent)" }} className="shrink-0" />
+          <span className="flex-1 text-left text-[14px]" style={{ color: "color-mix(in srgb, var(--paragraph) 62%, transparent)" }}>
+            Search users, accounts, reports...
+          </span>
+          <kbd
+            className="text-[11px] font-semibold px-2 py-1 rounded-full"
+            style={{
+              background: "color-mix(in srgb, var(--highlight) 12%, white)",
+              color: "color-mix(in srgb, var(--paragraph) 70%, transparent)",
+            }}
+          >
+            ⌘K
+          </kbd>
         </button>
 
-        {/* notifications */}
+        {/* Notification bell */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setNotifOpen((o) => !o); setUserMenuOpen(false); }}
-            aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+            aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
             aria-expanded={notifOpen}
-            aria-haspopup="true"
-            className="relative w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="relative w-12 h-12 flex items-center justify-center rounded-full bg-main text-paragraph/70 hover:bg-highlight/10 hover:text-headline transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_var(--stroke)]"
           >
-            {/* bell icon */}
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                {unreadCount}
-              </span>
+            <Bell size={18} />
+            {unread > 0 && (
+              <span
+                className="absolute top-3 right-3 w-2 h-2 rounded-full bg-secondary ring-2"
+                style={{ "--tw-ring-color": "var(--main)" } as React.CSSProperties}
+              />
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-10 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-              {/* header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notifications</span>
-                {unreadCount > 0 && (
+            <div
+              className="absolute right-0 top-14 w-80 bg-main rounded-3xl border border-stroke/8 z-50 overflow-hidden"
+              style={{ boxShadow: "0 24px 70px -45px color-mix(in srgb, var(--stroke) 35%, transparent)" }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-stroke/8">
+                <span className="text-sm font-semibold text-headline">Notifications</span>
+                {unread > 0 && (
                   <button
-                    onClick={markAllRead}
-                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+                    onClick={() => setNotifications((p) => p.map((n) => ({ ...n, read: true })))}
+                    className="text-xs text-highlight hover:underline transition-colors"
                   >
                     Mark all as read
                   </button>
                 )}
               </div>
-
-              {/* items */}
-              <ul className="max-h-72 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700">
+              <ul className="max-h-72 overflow-y-auto divide-y divide-stroke/8">
                 {notifications.map((n) => (
                   <li key={n.id}>
                     <button
-                      onClick={() => markRead(n.id)}
-                      aria-label={`${n.title}${n.read ? '' : ' (unread)'}`}
-                      className={`w-full flex gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 ${n.read ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" : "bg-indigo-50/50 dark:bg-indigo-900/20 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"}`}
+                      onClick={() => setNotifications((p) => p.map((x) => x.id === n.id ? { ...x, read: true } : x))}
+                      className="w-full flex gap-3 px-4 py-3 text-left hover:bg-highlight/10 transition-colors"
                     >
-                      <div className="mt-1.5 shrink-0" aria-hidden="true">
-                        <span className={`block w-2 h-2 rounded-full ${n.read ? "bg-gray-300 dark:bg-gray-600" : typeColors[n.type]}`} />
+                      <div className="mt-2 shrink-0">
+                        <span
+                          className="block w-1.5 h-1.5 rounded-full"
+                          style={{ background: n.read ? "color-mix(in srgb, var(--stroke) 20%, transparent)" : "var(--highlight)" }}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${n.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-gray-100 font-medium"}`}>
+                        <p className={`text-sm ${n.read ? "text-paragraph/70" : "text-headline font-medium"}`}>
                           {n.title}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{n.description}</p>
+                        <p className="text-xs mt-0.5 truncate" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                          {n.description}
+                        </p>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0 mt-0.5">{n.time}</span>
+                      <span className="text-xs shrink-0 mt-0.5" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                        {n.time}
+                      </span>
                     </button>
                   </li>
                 ))}
               </ul>
-
-              {/* footer */}
-              <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-700">
+              <div className="px-4 py-2.5 border-t border-stroke/8">
                 <Link
                   to="/activity"
                   onClick={() => setNotifOpen(false)}
-                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
+                  className="text-xs text-highlight hover:underline transition-colors"
                 >
                   View all activity →
                 </Link>
@@ -236,100 +236,73 @@ export default function Topbar() {
           )}
         </div>
 
-        {/* dark mode toggle */}
+        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          className="w-12 h-12 flex items-center justify-center rounded-full bg-main text-paragraph/70 hover:bg-highlight/10 hover:text-headline transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_var(--stroke)]"
         >
-          {darkMode ? (
-            // sun icon
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-            </svg>
-          ) : (
-            // moon icon
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-          )}
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-        {/* user avatar menu */}
-        <div className="relative" ref={userMenuRef}>
+        {/* User chip */}
+        <div className="relative" ref={userRef}>
           <button
             onClick={() => { setUserMenuOpen((o) => !o); setNotifOpen(false); }}
             aria-label="User menu"
             aria-expanded={userMenuOpen}
-            aria-haspopup="true"
-            className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full bg-main hover:bg-highlight/10 transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_var(--stroke)]"
           >
-            <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+            <div className="w-10 h-10 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-[12px] font-bold shrink-0">
               {initials}
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">{firstName}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            <div className="hidden sm:block text-left leading-tight">
+              <p className="text-sm font-semibold text-headline">{userName}</p>
+              <p className="text-[11px]" style={{ color: "color-mix(in srgb, var(--paragraph) 65%, transparent)" }}>{userEmail}</p>
+            </div>
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 top-11 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden">
-              {/* user info header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+            <div
+              className="absolute right-0 top-14 w-60 bg-main rounded-3xl border border-stroke/8 z-50 overflow-hidden p-2"
+              style={{ boxShadow: "0 24px 70px -45px color-mix(in srgb, var(--stroke) 35%, transparent)" }}
+            >
+              <div className="flex items-center gap-3 px-3 py-2.5 border-b border-stroke/8 mb-1">
+                <div className="w-9 h-9 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-xs font-semibold shrink-0">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{userName}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{userEmail}</p>
+                  <p className="text-sm font-semibold text-headline truncate">{userName}</p>
+                  <p className="text-[11px] truncate" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                    {userEmail}
+                  </p>
                 </div>
               </div>
-
-              {/* menu items */}
-              <div className="py-1">
-                <Link
-                  to="/settings"
-                  onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-gray-500">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                  Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  onClick={() => setUserMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 dark:text-gray-500">
-                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  Settings
-                </Link>
-              </div>
-
-              <div className="border-t border-gray-100 dark:border-gray-700 py-1">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  Logout
-                </button>
-              </div>
+              <Link
+                to="/settings"
+                onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm text-paragraph hover:bg-highlight/10 transition-colors"
+              >
+                Profile
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setUserMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm text-paragraph hover:bg-highlight/10 transition-colors"
+              >
+                Settings
+              </Link>
+              <div className="my-1 h-px bg-stroke/8" />
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-sm text-secondary hover:bg-secondary/10 transition-colors"
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </header>
   );
 }

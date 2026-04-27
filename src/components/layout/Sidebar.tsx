@@ -1,19 +1,216 @@
 import { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { LogOut } from "lucide-react";
+import {
+  LayoutGrid,
+  Users,
+  Building2,
+  Shield,
+  Activity,
+  FileText,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useLogout } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
-const links = [
-  { to: "/dashboard", label: "Dashboard", short: "DB" },
-  { to: "/users", label: "Users", short: "US" },
-  { to: "/accounts", label: "Accounts", short: "AC" },
-  { to: "/roles", label: "Roles", short: "RO" },
-  { to: "/activity", label: "Activity", short: "AV" },
-  { to: "/reports",  label: "Reports",  short: "RP" },
-  { to: "/settings", label: "Settings", short: "ST" },
+const PRIMARY_NAV = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+  { to: "/users",     label: "Users",     icon: Users },
+  { to: "/accounts",  label: "Accounts",  icon: Building2 },
+  { to: "/roles",     label: "Roles",     icon: Shield },
+  { to: "/activity",  label: "Activity",  icon: Activity },
+  { to: "/reports",   label: "Reports",   icon: FileText },
 ];
+
+const OTHER_NAV = [
+  { to: "/settings",  label: "Settings",  icon: Settings },
+];
+
+interface NavItemProps {
+  to: string;
+  label: string;
+  icon: React.ElementType;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}
+
+function NavItem({ to, label, icon: Icon, collapsed, onNavigate }: NavItemProps) {
+  return (
+    <NavLink
+      to={to}
+      onClick={onNavigate}
+      title={collapsed ? label : undefined}
+      className={({ isActive }) =>
+        cn(
+          "relative flex items-center h-11 rounded-2xl transition-colors duration-150 select-none",
+          collapsed ? "justify-center w-11 mx-auto" : "gap-3 px-4",
+          isActive
+            ? "bg-highlight/15 text-headline font-semibold"
+            : "text-paragraph hover:bg-highlight/10 hover:text-headline"
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {isActive && !collapsed && (
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-highlight rounded-full" />
+          )}
+          <Icon size={19} className={cn("shrink-0", isActive && "text-highlight")} />
+          {!collapsed && <span className="text-[15px]">{label}</span>}
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+interface SidebarContentProps {
+  collapsed: boolean;
+  onLogout: () => void;
+  userName: string;
+  userRole: string;
+  initials: string;
+  onCollapseToggle?: () => void;
+  onNavigate?: () => void;
+}
+
+function SidebarContent({ collapsed, onLogout, userName, userRole, initials, onCollapseToggle, onNavigate }: SidebarContentProps) {
+  return (
+    <>
+      {/* Brand */}
+      <div className={cn("flex items-center h-20 shrink-0 px-5", collapsed && "justify-center px-2")}>
+        {collapsed ? (
+          <div className="w-10 h-10 rounded-2xl bg-highlight flex items-center justify-center shadow-[0_12px_24px_-16px_var(--highlight)]">
+            <LayoutGrid size={17} className="text-headline" />
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-11 h-11 rounded-2xl bg-highlight flex items-center justify-center shrink-0 shadow-[0_12px_24px_-16px_var(--highlight)]">
+                <LayoutGrid size={18} className="text-headline" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-headline truncate">Adminix</span>
+            </div>
+            {onCollapseToggle && (
+              <button
+                onClick={onCollapseToggle}
+                aria-label="Collapse sidebar"
+                className="w-9 h-9 rounded-2xl flex items-center justify-center text-paragraph/60 hover:bg-highlight/10 hover:text-headline transition-colors shrink-0"
+              >
+                <ChevronLeft size={16} />
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Expand button when collapsed */}
+      {collapsed && onCollapseToggle && (
+        <button
+          onClick={onCollapseToggle}
+          aria-label="Expand sidebar"
+          className="w-9 h-9 mx-auto mb-2 rounded-2xl flex items-center justify-center text-paragraph/60 hover:bg-highlight/10 hover:text-headline transition-colors"
+        >
+          <ChevronRight size={16} />
+        </button>
+      )}
+
+      {/* Workspace switcher */}
+      {!collapsed && (
+        <button className="mx-4 mb-4 flex items-center gap-3 h-11 px-3 rounded-2xl bg-bg/70 hover:bg-highlight/10 transition-colors">
+          <div className="w-7 h-7 rounded-xl bg-tertiary flex items-center justify-center text-[12px] font-bold text-headline shrink-0">
+            A
+          </div>
+          <span className="flex-1 text-left text-sm font-medium text-headline truncate">Acme Internal</span>
+          <ChevronDown size={14} className="text-paragraph/60 shrink-0" />
+        </button>
+      )}
+
+      {/* Primary nav */}
+      <div className={cn("mt-1", collapsed ? "px-2" : "px-4")}>
+        {!collapsed && (
+          <p className="px-2 pb-2 text-[13px] font-medium text-paragraph/70 select-none">
+            Main
+          </p>
+        )}
+        <nav className="space-y-1.5" aria-label="Primary navigation">
+          {PRIMARY_NAV.map((link) => (
+            <NavItem key={link.to} {...link} collapsed={collapsed} onNavigate={onNavigate} />
+          ))}
+        </nav>
+      </div>
+
+      {/* Other nav */}
+      <div className={cn("mt-7", collapsed ? "px-2" : "px-4")}>
+        {!collapsed && (
+          <p className="px-2 pb-2 text-[13px] font-medium text-paragraph/70 select-none">
+            Other
+          </p>
+        )}
+        <nav className="space-y-1.5" aria-label="Secondary navigation">
+          {OTHER_NAV.map((link) => (
+            <NavItem key={link.to} {...link} collapsed={collapsed} onNavigate={onNavigate} />
+          ))}
+          <button
+            onClick={onLogout}
+            title={collapsed ? "Logout" : undefined}
+            className={cn(
+              "w-full flex items-center h-11 rounded-2xl transition-colors duration-150 text-paragraph hover:bg-highlight/10 hover:text-headline",
+              collapsed ? "justify-center w-11 mx-auto" : "gap-3 px-4"
+            )}
+          >
+            <LogOut size={19} className="shrink-0" />
+            {!collapsed && <span className="text-[15px]">Logout</span>}
+          </button>
+        </nav>
+      </div>
+
+      {/* Bottom block */}
+      <div className="mt-auto">
+        {!collapsed && (
+          <div
+            className="mx-4 mb-4 rounded-3xl p-5 overflow-hidden relative"
+            style={{
+              background:
+                "linear-gradient(135deg, color-mix(in srgb, var(--highlight) 34%, white), color-mix(in srgb, var(--highlight) 10%, white))",
+            }}
+          >
+            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/35" />
+            <p className="relative text-sm font-bold text-headline">Need Help?</p>
+            <p className="relative text-[12px] mt-1" style={{ color: "color-mix(in srgb, var(--paragraph) 78%, transparent)" }}>
+              Contact support team
+            </p>
+            <button className="relative mt-4 w-full h-10 rounded-2xl bg-button text-button-text text-xs font-bold hover:brightness-105 transition-colors shadow-[0_14px_26px_-18px_var(--stroke)]">
+              Get Support
+            </button>
+          </div>
+        )}
+
+        {/* User chip */}
+        <div className={cn("border-t border-stroke/8 p-4 flex items-center gap-3", collapsed && "justify-center")}>
+          <div
+            title={collapsed ? `${userName} — ${userRole}` : undefined}
+            className="w-10 h-10 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-[12px] font-bold shrink-0"
+          >
+            {initials}
+          </div>
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-headline truncate">{userName}</p>
+              <p className="text-[11px] truncate capitalize" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                {userRole}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function Sidebar() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
@@ -29,12 +226,11 @@ export default function Sidebar() {
   const initials = userName
     .split(/\s+/)
     .filter(Boolean)
-    .map((part) => part[0])
+    .map((p) => p[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
-  // Collapse automatically on md (768–1023 px), expand on lg+
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 1024px)");
     setCollapsed(!mql.matches);
@@ -49,141 +245,53 @@ export default function Sidebar() {
     navigate("/login", { replace: true });
   }
 
+  const contentProps = { userName, userRole, initials, onLogout: handleLogout };
+
   return (
     <>
-      {/* desktop sidebar */}
-      <div
-        className={`hidden md:flex flex-col h-screen bg-gray-900 text-white transition-all duration-300 ease-in-out ${collapsed ? "w-16" : "w-56"}`}
+      {/* Desktop floating sidebar */}
+      <aside
+        className="hidden md:flex flex-col bg-main border border-stroke/8 rounded-[2rem] m-5 shrink-0 overflow-hidden shadow-[0_24px_70px_-52px_var(--stroke)]"
+        style={{
+          width: collapsed ? 84 : 270,
+          height: "calc(100vh - 40px)",
+          transition: "width 220ms cubic-bezier(0.2,0.8,0.2,1)",
+        }}
       >
-        {/* header */}
-        <div className="h-14 px-3 border-b border-gray-700 flex items-center justify-between shrink-0">
-          {!collapsed && (
+        <SidebarContent
+          {...contentProps}
+          collapsed={collapsed}
+          onCollapseToggle={() => setCollapsed(!collapsed)}
+        />
+      </aside>
+
+      {/* Mobile overlay drawer */}
+      <div
+        className={cn(
+          "fixed top-0 left-0 h-screen z-30 md:hidden transition-transform duration-200",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <aside className="flex flex-col bg-main border-r border-stroke/8 w-72 h-full">
+          <div className="flex items-center justify-between h-[72px] px-5 border-b border-stroke/8 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-highlight flex items-center justify-center">
+                <LayoutGrid size={16} className="text-headline" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-headline">Adminix</span>
+            </div>
             <button
-              onClick={() => setCollapsed(true)}
-              className="text-lg font-bold tracking-wide truncate hover:text-gray-300 transition-colors"
-            >
-              Adminix
-            </button>
-          )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className={`w-8 h-8 flex items-center justify-center rounded hover:bg-gray-700 text-gray-400 hover:text-white transition-colors shrink-0 ${collapsed ? "mx-auto" : "ml-auto"}`}
-          >
-            {collapsed ? "→" : "←"}
-          </button>
-        </div>
-
-        {/* nav */}
-        <nav className="flex-1 p-2 flex flex-col gap-1 overflow-hidden">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              title={collapsed ? link.label : undefined}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded text-sm transition-colors
-                ${collapsed ? "justify-center px-0 py-2" : "px-3 py-2"}
-                ${isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`
-              }
-            >
-              {collapsed ? (
-                <span className="text-xs font-semibold tracking-wider">{link.short}</span>
-              ) : (
-                link.label
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        {/* footer — user widget */}
-        <div className="p-3 border-t border-gray-700 shrink-0">
-          {collapsed ? (
-            <div className="flex flex-col items-center gap-2">
-              <div
-                title={`${userName} - ${userRole}`}
-                className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0"
-              >
-                {initials}
-              </div>
-              <button
-                title="Logout"
-                onClick={handleLogout}
-                aria-label="Logout"
-                className="text-red-400 hover:text-red-300 transition-colors"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white truncate">{userName}</div>
-                <div className="text-xs text-gray-400 truncate capitalize">{userRole}</div>
-              </div>
-              <button
-                onClick={handleLogout}
-                aria-label="Logout"
-                className="text-red-400 hover:text-red-300 transition-colors shrink-0"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* mobile sidebar drawer */}
-      <div
-        className={`fixed top-0 left-0 h-screen w-56 bg-gray-900 text-white z-30 flex flex-col transition-transform duration-200 md:hidden ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-          <span className="text-xl font-bold">Adminix</span>
-          <button
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close navigation"
-            className="text-gray-400 hover:text-white text-sm"
-          >
-            X
-          </button>
-        </div>
-
-        <nav className="flex-1 p-2 flex flex-col gap-1">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
               onClick={() => setMobileOpen(false)}
-              className={({ isActive }) =>
-                `px-3 py-2 rounded text-sm ${isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-800 hover:text-white"}`
-              }
+              aria-label="Close navigation"
+              className="w-9 h-9 rounded-2xl flex items-center justify-center text-paragraph/60 hover:bg-highlight/10 hover:text-headline transition-colors"
             >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="p-3 border-t border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-              {initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{userName}</div>
-              <div className="text-xs text-gray-400 truncate capitalize">{userRole}</div>
-            </div>
-            <button
-              onClick={handleLogout}
-              aria-label="Logout"
-              className="text-red-400 hover:text-red-300 transition-colors shrink-0"
-            >
-              <LogOut size={16} />
+              <ChevronLeft size={14} />
             </button>
           </div>
-        </div>
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            <SidebarContent {...contentProps} collapsed={false} onNavigate={() => setMobileOpen(false)} />
+          </div>
+        </aside>
       </div>
     </>
   );
