@@ -55,7 +55,7 @@ export default function DropdownMenu({
   function openMenu() {
     if (!triggerRef.current) return;
     setPos(getMenuPosition(triggerRef.current, align));
-    setOpen(true);
+    setOpen((value) => !value);
   }
 
   // Reposition on scroll / resize while open

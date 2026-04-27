@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -12,6 +12,8 @@ interface SlideOverProps {
 
 export default function SlideOver({ open, onClose, title, description, children }: SlideOverProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
 
   // Close on Escape
   useEffect(() => {
@@ -50,16 +52,17 @@ export default function SlideOver({ open, onClose, title, description, children 
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="slideover-title"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className="relative w-full max-w-md bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col outline-none"
       >
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div>
-            <h2 id="slideover-title" className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+            <h2 id={titleId} className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
             {description && (
-              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
+              <p id={descriptionId} className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
             )}
           </div>
           <button

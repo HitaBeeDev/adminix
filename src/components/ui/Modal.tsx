@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,8 @@ interface ModalProps {
 
 export default function Modal({ open, onClose, title, description, children, className }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
 
   // Close on Escape
   useEffect(() => {
@@ -55,7 +57,8 @@ export default function Modal({ open, onClose, title, description, children, cla
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
           'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 outline-none',
@@ -66,13 +69,14 @@ export default function Modal({ open, onClose, title, description, children, cla
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800">
           <div>
-            <h2 id="modal-title" className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
+            <h2 id={titleId} className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
             {description && (
-              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
+              <p id={descriptionId} className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             className="ml-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <X size={16} />
