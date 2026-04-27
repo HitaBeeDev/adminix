@@ -1,3 +1,48 @@
 @import "tailwindcss";
 
 @variant dark (&:is(.dark, .dark *));
+
+@layer base {
+  :root {
+    --tooltip-bg: #ffffff;
+    --tooltip-border: #e5e7eb;
+    --scrollbar-thumb: #d1d5db;
+    --scrollbar-track: transparent;
+  }
+
+  .dark {
+    --tooltip-bg: #1f2937;
+    --tooltip-border: #374151;
+    --scrollbar-thumb: #374151;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+  }
+}

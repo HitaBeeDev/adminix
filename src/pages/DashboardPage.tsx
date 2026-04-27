@@ -289,8 +289,8 @@ export default function DashboardPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg, #fff)',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'var(--tooltip-bg)',
+                  border: '1px solid var(--tooltip-border)',
                   borderRadius: '0.5rem',
                   fontSize: '0.8125rem',
                 }}
@@ -340,8 +340,8 @@ export default function DashboardPage() {
                   ROLE_LABELS[String(name)] ?? String(name),
                 ]}
                 contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg, #fff)',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'var(--tooltip-bg)',
+                  border: '1px solid var(--tooltip-border)',
                   borderRadius: '0.5rem',
                   fontSize: '0.8125rem',
                 }}
@@ -387,8 +387,8 @@ export default function DashboardPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--tooltip-bg, #fff)',
-                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'var(--tooltip-bg)',
+                  border: '1px solid var(--tooltip-border)',
                   borderRadius: '0.5rem',
                   fontSize: '0.8125rem',
                 }}
