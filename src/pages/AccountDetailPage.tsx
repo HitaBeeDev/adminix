@@ -160,12 +160,13 @@ export default function AccountDetailPage() {
     );
   }
 
-  const isSuspended = account.status === 'suspended';
-  const weeklyData  = mockWeeklyActivity(account.id, account.membersCount);
+  const currentAccount = account;
+  const isSuspended = currentAccount.status === 'suspended';
+  const weeklyData  = mockWeeklyActivity(currentAccount.id, currentAccount.membersCount);
 
   function startEditing() {
-    setEditName(account!.name);
-    setEditDomain(account!.domain ?? '');
+    setEditName(currentAccount.name);
+    setEditDomain(currentAccount.domain ?? '');
     setIsEditing(true);
   }
 
@@ -184,7 +185,7 @@ export default function AccountDetailPage() {
     try {
       await updateAccount.mutateAsync({ status: newStatus });
       toast.success(
-        isSuspended ? `${account.name} reactivated.` : `${account.name} suspended.`,
+        isSuspended ? `${currentAccount.name} reactivated.` : `${currentAccount.name} suspended.`,
       );
       setConfirmSuspend(false);
     } catch {
@@ -194,8 +195,8 @@ export default function AccountDetailPage() {
 
   async function handleDelete() {
     try {
-      await deleteAccount.mutateAsync(account.id);
-      toast.success(`${account.name} has been deleted.`);
+      await deleteAccount.mutateAsync(currentAccount.id);
+      toast.success(`${currentAccount.name} has been deleted.`);
       navigate('/accounts');
     } catch {
       toast.error('Failed to delete account.');

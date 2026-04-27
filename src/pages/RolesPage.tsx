@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Fragment } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ShieldCheck, Trash2, Plus, Users } from 'lucide-react';
@@ -29,12 +30,12 @@ function AddRoleForm({ permissions, onClose }: { permissions: Permission[]; onCl
   const createRole = useCreateRole();
   const groups = [...new Set(permissions.map((p) => p.group))];
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, control, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { permissions: [] },
   });
 
-  const selected = watch('permissions') as PermissionKey[];
+  const selected = useWatch({ control, name: 'permissions' }) as PermissionKey[];
 
   function togglePerm(key: PermissionKey) {
     const next = selected.includes(key)
@@ -271,7 +272,7 @@ export default function RolesPage() {
                 </thead>
                 <tbody>
                   {groups.map((group) => (
-                    <>
+                    <Fragment key={group}>
                       {/* Group header row */}
                       <tr key={`group-${group}`} className="bg-gray-50/50 dark:bg-gray-800/20">
                         <td
@@ -314,7 +315,7 @@ export default function RolesPage() {
                             })}
                           </tr>
                         ))}
-                    </>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>

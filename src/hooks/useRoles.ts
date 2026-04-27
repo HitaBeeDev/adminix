@@ -3,6 +3,7 @@ import { fetchRoles, createRole, updateRole, deleteRole } from '@/api/roles';
 import type { CreateRolePayload, PermissionKey } from '@/types/role';
 
 const QUERY_KEY = ['roles'];
+type RolesResponse = Awaited<ReturnType<typeof fetchRoles>>;
 
 export function useRoles() {
   return useQuery({ queryKey: QUERY_KEY, queryFn: fetchRoles });
@@ -24,11 +25,11 @@ export function useTogglePermission() {
 
     onMutate: async ({ roleId, permissions }) => {
       await qc.cancelQueries({ queryKey: QUERY_KEY });
-      const prev = qc.getQueryData(QUERY_KEY);
-      qc.setQueryData(QUERY_KEY, (old: ReturnType<typeof fetchRoles> extends Promise<infer T> ? T : never) => ({
+      const prev = qc.getQueryData<RolesResponse>(QUERY_KEY);
+      qc.setQueryData<RolesResponse>(QUERY_KEY, (old) => old ? ({
         ...old,
         data: old.data.map((r) => r.id === roleId ? { ...r, permissions } : r),
-      }));
+      }) : old);
       return { prev };
     },
     onError: (_err, _vars, ctx) => {
