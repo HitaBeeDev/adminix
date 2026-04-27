@@ -28,7 +28,7 @@ export default function EmptyState({
       )}
     >
       {icon && (
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">
+        <div aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
           {icon}
         </div>
       )}

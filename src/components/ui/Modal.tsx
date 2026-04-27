@@ -12,26 +12,43 @@ interface ModalProps {
   className?: string;
 }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
 export default function Modal({ open, onClose, title, description, children, className }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
 
-  // Close on Escape
+  // Escape + focus trap
   useEffect(() => {
     if (!open) return;
+    const panel = panelRef.current;
+
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Tab' && panel) {
+        const focusable = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
+        if (!focusable.length) { e.preventDefault(); return; }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  // Focus panel on open, restore focus on close
+  // Focus first focusable element on open, restore focus on close
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
-    panelRef.current?.focus();
+    const panel = panelRef.current;
+    const first = panel?.querySelector<HTMLElement>(FOCUSABLE);
+    (first ?? panel)?.focus();
     return () => previous?.focus();
   }, [open]);
 
@@ -77,7 +94,7 @@ export default function Modal({ open, onClose, title, description, children, cla
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="ml-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="ml-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <X size={16} />
           </button>

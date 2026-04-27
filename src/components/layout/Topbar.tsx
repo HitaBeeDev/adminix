@@ -129,19 +129,19 @@ export default function Topbar() {
           Menu
         </button>
 
-        <nav className="flex items-center gap-1 text-sm">
-          <Link to="/dashboard" className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
+          <Link to="/dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
             Home
           </Link>
           {crumbs.map((crumb, i) => {
             const isLast = i === crumbs.length - 1;
             return (
               <span key={crumb.path} className="flex items-center gap-1">
-                <span className="text-gray-300 dark:text-gray-600">/</span>
+                <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">/</span>
                 {isLast ? (
-                  <span className="text-gray-800 dark:text-gray-100 font-medium">{crumb.label}</span>
+                  <span aria-current="page" className="text-gray-800 dark:text-gray-100 font-medium">{crumb.label}</span>
                 ) : (
-                  <Link to={crumb.path} className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                  <Link to={crumb.path} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                     {crumb.label}
                   </Link>
                 )}
@@ -156,7 +156,8 @@ export default function Topbar() {
         {/* search */}
         <button
           onClick={() => setCommandPaletteOpen(true)}
-          className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 transition-colors hover:border-gray-300 dark:hover:border-gray-600"
+          aria-label="Open command palette"
+          className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 transition-colors hover:border-gray-300 dark:hover:border-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           <span>Search</span>
           <kbd className="font-sans text-xs bg-gray-100 dark:bg-gray-800 rounded px-1">⌘K</kbd>
@@ -166,8 +167,10 @@ export default function Topbar() {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setNotifOpen((o) => !o); setUserMenuOpen(false); }}
-            className="relative w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            title="Notifications"
+            aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
+            aria-expanded={notifOpen}
+            aria-haspopup="true"
+            className="relative w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             {/* bell icon */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -199,21 +202,23 @@ export default function Topbar() {
               {/* items */}
               <ul className="max-h-72 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700">
                 {notifications.map((n) => (
-                  <li
-                    key={n.id}
-                    onClick={() => markRead(n.id)}
-                    className={`flex gap-3 px-4 py-3 cursor-pointer transition-colors ${n.read ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" : "bg-indigo-50/50 dark:bg-indigo-900/20 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"}`}
-                  >
-                    <div className="mt-1.5 shrink-0">
-                      <span className={`block w-2 h-2 rounded-full ${n.read ? "bg-gray-300 dark:bg-gray-600" : typeColors[n.type]}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${n.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-gray-100 font-medium"}`}>
-                        {n.title}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{n.description}</p>
-                    </div>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0 mt-0.5">{n.time}</span>
+                  <li key={n.id}>
+                    <button
+                      onClick={() => markRead(n.id)}
+                      aria-label={`${n.title}${n.read ? '' : ' (unread)'}`}
+                      className={`w-full flex gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 ${n.read ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700" : "bg-indigo-50/50 dark:bg-indigo-900/20 hover:bg-indigo-50 dark:hover:bg-indigo-900/30"}`}
+                    >
+                      <div className="mt-1.5 shrink-0" aria-hidden="true">
+                        <span className={`block w-2 h-2 rounded-full ${n.read ? "bg-gray-300 dark:bg-gray-600" : typeColors[n.type]}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${n.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-gray-100 font-medium"}`}>
+                          {n.title}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{n.description}</p>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0 mt-0.5">{n.time}</span>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -235,8 +240,8 @@ export default function Topbar() {
         {/* dark mode toggle */}
         <button
           onClick={toggleTheme}
-          title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           {darkMode ? (
             // sun icon
@@ -256,7 +261,10 @@ export default function Topbar() {
         <div className="relative" ref={userMenuRef}>
           <button
             onClick={() => { setUserMenuOpen((o) => !o); setNotifOpen(false); }}
-            className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="User menu"
+            aria-expanded={userMenuOpen}
+            aria-haspopup="true"
+            className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
               {initials}

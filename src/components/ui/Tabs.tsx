@@ -15,9 +15,35 @@ interface TabsProps {
 }
 
 function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const enabled = tabs.filter((t) => !t.disabled);
+    const idx = enabled.findIndex((t) => t.id === activeTab);
+    let nextId: string | undefined;
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextId = enabled[(idx + 1) % enabled.length]?.id;
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      nextId = enabled[(idx - 1 + enabled.length) % enabled.length]?.id;
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      nextId = enabled[0]?.id;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      nextId = enabled[enabled.length - 1]?.id;
+    }
+
+    if (nextId) {
+      onChange(nextId);
+      document.getElementById(`tab-${nextId}`)?.focus();
+    }
+  }
+
   return (
     <div
       role="tablist"
+      onKeyDown={handleKeyDown}
       className={cn(
         'flex border-b border-gray-200 dark:border-gray-700',
         className,
@@ -32,13 +58,14 @@ function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             aria-selected={isActive}
             aria-controls={`tabpanel-${tab.id}`}
             id={`tab-${tab.id}`}
+            tabIndex={isActive ? 0 : -1}
             disabled={tab.disabled}
             onClick={() => !tab.disabled && onChange(tab.id)}
             className={cn(
-              'inline-flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
+              'inline-flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
               isActive
                 ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200',
+                : 'border-transparent text-gray-600 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-200',
               tab.disabled && 'cursor-not-allowed opacity-50',
             )}
           >
