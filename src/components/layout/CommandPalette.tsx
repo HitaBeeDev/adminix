@@ -3,6 +3,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router";
+import { useUiStore } from "@/stores/uiStore";
 
 const allItems = [
   { label: "Dashboard", path: "/dashboard", description: "Overview & KPIs" },
@@ -14,26 +15,24 @@ const allItems = [
   { label: "Settings", path: "/settings", description: "Profile & preferences" },
 ];
 
-interface CommandPaletteProps {
-  open: boolean;
-  onClose: () => void;
-}
-
 const commandSearchSchema = z.object({
   query: z.string(),
 });
 
 type CommandSearchValues = z.infer<typeof commandSearchSchema>;
 
-export default function CommandPalette({ open, onClose }: CommandPaletteProps) {
+export default function CommandPalette() {
+  const open = useUiStore((s) => s.commandPaletteOpen);
+
   if (!open) return null;
 
-  return <CommandPaletteContent onClose={onClose} />;
+  return <CommandPaletteContent />;
 }
 
-function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">) {
+function CommandPaletteContent() {
   const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
+  const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
   const { register, control, setFocus } = useForm<CommandSearchValues>({
     resolver: zodResolver(commandSearchSchema),
     defaultValues: { query: "" },
@@ -51,7 +50,7 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
 
   function handleSelect(path: string) {
     navigate(path);
-    onClose();
+    setCommandPaletteOpen(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -64,7 +63,7 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
     } else if (e.key === "Enter") {
       if (filtered[activeIndex]) handleSelect(filtered[activeIndex].path);
     } else if (e.key === "Escape") {
-      onClose();
+      setCommandPaletteOpen(false);
     }
   }
 
@@ -72,7 +71,7 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) setCommandPaletteOpen(false);
       }}
     >
       {/* backdrop */}
@@ -90,7 +89,7 @@ function CommandPaletteContent({ onClose }: Pick<CommandPaletteProps, "onClose">
             className="flex-1 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none bg-transparent"
           />
           <button
-            onClick={onClose}
+            onClick={() => setCommandPaletteOpen(false)}
             className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-600 rounded px-1.5 py-0.5"
           >
             esc

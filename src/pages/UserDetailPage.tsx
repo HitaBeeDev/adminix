@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -85,6 +85,21 @@ const editSchema = z.object({
 });
 type EditValues = z.infer<typeof editSchema>;
 
+interface UserDetailContextValue {
+  user: User;
+  refreshUser: () => void;
+}
+
+const UserDetailContext = createContext<UserDetailContextValue | null>(null);
+
+function useUserDetailContext() {
+  const value = useContext(UserDetailContext);
+  if (!value) {
+    throw new Error('useUserDetailContext must be used within UserDetailContext.Provider');
+  }
+  return value;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmt(iso: string) {
@@ -141,7 +156,8 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 // ─── Profile Tab ──────────────────────────────────────────────────────────────
 
-function ProfileTab({ user, onUpdate }: { user: User; onUpdate: () => void }) {
+function ProfileTab() {
+  const { user, refreshUser } = useUserDetailContext();
   const [isEditing, setIsEditing] = useState(false);
   const updateUser = useUpdateUser(user.id);
 
@@ -155,7 +171,7 @@ function ProfileTab({ user, onUpdate }: { user: User; onUpdate: () => void }) {
       await updateUser.mutateAsync(values);
       toast.success('Profile updated.');
       setIsEditing(false);
-      onUpdate();
+      refreshUser();
     } catch {
       toast.error('Failed to update profile.');
     }
@@ -267,7 +283,9 @@ function ActivityItem({ event }: { event: ActivityEvent }) {
   );
 }
 
-function ActivityTab({ userId }: { userId: string }) {
+function ActivityTab() {
+  const { user } = useUserDetailContext();
+  const userId = user.id;
   const { data, isLoading, isError, error, refetch } = useActivity({ userId, page: 1, pageSize: 10 });
   const events = data?.data ?? [];
 
@@ -331,7 +349,8 @@ function SessionDeviceIcon({ type }: { type: SessionIcon }) {
   return <Monitor size={15} className="text-gray-500 dark:text-gray-400" />;
 }
 
-function SessionsTab({ user }: { user: User }) {
+function SessionsTab() {
+  const { user } = useUserDetailContext();
   // Deterministic mock sessions seeded from user data
   const [sessions, setSessions] = useState<MockSession[]>(() => [
     {
@@ -449,7 +468,8 @@ function SessionsTab({ user }: { user: User }) {
 
 // ─── Permissions Tab ──────────────────────────────────────────────────────────
 
-function PermissionsTab({ user }: { user: User }) {
+function PermissionsTab() {
+  const { user } = useUserDetailContext();
   const { data, isLoading, isError, error, refetch } = useRoles();
 
   const roleRecord = data?.data.find(
@@ -535,7 +555,8 @@ function PermissionsTab({ user }: { user: User }) {
 
 // ─── Security Tab ─────────────────────────────────────────────────────────────
 
-function SecurityTab({ user }: { user: User }) {
+function SecurityTab() {
+  const { user } = useUserDetailContext();
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
       <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-5">Security & Access</h2>
@@ -671,6 +692,7 @@ export default function UserDetailPage() {
   const isSuspended = user.status === 'suspended';
 
   return (
+    <UserDetailContext.Provider value={{ user, refreshUser: () => void refetch() }}>
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
@@ -757,11 +779,11 @@ export default function UserDetailPage() {
       </div>
 
       {/* Tab content */}
-      {tab === 'profile'     && <ProfileTab     user={user} onUpdate={() => void refetch()} />}
-      {tab === 'activity'    && <ActivityTab    userId={user.id} />}
-      {tab === 'sessions'    && <SessionsTab    user={user} />}
-      {tab === 'permissions' && <PermissionsTab user={user} />}
-      {tab === 'security'    && <SecurityTab    user={user} />}
+      {tab === 'profile'     && <ProfileTab />}
+      {tab === 'activity'    && <ActivityTab />}
+      {tab === 'sessions'    && <SessionsTab />}
+      {tab === 'permissions' && <PermissionsTab />}
+      {tab === 'security'    && <SecurityTab />}
 
       {/* Suspend / Reactivate confirm */}
       <ConfirmDialog
@@ -800,5 +822,6 @@ export default function UserDetailPage() {
         loading={deleteUser.isPending}
       />
     </div>
+    </UserDetailContext.Provider>
   );
 }

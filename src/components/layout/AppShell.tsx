@@ -9,7 +9,6 @@ import { useUiStore } from "@/stores/uiStore";
 export default function AppShell() {
   const mobileOpen = useUiStore((s) => s.mobileOpen);
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
-  const commandPaletteOpen = useUiStore((s) => s.commandPaletteOpen);
   const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function AppShell() {
         </main>
       </div>
 
-      <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+      <CommandPalette />
       <Toaster />
     </div>
   );
