@@ -27,7 +27,9 @@ export const activityHandlers = [
     }
     if (dateTo) {
       const to = new Date(dateTo).getTime();
-      results = results.filter((e) => new Date(e.timestamp).getTime() <= to);
+      const endOfDay = new Date(to);
+      endOfDay.setUTCHours(23, 59, 59, 999);
+      results = results.filter((e) => new Date(e.timestamp).getTime() <= endOfDay.getTime());
     }
 
     // --- Sort: newest first ---

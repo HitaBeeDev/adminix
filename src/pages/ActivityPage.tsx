@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { Download } from 'lucide-react';
+import { ClipboardList, Download } from 'lucide-react';
 import { useActivity } from '@/hooks/useActivity';
 import { useUsers } from '@/hooks/useUsers';
 import { fetchActivity } from '@/api/activity';
 import ErrorState from '@/components/ui/ErrorState';
 import { cn } from '@/lib/utils';
 import { getErrorMessage } from '@/lib/errors';
+import { toast } from '@/stores/toastStore';
 import type { ActionType, ActivityEvent } from '@/types/activity';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -69,18 +71,32 @@ function formatRelative(iso: string) {
 
 // ─── CSV Export ───────────────────────────────────────────────────────────────
 
-async function exportCsv(filters: Parameters<typeof fetchActivity>[0]) {
-  const all = await fetchActivity({ ...filters, page: 1, pageSize: 1000 });
+type ActivityFetchFilters = Parameters<typeof fetchActivity>[0];
+
+function csvCell(value: string | undefined) {
+  const text = value ?? '';
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+async function exportCsv(filters: ActivityFetchFilters) {
+  const firstPage = await fetchActivity({ ...filters, page: 1, pageSize: 100 });
+  const events = [...firstPage.data];
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await fetchActivity({ ...filters, page, pageSize: firstPage.pageSize });
+    events.push(...nextPage.data);
+  }
+
   const rows = [
     ['Timestamp', 'Actor', 'Email', 'Action', 'Target', 'IP'].join(','),
-    ...all.data.map((e) =>
+    ...events.map((e) =>
       [
-        e.timestamp,
-        `"${e.actorName}"`,
-        e.actorEmail,
-        e.action,
-        e.targetName ? `"${e.targetName}"` : '',
-        e.ipAddress ?? '',
+        csvCell(e.timestamp),
+        csvCell(e.actorName),
+        csvCell(e.actorEmail),
+        csvCell(e.action),
+        csvCell(e.targetName),
+        csvCell(e.ipAddress),
       ].join(',')
     ),
   ].join('\n');
@@ -90,8 +106,12 @@ async function exportCsv(filters: Parameters<typeof fetchActivity>[0]) {
   const a = document.createElement('a');
   a.href = url;
   a.download = `activity-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
   URL.revokeObjectURL(url);
+
+  return events.length;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -157,6 +177,7 @@ const selectClass = 'py-2 pl-3 pr-8 text-sm rounded-lg border border-gray-200 da
 
 export default function ActivityPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isExporting, setIsExporting] = useState(false);
 
   const userId     = searchParams.get('userId')     ?? '';
   const actionType = searchParams.get('actionType') ?? '';
@@ -190,6 +211,18 @@ export default function ActivityPage() {
     });
   }
 
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      const count = await exportCsv({ userId, actionType: actionType as ActionType | '', dateFrom, dateTo });
+      toast.success(`Exported ${count} event${count === 1 ? '' : 's'}.`);
+    } catch {
+      toast.error('Failed to export activity.');
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   const events = data?.data ?? [];
   const hasFilters = !!(userId || actionType || dateFrom || dateTo);
 
@@ -206,10 +239,12 @@ export default function ActivityPage() {
           </p>
         </div>
         <button
-          onClick={() => exportCsv({ userId, actionType: actionType as ActionType | '', dateFrom, dateTo })}
+          type="button"
+          onClick={() => void handleExport()}
+          disabled={isExporting}
           className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
-          <Download size={14} /> Export CSV
+          <Download size={14} /> {isExporting ? 'Exporting...' : 'Export CSV'}
         </button>
       </div>
 
@@ -289,7 +324,9 @@ export default function ActivityPage() {
           <ErrorState error={error} onRetry={() => void refetch()} />
         ) : events.length === 0 ? (
           <div className="py-16 flex flex-col items-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xl">📋</div>
+            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500">
+              <ClipboardList size={22} />
+            </div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No events found</p>
             <p className="text-xs text-gray-400 dark:text-gray-500">
               {hasFilters ? 'Try adjusting your filters' : 'Activity will appear here as users take actions'}
