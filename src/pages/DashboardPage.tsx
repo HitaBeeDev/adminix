@@ -56,10 +56,6 @@ function fmtNum(n: number) {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 }
 
-// Static sparklines (stable, no random)
-const SPARK_UP   = [28,30,31,34,36,38,37,42,44,48,50,54];
-const SPARK_FLAT = [44,46,43,47,45,46,44,48,45,47,46,45];
-
 // Action labels for activity feed
 const ACTION_LABEL: Record<string, string> = {
   "user:created":        "invited",
@@ -101,18 +97,14 @@ function activityIcon(action: ActivityEvent["action"]) {
 interface KpiProps {
   label: string;
   value: number | undefined;
-  subtext: string;
   trend: { pct: string; up: boolean };
-  sparkline: number[];
   icon: React.ElementType;
   iconClassName: string;
   loading: boolean;
 }
 
-function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconClassName, loading }: KpiProps) {
+function KpiCard({ label, value, trend, icon: Icon, iconClassName, loading }: KpiProps) {
   const animated = useCountUp(value);
-  const sparkData = sparkline.map((v) => ({ v }));
-  const trendColor = trend.up ? "#6366f1" : "#f43f5e";
 
   return (
     <div className="bg-[#ffffff] rounded-3xl border border-[#e2e8f0] p-6 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]">
@@ -143,34 +135,6 @@ function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconClas
             </span>
           </>
         )}
-      </div>
-
-      {/* Subtext + sparkline */}
-      <div className="flex items-end justify-between mt-4 pt-4 border-t border-[#e2e8f0]">
-        <p className="text-[13px] text-[#64748b]">
-          {subtext}
-        </p>
-        <div className="w-[88px] h-7">
-          <ResponsiveContainer width={88} height={28}>
-            <AreaChart data={sparkData} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id={`sg-${label}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={trendColor} stopOpacity={0.2} />
-                  <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="v"
-                stroke={trendColor}
-                strokeWidth={1.5}
-                fill={`url(#sg-${label})`}
-                isAnimationActive={false}
-                dot={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
       </div>
     </div>
   );
@@ -273,9 +237,7 @@ export default function DashboardPage() {
           <KpiCard
             label="Total Users"
             value={data?.kpis.totalUsers}
-            subtext="Total users last month"
             trend={{ pct: "8.2%", up: true }}
-            sparkline={SPARK_UP}
             icon={Users}
             iconClassName="bg-[#eef2ff] text-[#6366f1]"
             loading={isLoading}
@@ -283,9 +245,7 @@ export default function DashboardPage() {
           <KpiCard
             label="Active This Month"
             value={data?.kpis.activeUsers}
-            subtext="Activated last month"
             trend={{ pct: "24%", up: true }}
-            sparkline={SPARK_UP}
             icon={UserCheck}
             iconClassName="bg-[#eef2ff] text-[#6366f1]"
             loading={isLoading}
@@ -293,9 +253,7 @@ export default function DashboardPage() {
           <KpiCard
             label="Avg. Session Rating"
             value={4.7}
-            subtext="Avg. rating last month"
             trend={{ pct: "0.3%", up: true }}
-            sparkline={SPARK_FLAT}
             icon={Star}
             iconClassName="bg-[#fffbeb] text-[#f59e0b]"
             loading={isLoading}
@@ -303,9 +261,7 @@ export default function DashboardPage() {
           <KpiCard
             label="Account Retention"
             value={67}
-            subtext="Repeat logins last month"
             trend={{ pct: "8.2%", up: true }}
-            sparkline={SPARK_FLAT}
             icon={Repeat}
             iconClassName="bg-[#ecfdf5] text-[#059669]"
             loading={isLoading}
