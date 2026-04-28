@@ -243,14 +243,14 @@ export default function AccountDetailPage() {
                   <input
                     {...register('name')}
                     aria-invalid={errors.name ? 'true' : 'false'}
-                    className="text-xl font-bold w-full px-2 py-1 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="text-xl font-bold w-full px-2 py-1 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-headline focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                   {errors.name && (
                     <p className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{errors.name.message}</p>
                   )}
                 </div>
               ) : (
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{account.name}</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-headline">{account.name}</h1>
               )}
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                 <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium capitalize', PLAN_STYLES[account.plan])}>
@@ -283,7 +283,7 @@ export default function AccountDetailPage() {
                 <button
                   onClick={() => void handleSubmit(saveEdit)()}
                   disabled={updateAccount.isPending}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-button hover:brightness-105 text-button-text font-medium disabled:opacity-50 transition-colors"
                 >
                   <Check size={13} /> {updateAccount.isPending ? 'Saving…' : 'Save'}
                 </button>
@@ -324,7 +324,7 @@ export default function AccountDetailPage() {
                   <input
                     {...register('domain')}
                     placeholder="e.g. acme.com"
-                    className="w-40 px-2 py-1 text-sm rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-40 px-2 py-1 text-sm rounded-lg border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-headline focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 ) : account.domain ? (
                   <span className="flex items-center gap-1.5">
@@ -358,7 +358,7 @@ export default function AccountDetailPage() {
         <div className="xl:col-span-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
             <div>
-              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Members</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-headline">Members</h2>
               <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{account.membersCount} total</p>
             </div>
             <Link to={`/users?accountId=${account.id}`} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
@@ -444,7 +444,7 @@ export default function AccountDetailPage() {
 
         {/* Activity chart */}
         <div className="xl:col-span-2 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-0.5">Weekly Activity</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-headline mb-0.5">Weekly Activity</h2>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-5">Audit events by day of week</p>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={weeklyData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
@@ -472,7 +472,7 @@ export default function AccountDetailPage() {
                 }}
                 cursor={{ fill: 'rgb(243 244 246 / 0.5)' }}
               />
-              <Bar dataKey="events" fill="#6366f1" radius={[3, 3, 0, 0]} maxBarSize={36} />
+              <Bar dataKey="events" fill="var(--highlight)" radius={[3, 3, 0, 0]} maxBarSize={36} />
             </BarChart>
           </ResponsiveContainer>
         </div>

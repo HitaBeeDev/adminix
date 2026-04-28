@@ -260,7 +260,7 @@ function GenerateReportModal({ open, onClose, onGenerate }: {
             Cancel
           </button>
           <button type="submit" disabled={isSubmitting}
-            className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50 transition-colors">
+            className="px-4 py-2 text-sm rounded-lg bg-button hover:brightness-105 text-button-text font-medium disabled:opacity-50 transition-colors">
             {isSubmitting ? 'Generating…' : 'Generate'}
           </button>
         </div>
@@ -336,7 +336,7 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-headline">Reports</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {isLoading ? (
               <span className="block h-4 w-28 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
@@ -344,7 +344,7 @@ export default function ReportsPage() {
           </p>
         </div>
         <button onClick={() => setGenerateOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-button hover:brightness-105 text-button-text transition-colors">
           <Plus size={15} /> Generate report
         </button>
       </div>
@@ -414,7 +414,7 @@ export default function ReportsPage() {
                         </button>
                       ) : (
                         <button onClick={() => setGenerateOpen(true)}
-                          className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+                          className="px-3 py-1.5 text-xs rounded-lg bg-button hover:brightness-105 text-button-text transition-colors">
                           Generate report
                         </button>
                       )}

@@ -32,7 +32,7 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
                   aria-current={isLast ? 'page' : undefined}
                   className={cn(
                     isLast
-                      ? 'font-medium text-gray-900 dark:text-white'
+                      ? 'font-medium text-gray-900 dark:text-headline'
                       : 'text-gray-500 dark:text-gray-400',
                   )}
                 >

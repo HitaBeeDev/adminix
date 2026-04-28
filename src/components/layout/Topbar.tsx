@@ -66,14 +66,7 @@ export default function Topbar() {
   const crumbs = buildBreadcrumbs(pathname);
   const isDark = resolvedTheme === "dark";
   const userName = user?.name ?? "Admin User";
-  const userEmail = user?.email ?? "admin@adminix.io";
-  const initials = userName
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const userRole = user?.role.replace(/_/g, " ") ?? "admin";
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -253,12 +246,16 @@ export default function Topbar() {
             aria-expanded={userMenuOpen}
             className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full bg-main hover:bg-highlight/10 transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_var(--stroke)]"
           >
-            <div className="w-10 h-10 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-[12px] font-bold shrink-0">
-              {initials}
-            </div>
+            <img
+              src="/p1.jpg"
+              alt={userName}
+              className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-highlight/15"
+            />
             <div className="hidden sm:block text-left leading-tight">
               <p className="text-sm font-semibold text-headline">{userName}</p>
-              <p className="text-[11px]" style={{ color: "color-mix(in srgb, var(--paragraph) 65%, transparent)" }}>{userEmail}</p>
+              <p className="text-[11px] capitalize" style={{ color: "color-mix(in srgb, var(--paragraph) 65%, transparent)" }}>
+                {userRole}
+              </p>
             </div>
           </button>
 
@@ -268,13 +265,15 @@ export default function Topbar() {
               style={{ boxShadow: "0 24px 70px -45px color-mix(in srgb, var(--stroke) 35%, transparent)" }}
             >
               <div className="flex items-center gap-3 px-3 py-2.5 border-b border-stroke/8 mb-1">
-                <div className="w-9 h-9 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-xs font-semibold shrink-0">
-                  {initials}
-                </div>
+                <img
+                  src="/p1.jpg"
+                  alt={userName}
+                  className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-highlight/15"
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-headline truncate">{userName}</p>
-                  <p className="text-[11px] truncate" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
-                    {userEmail}
+                  <p className="text-[11px] truncate capitalize" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                    {userRole}
                   </p>
                 </div>
               </div>

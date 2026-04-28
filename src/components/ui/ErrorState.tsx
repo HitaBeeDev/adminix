@@ -28,7 +28,7 @@ export default function ErrorState({
         <AlertTriangle size={22} />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+        <p className="text-sm font-semibold text-gray-900 dark:text-headline">{title}</p>
         <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
           {description ?? getErrorMessage(error)}
         </p>

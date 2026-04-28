@@ -84,7 +84,7 @@ function activityBadge(action: ActivityEvent["action"]) {
   if (action.includes("delete") || action.includes("suspend"))
     return { label: "Suspend", style: { background: "color-mix(in srgb, var(--secondary) 15%, transparent)", color: "var(--secondary)" } };
   if (action.includes("role"))
-    return { label: "Role", style: { background: "color-mix(in srgb, #f4b848 20%, transparent)", color: "#9c6b00" } };
+    return { label: "Role", style: { background: "color-mix(in srgb, var(--tertiary) 34%, transparent)", color: "color-mix(in srgb, var(--tertiary) 58%, var(--headline))" } };
   if (action.includes("created") || action.includes("invited"))
     return { label: "Invite", style: { background: "color-mix(in srgb, var(--highlight) 12%, transparent)", color: "var(--highlight)" } };
   return { label: "System", style: { background: "color-mix(in srgb, var(--stroke) 8%, transparent)", color: "var(--paragraph)", border: "1px solid color-mix(in srgb, var(--stroke) 15%, transparent)" } };

@@ -42,7 +42,7 @@ export default function LoginPage() {
         {/* Brand */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-highlight mb-4">
-            <LayoutGrid size={22} className="text-white" />
+            <LayoutGrid size={22} className="text-button-text" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-headline">Adminix</h1>
           <p className="mt-1 text-[13px]" style={{ color: "color-mix(in srgb, var(--paragraph) 70%, transparent)" }}>

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import {
+  Blocks,
   LayoutGrid,
   Users,
   Building2,
@@ -14,7 +15,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
-import { useAuthStore } from "@/stores/authStore";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -71,27 +71,24 @@ function NavItem({ to, label, icon: Icon, collapsed, onNavigate }: NavItemProps)
 interface SidebarContentProps {
   collapsed: boolean;
   onLogout: () => void;
-  userName: string;
-  userRole: string;
-  initials: string;
   onCollapseToggle?: () => void;
   onNavigate?: () => void;
 }
 
-function SidebarContent({ collapsed, onLogout, userName, userRole, initials, onCollapseToggle, onNavigate }: SidebarContentProps) {
+function SidebarContent({ collapsed, onLogout, onCollapseToggle, onNavigate }: SidebarContentProps) {
   return (
     <>
       {/* Brand */}
       <div className={cn("flex items-center h-20 shrink-0 px-5", collapsed && "justify-center px-2")}>
         {collapsed ? (
           <div className="w-10 h-10 rounded-2xl bg-highlight flex items-center justify-center shadow-[0_12px_24px_-16px_var(--highlight)]">
-            <LayoutGrid size={17} className="text-headline" />
+            <Blocks size={17} className="text-headline" />
           </div>
         ) : (
           <>
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-11 h-11 rounded-2xl bg-highlight flex items-center justify-center shrink-0 shadow-[0_12px_24px_-16px_var(--highlight)]">
-                <LayoutGrid size={18} className="text-headline" />
+                <Blocks size={18} className="text-headline" />
               </div>
               <span className="text-xl font-bold tracking-tight text-headline truncate">Adminix</span>
             </div>
@@ -169,45 +166,7 @@ function SidebarContent({ collapsed, onLogout, userName, userRole, initials, onC
         </nav>
       </div>
 
-      {/* Bottom block */}
-      <div className="mt-auto">
-        {!collapsed && (
-          <div
-            className="mx-4 mb-4 rounded-3xl p-5 overflow-hidden relative"
-            style={{
-              background:
-                "linear-gradient(135deg, color-mix(in srgb, var(--highlight) 34%, white), color-mix(in srgb, var(--highlight) 10%, white))",
-            }}
-          >
-            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/35" />
-            <p className="relative text-sm font-bold text-headline">Need Help?</p>
-            <p className="relative text-[12px] mt-1" style={{ color: "color-mix(in srgb, var(--paragraph) 78%, transparent)" }}>
-              Contact support team
-            </p>
-            <button className="relative mt-4 w-full h-10 rounded-2xl bg-button text-button-text text-xs font-bold hover:brightness-105 transition-colors shadow-[0_14px_26px_-18px_var(--stroke)]">
-              Get Support
-            </button>
-          </div>
-        )}
-
-        {/* User chip */}
-        <div className={cn("border-t border-stroke/8 p-4 flex items-center gap-3", collapsed && "justify-center")}>
-          <div
-            title={collapsed ? `${userName} — ${userRole}` : undefined}
-            className="w-10 h-10 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-[12px] font-bold shrink-0"
-          >
-            {initials}
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-headline truncate">{userName}</p>
-              <p className="text-[11px] truncate capitalize" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
-                {userRole}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <div className="mt-auto" />
     </>
   );
 }
@@ -217,19 +176,8 @@ export default function Sidebar() {
   const setCollapsed = useUiStore((s) => s.setSidebarCollapsed);
   const mobileOpen = useUiStore((s) => s.mobileOpen);
   const setMobileOpen = useUiStore((s) => s.setMobileOpen);
-  const user = useAuthStore((s) => s.user);
   const logout = useLogout();
   const navigate = useNavigate();
-
-  const userName = user?.name ?? "Admin User";
-  const userRole = user?.role.replace(/_/g, " ") ?? "admin";
-  const initials = userName
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 1024px)");
@@ -245,7 +193,7 @@ export default function Sidebar() {
     navigate("/login", { replace: true });
   }
 
-  const contentProps = { userName, userRole, initials, onLogout: handleLogout };
+  const contentProps = { onLogout: handleLogout };
 
   return (
     <>
@@ -276,7 +224,7 @@ export default function Sidebar() {
           <div className="flex items-center justify-between h-[72px] px-5 border-b border-stroke/8 shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-2xl bg-highlight flex items-center justify-center">
-                <LayoutGrid size={16} className="text-headline" />
+                <Blocks size={16} className="text-headline" />
               </div>
               <span className="text-xl font-bold tracking-tight text-headline">Adminix</span>
             </div>

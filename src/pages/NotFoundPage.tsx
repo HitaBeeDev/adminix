@@ -15,7 +15,7 @@ export default function NotFoundPage() {
       </div>
       <Link
         to="/dashboard"
-        className="mt-8 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+        className="mt-8 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl bg-button text-button-text hover:brightness-105 transition-colors"
       >
         <Home size={15} />
         Back to Dashboard
