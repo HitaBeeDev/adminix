@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Outlet } from "react-router";
 import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import { Topbar } from "./Topbar";
 import { CommandPalette } from "./CommandPalette";
 import Toaster from "@/components/ui/Toaster";
 import { useUiStore } from "@/stores/uiStore";

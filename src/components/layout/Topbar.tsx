@@ -1,111 +1,57 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router";
-import { Search, Bell, Sun, Moon, Menu } from "lucide-react";
-import { useTheme } from "@/lib/theme";
-import { useUiStore } from "@/stores/uiStore";
-import { useAuthStore } from "@/stores/authStore";
+import { useLocation, useNavigate } from "react-router";
 import { useLogout } from "@/hooks/useAuth";
+import { useTheme } from "@/lib/theme";
+import { useAuthStore } from "@/stores/authStore";
+import { useUiStore } from "@/stores/uiStore";
+import { TopbarBreadcrumbs } from "./TopbarBreadcrumbs";
+import { TopbarNotifications } from "./TopbarNotifications";
+import { TopbarSearchButton } from "./TopbarSearchButton";
+import { TopbarThemeButton } from "./TopbarThemeButton";
+import { TopbarUserMenu } from "./TopbarUserMenu";
+import { INITIAL_NOTIFICATIONS } from "./topbar.constants";
+import type { TopbarNotification } from "./topbar.types";
+import { buildBreadcrumbs, getTopbarTitle } from "./topbar.utils";
 
-const SEGMENT_LABELS: Record<string, string> = {
-  dashboard: "Dashboard",
-  users: "Users",
-  accounts: "Accounts",
-  roles: "Roles",
-  activity: "Activity",
-  reports: "Reports",
-  settings: "Settings",
-};
-
-function buildBreadcrumbs(pathname: string) {
-  const segments = pathname.split("/").filter(Boolean);
-  return segments.map((seg, i) => {
-    const path = "/" + segments.slice(0, i + 1).join("/");
-    const label = SEGMENT_LABELS[seg]
-      ? SEGMENT_LABELS[seg]
-      : segments[i - 1] === "users"
-        ? "User Detail"
-        : segments[i - 1] === "accounts"
-          ? "Account Detail"
-          : "Detail";
-    return { label, path };
-  });
-}
-
-type Notification = {
-  id: number;
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-};
-
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    title: "New user registered",
-    description: "sarah.k@example.com joined as Viewer",
-    time: "2m ago",
-    read: false,
-  },
-  {
-    id: 2,
-    title: "Account suspended",
-    description: "Acme Corp account was suspended",
-    time: "1h ago",
-    read: false,
-  },
-  {
-    id: 3,
-    title: "Role updated",
-    description: "Manager permissions were changed",
-    time: "3h ago",
-    read: false,
-  },
-  {
-    id: 4,
-    title: "User deleted",
-    description: "john.doe@example.com was removed",
-    time: "5h ago",
-    read: true,
-  },
-];
-
-export default function Topbar() {
+export function Topbar() {
   const { pathname } = useLocation();
   const { resolvedTheme, toggleTheme } = useTheme();
-  const setMobileOpen = useUiStore((s) => s.setMobileOpen);
-  const setCommandPaletteOpen = useUiStore((s) => s.setCommandPaletteOpen);
-  const user = useAuthStore((s) => s.user);
+  const setMobileOpen = useUiStore((state) => state.setMobileOpen);
+  const setCommandPaletteOpen = useUiStore((state) => state.setCommandPaletteOpen);
+  const user = useAuthStore((state) => state.user);
   const logout = useLogout();
   const navigate = useNavigate();
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(
+  const [notifications, setNotifications] = useState<TopbarNotification[]>(
     INITIAL_NOTIFICATIONS,
   );
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
-  const unread = notifications.filter((n) => !n.read).length;
-  const crumbs = buildBreadcrumbs(pathname);
+  const breadcrumbs = buildBreadcrumbs(pathname);
   const isDark = resolvedTheme === "dark";
+  const unread = notifications.filter((notification) => !notification.read).length;
   const userName = user?.name ?? "Admin User";
   const userRole = user?.role.replace(/_/g, " ") ?? "admin";
 
   useEffect(() => {
-    const pageLabel = crumbs.at(-1)?.label;
-    document.title = pageLabel ? `Adminix — ${pageLabel}` : "Adminix";
-  }, [crumbs]);
+    document.title = getTopbarTitle(pathname);
+  }, [pathname]);
 
   useEffect(() => {
-    function onClick(e: MouseEvent) {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node))
+    function onClick(event: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setNotifOpen(false);
-      if (userRef.current && !userRef.current.contains(e.target as Node))
+      }
+
+      if (userRef.current && !userRef.current.contains(event.target as Node)) {
         setUserMenuOpen(false);
+      }
     }
+
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
@@ -116,238 +62,55 @@ export default function Topbar() {
     navigate("/login", { replace: true });
   }
 
+  function markAllNotificationsRead() {
+    setNotifications((current) =>
+      current.map((notification) => ({ ...notification, read: true })),
+    );
+  }
+
+  function markNotificationRead(id: number) {
+    setNotifications((current) =>
+      current.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification,
+      ),
+    );
+  }
+
   return (
     <header className="mt-4 bg-transparent flex items-start justify-between gap-4 px-4 shrink-0">
-      {/* Left: mobile menu + breadcrumbs */}
-      <div className="flex items-center gap-3">
-        <button
-          className="md:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-[#ffffff] text-[#64748b] shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open navigation"
-        >
-          <Menu size={18} />
-        </button>
+      <TopbarBreadcrumbs
+        breadcrumbs={breadcrumbs}
+        onOpenMobileNav={() => setMobileOpen(true)}
+      />
 
-        <nav
-          aria-label="Breadcrumb"
-          className="hidden md:flex items-center gap-1 text-sm rounded-[1.5rem] bg-[#ffffff] 
-        px-[1.3rem] py-[0.55rem] border border-[#e2e8f0] mt-[0.4rem] dark:border-[#1e293b] dark:bg-[#0f172a]"
-        >
-          <Link
-            to="/dashboard"
-            className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-white"
-          >
-            Workspace
-          </Link>
-          {crumbs.map((crumb, i) => {
-            const isLast = i === crumbs.length - 1;
-            return (
-              <span key={crumb.path} className="flex items-center gap-1">
-                <span aria-hidden="true" className="text-xs text-[#94a3b8]">
-                  /
-                </span>
-                {isLast ? (
-                  <span className="text-[0.85rem] font-[400] text-[#0f172a] dark:text-white">
-                    {crumb.label}
-                  </span>
-                ) : (
-                  <Link
-                    to={crumb.path}
-                    className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-white"
-                  >
-                    {crumb.label}
-                  </Link>
-                )}
-              </span>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Right: search + actions */}
       <div className="flex items-center gap-2 flex-1 justify-end">
-        {/* Search trigger */}
-        <button
-          onClick={() => setCommandPaletteOpen(true)}
-          aria-label="Open search"
-          className="hidden h-[2.8rem] w-[min(460px,42vw)] items-center gap-3 rounded-full border
-           border-[#e2e8f0] bg-[#ffffff] px-5 text-sm shadow-[0_18px_48px_-38px_rgba(15,23,42,0.12)] 
-           transition-colors hover:border-[#6366f1]/30 sm:flex dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none"
-        >
-          <Search size={18} className="shrink-0 text-[#94a3b8]" />
-
-          <span className="flex-1 text-left text-[0.75rem] text-[#94a3b8] font-[200]">
-            Search users, accounts, reports...
-          </span>
-        </button>
-
-        {/* Notification bell */}
-        <div className="relative" ref={notifRef}>
-          <button
-            onClick={() => {
-              setNotifOpen((o) => !o);
-              setUserMenuOpen(false);
-            }}
-            aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
-            aria-expanded={notifOpen}
-            className="relative w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
-          >
-            <Bell strokeWidth={1.35} size={18} />
-
-            {unread > 0 && (
-              <span className="absolute top-[0.65rem] right-[0.65rem] w-[0.4rem] h-[0.4rem] rounded-full bg-[#f43f5e] ring-2 ring-[#ffffff] dark:ring-[#0f172a]" />
-            )}
-          </button>
-
-          {notifOpen && (
-            <div className="absolute right-0 top-14 w-80 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-2xl">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e8f0] dark:border-[#1e293b]">
-                <span className="text-[0.85rem] font-[500] text-[#0f172a] dark:text-white">
-                  Notifications
-                </span>
-                {unread > 0 && (
-                  <button
-                    onClick={() =>
-                      setNotifications((p) =>
-                        p.map((n) => ({ ...n, read: true })),
-                      )
-                    }
-                    className="text-[0.85rem] font-[400] text-[#6366f1] hover:underline transition-colors"
-                  >
-                    Mark all as read
-                  </button>
-                )}
-              </div>
-              <ul className="max-h-72 overflow-y-auto divide-y divide-[#e2e8f0] dark:divide-[#1e293b]">
-                {notifications.map((n) => (
-                  <li key={n.id}>
-                    <button
-                      onClick={() =>
-                        setNotifications((p) =>
-                          p.map((x) =>
-                            x.id === n.id ? { ...x, read: true } : x,
-                          ),
-                        )
-                      }
-                      className="w-full flex gap-3 px-4 py-3 text-left hover:bg-[#f8fafc] transition-colors dark:hover:bg-[#1e293b]"
-                    >
-                      <div className="mt-2 shrink-0">
-                        <span
-                          className={`block w-1.5 h-1.5 rounded-full ${n.read ? "bg-[#e2e8f0]" : "bg-[#6366f1]"}`}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p
-                          className={`text-[0.85rem] ${n.read ? "text-[#64748b] dark:text-[#94a3b8] font-[400]" : "text-[#0f172a] dark:text-white font-[500]"}`}
-                        >
-                          {n.title}
-                        </p>
-                        <p className="text-[0.85rem] font-[400] mt-0.5 truncate text-[#94a3b8]">
-                          {n.description}
-                        </p>
-                      </div>
-                      <span className="text-[0.85rem] font-[400] shrink-0 mt-0.5 text-[#94a3b8]">
-                        {n.time}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <div className="px-4 py-2.5 border-t border-[#e2e8f0] dark:border-[#1e293b]">
-                <Link
-                  to="/activity"
-                  onClick={() => setNotifOpen(false)}
-                  className="text-[0.85rem] font-[400] text-[#6366f1] hover:underline transition-colors"
-                >
-                  View all activity →
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Theme toggle */}
-        <button
-          onClick={toggleTheme}
-          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
-        >
-          {isDark ? (
-            <Sun strokeWidth={1.35} size={18} />
-          ) : (
-            <Moon strokeWidth={1.35} size={18} />
-          )}
-        </button>
-
-        {/* User chip */}
-        <div className="relative" ref={userRef}>
-          <button
-            onClick={() => {
-              setUserMenuOpen((o) => !o);
-              setNotifOpen(false);
-            }}
-            aria-label="User menu"
-            aria-expanded={userMenuOpen}
-            className="flex items-center gap-3 pl-[0.4rem] pr-[1.5rem] h-[3.1rem] rounded-full bg-[#ffffff] 
-            hover:bg-[#f1f5f9] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:hover:bg-[#1e293b] dark:shadow-none"
-          >
-            <img
-              src="/p1.jpg"
-              alt={userName}
-              className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
-            />
-            <div className="hidden sm:block text-left leading-tight">
-              <p className="text-[0.85rem] font-[400] text-[#0f172a] dark:text-white">
-                {userName}
-              </p>
-
-              <p className="text-[0.65rem] mt-[0.15rem] font-[300] capitalize text-[#64748b]">
-                {userRole}
-              </p>
-            </div>
-          </button>
-
-          {userMenuOpen && (
-            <div className="absolute right-0 top-14 w-60 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden p-2 shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-2xl">
-              <div className="flex items-center gap-3 px-3 py-2.5 border-b border-[#e2e8f0] mb-1 dark:border-[#1e293b]">
-                <img
-                  src="/p1.jpg"
-                  alt={userName}
-                  className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
-                />
-                <div className="min-w-0">
-                  <p className="text-[0.85rem] font-[500] text-[#0f172a] truncate dark:text-white">
-                    {userName}
-                  </p>
-                  <p className="text-[0.85rem] font-[400] truncate capitalize text-[#64748b]">
-                    {userRole}
-                  </p>
-                </div>
-              </div>
-              <Link
-                to="/settings"
-                onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
-              >
-                Profile
-              </Link>
-              <Link
-                to="/settings"
-                onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
-              >
-                Settings
-              </Link>
-              <div className="my-1 h-px bg-[#e2e8f0] dark:bg-[#1e293b]" />
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#f43f5e] hover:bg-[#fff1f2] transition-colors dark:text-[#fb7185] dark:hover:bg-[#7f1d1d]/25"
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
+        <TopbarSearchButton onOpenSearch={() => setCommandPaletteOpen(true)} />
+        <TopbarNotifications
+          isOpen={notifOpen}
+          notifications={notifications}
+          onClose={() => setNotifOpen(false)}
+          onMarkAllRead={markAllNotificationsRead}
+          onMarkRead={markNotificationRead}
+          onToggle={() => {
+            setNotifOpen((open) => !open);
+            setUserMenuOpen(false);
+          }}
+          panelRef={notifRef}
+          unread={unread}
+        />
+        <TopbarThemeButton isDark={isDark} onToggleTheme={toggleTheme} />
+        <TopbarUserMenu
+          isOpen={userMenuOpen}
+          onClose={() => setUserMenuOpen(false)}
+          onLogout={handleLogout}
+          onToggle={() => {
+            setUserMenuOpen((open) => !open);
+            setNotifOpen(false);
+          }}
+          panelRef={userRef}
+          userName={userName}
+          userRole={userRole}
+        />
       </div>
     </header>
   );
