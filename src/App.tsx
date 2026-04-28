@@ -9,7 +9,7 @@ import { ActivityPage } from "@/pages/ActivityPage";
 import { ReportsPage } from "@/pages/ReportsPage";
 import UserDetailPage from "@/pages/UserDetailPage";
 import { AccountDetailPage } from "@/pages/AccountDetailPage";
-import SettingsPage from "@/pages/SettingsPage";
+import { SettingsPage } from "@/pages/SettingsPage";
 import LoginPage from "@/pages/LoginPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { useAuthStore } from "@/stores/authStore";
