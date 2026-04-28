@@ -1,207 +1,10 @@
 import { useEffect } from "react";
-import { NavLink, useNavigate } from "react-router";
-import {
-  Blocks,
-  LayoutGrid,
-  Users,
-  Building2,
-  Shield,
-  Activity,
-  FileText,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { useNavigate } from "react-router";
+import { Blocks, ChevronLeft } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
 import { useLogout } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-
-const PRIMARY_NAV = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/accounts", label: "Accounts", icon: Building2 },
-  { to: "/roles", label: "Roles", icon: Shield },
-  { to: "/activity", label: "Activity", icon: Activity },
-  { to: "/reports", label: "Reports", icon: FileText },
-];
-
-const OTHER_NAV = [{ to: "/settings", label: "Settings", icon: Settings }];
-
-interface NavItemProps {
-  to: string;
-  label: string;
-  icon: React.ElementType;
-  collapsed: boolean;
-  onNavigate?: () => void;
-}
-
-function NavItem({
-  to,
-  label,
-  icon: Icon,
-  collapsed,
-  onNavigate,
-}: NavItemProps) {
-  return (
-    <NavLink
-      to={to}
-      onClick={onNavigate}
-      title={collapsed ? label : undefined}
-      className={({ isActive }) =>
-        cn(
-          "group relative flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 select-none text-[0.7rem]",
-          collapsed
-            ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
-            : "gap-[0.6rem] px-4",
-          isActive
-            ? "bg-[#eef2ff] text-[#0f172a] font-[400] text-[0.7rem]"
-            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] font-[300] text-[0.7rem]",
-        )
-      }
-    >
-      {({ isActive }) => (
-        <>
-          <Icon
-            strokeWidth={1.35}
-            size={collapsed ? 18 : 18}
-            className={cn(
-              "shrink-0",
-              isActive
-                ? "text-[#6366f1]"
-                : "text-[#94a3b8] group-hover:text-[#6366f1]",
-            )}
-          />
-          {!collapsed && <span className="text-[0.85rem]">{label}</span>}
-        </>
-      )}
-    </NavLink>
-  );
-}
-
-interface SidebarContentProps {
-  collapsed: boolean;
-  onLogout: () => void;
-  onCollapseToggle?: () => void;
-  onNavigate?: () => void;
-}
-
-function SidebarContent({
-  collapsed,
-  onLogout,
-  onCollapseToggle,
-  onNavigate,
-}: SidebarContentProps) {
-  return (
-    <>
-      {/* Brand */}
-      <div
-        className={cn(
-          "flex items-center h-20 shrink-0 px-5",
-          collapsed && "justify-center px-2",
-        )}
-      >
-        {collapsed ? (
-          <div className="w-8 h-8 p-[0.45rem] rounded-[0.45rem] bg-[#6366f1] flex items-center justify-center shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]">
-            <Blocks className="text-white" strokeWidth={1.45} />
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div
-                className="w-8 h-8 p-[0.45rem] rounded-[0.45rem] bg-[#6366f1] flex items-center justify-center shrink-0 
-              shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]"
-              >
-                <Blocks className="text-white" strokeWidth={1.45} />
-              </div>
-
-              <span className="text-xl font-bold tracking-wider text-[#0f172a] truncate">
-                Adminix
-              </span>
-            </div>
-            {onCollapseToggle && (
-              <button
-                onClick={onCollapseToggle}
-                aria-label="Collapse sidebar"
-                className="w-9 h-9 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors shrink-0"
-              >
-                <ChevronLeft size={16} />
-              </button>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Expand button when collapsed */}
-      {collapsed && onCollapseToggle && (
-        <button
-          onClick={onCollapseToggle}
-          aria-label="Expand sidebar"
-          className="w-9 h-9 mx-auto mb-2 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
-        >
-          <ChevronRight size={16} />
-        </button>
-      )}
-
-      {/* Primary nav */}
-      <div className={cn("mt-1", collapsed ? "px-2" : "px-4")}>
-        {!collapsed && (
-          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
-            Main
-          </p>
-        )}
-        <nav className="space-y-1.5" aria-label="Primary navigation">
-          {PRIMARY_NAV.map((link) => (
-            <NavItem
-              key={link.to}
-              {...link}
-              collapsed={collapsed}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </nav>
-      </div>
-
-      <div className="mt-auto" />
-
-      {/* Other nav */}
-      <div className={cn("mt-7 pb-6", collapsed ? "px-2" : "px-4")}>
-        {!collapsed && (
-          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
-            Other
-          </p>
-        )}
-        <nav className="" aria-label="Secondary navigation">
-          {OTHER_NAV.map((link) => (
-            <NavItem
-              key={link.to}
-              {...link}
-              collapsed={collapsed}
-              onNavigate={onNavigate}
-            />
-          ))}
-          <button
-            onClick={onLogout}
-            title={collapsed ? "Logout" : undefined}
-            className={cn(
-              "group w-full flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 text-[#64748b] hover:bg-[#fff1f2] hover:text-[#f43f5e] font-[300] text-[0.7rem]",
-              collapsed
-                ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
-                : "gap-[0.6rem] px-4",
-            )}
-          >
-            <LogOut
-              strokeWidth={1.35}
-              size={collapsed ? 18 : 18}
-              className="shrink-0 text-[#94a3b8] group-hover:text-[#f43f5e]"
-            />
-            {!collapsed && <span className="text-[0.85rem]">Logout</span>}
-          </button>
-        </nav>
-      </div>
-    </>
-  );
-}
+import SidebarContent from "./SidebarContent";
 
 export default function Sidebar() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
@@ -228,8 +31,7 @@ export default function Sidebar() {
   const contentProps = { onLogout: handleLogout };
 
   return (
-    <>
-      {/* Desktop floating sidebar */}
+    <div>
       <aside
         className={cn(
           "m-5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
@@ -277,6 +79,6 @@ export default function Sidebar() {
           </div>
         </aside>
       </div>
-    </>
+    </div>
   );
 }
