@@ -59,6 +59,19 @@ export default function KpiCard({
           </>
         )}
       </div>
+
+      <div className="mt-1 flex items-center justify-between">
+        <p className="min-w-0 text-[0.7rem] leading-5 font-[400] text-[#64748b]">
+          {description}
+        </p>
+        <Link
+          to={to}
+          aria-label={`View ${label}`}
+          className="h-6 w-6 rounded-full border border-[#e2e8f0] bg-[#ffffff] text-[#475569] flex items-center justify-center shrink-0 transition-colors duration-150 hover:border-[#c7d2fe] hover:bg-[#eef2ff] hover:text-[#6366f1] focus:outline-none focus:ring-2 focus:ring-[#c7d2fe]"
+        >
+          <ArrowRight size={12} />
+        </Link>
+      </div>
     </div>
   );
 }
