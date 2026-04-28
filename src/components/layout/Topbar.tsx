@@ -95,6 +95,11 @@ export default function Topbar() {
   const userRole = user?.role.replace(/_/g, " ") ?? "admin";
 
   useEffect(() => {
+    const pageLabel = crumbs.at(-1)?.label;
+    document.title = pageLabel ? `Adminix — ${pageLabel}` : "Adminix";
+  }, [crumbs]);
+
+  useEffect(() => {
     function onClick(e: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(e.target as Node))
         setNotifOpen(false);
@@ -112,7 +117,7 @@ export default function Topbar() {
   }
 
   return (
-    <header className="min-h-[88px] bg-transparent flex items-center justify-between gap-4 px-5 pt-5 sm:px-7 lg:px-8 shrink-0">
+    <header className="mt-4 bg-transparent flex items-start justify-between gap-4 px-4 shrink-0">
       {/* Left: mobile menu + breadcrumbs */}
       <div className="flex items-center gap-3">
         <button
@@ -126,7 +131,7 @@ export default function Topbar() {
         <nav
           aria-label="Breadcrumb"
           className="hidden md:flex items-center gap-1 text-sm rounded-[1.5rem] bg-[#ffffff] 
-        px-5 py-2 border border-[#e2e8f0]"
+        px-[1.3rem] py-[0.55rem] border border-[#e2e8f0] mt-[0.4rem]"
         >
           <Link
             to="/dashboard"

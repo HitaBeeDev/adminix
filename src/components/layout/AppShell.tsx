@@ -35,7 +35,7 @@ export default function AppShell() {
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-y-auto px-5 pb-8 sm:px-7 lg:px-8">
+        <main className="flex-1 overflow-y-auto px-4 pb-8">
           <Outlet />
         </main>
       </div>

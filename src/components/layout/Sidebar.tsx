@@ -34,7 +34,7 @@ export default function Sidebar() {
     <div>
       <aside
         className={cn(
-          "m-5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
+          "my-5 ml-5 mr-0.5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
           collapsed ? "w-[84px]" : "w-[270px]",
         )}
       >
