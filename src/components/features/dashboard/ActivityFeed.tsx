@@ -1,7 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, ScrollText } from "lucide-react";
 import type { DashboardStats } from "@/api/dashboard";
 import { fmtRelative, ACTION_LABEL, activityBadge, activityIcon } from "@/lib/dashboardUtils";
+
+const INITIAL_VISIBLE = 6;
+const LOAD_STEP = 4;
 
 interface Props {
   data: DashboardStats | undefined;
@@ -9,6 +13,15 @@ interface Props {
 }
 
 export default function ActivityFeed({ data, isLoading }: Props) {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
+  const activities = data?.recentActivity ?? [];
+  const visibleActivities = activities.slice(0, visibleCount);
+  const hasMore = visibleCount < activities.length;
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [activities.length]);
+
   return (
     <div className="bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 flex flex-col transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
       <div className="flex items-center justify-between mb-0">
@@ -34,7 +47,7 @@ export default function ActivityFeed({ data, isLoading }: Props) {
             </div>
           ))}
         </div>
-      ) : !data?.recentActivity?.length ? (
+      ) : !activities.length ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
           <ScrollText size={24} className="text-[#94a3b8]" />
           <p className="text-sm text-[#64748b] dark:text-[#94a3b8]">
@@ -44,7 +57,7 @@ export default function ActivityFeed({ data, isLoading }: Props) {
       ) : (
         <>
           <ul className="flex-1">
-            {data.recentActivity.slice(0, 6).map((event) => {
+            {visibleActivities.map((event) => {
               const badge = activityBadge(event.action);
               const IconComp = activityIcon(event.action);
               return (
@@ -78,8 +91,13 @@ export default function ActivityFeed({ data, isLoading }: Props) {
               );
             })}
           </ul>
-          <button className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white">
-            Load more
+          <button
+            type="button"
+            onClick={() => setVisibleCount((count) => Math.min(count + LOAD_STEP, activities.length))}
+            disabled={!hasMore}
+            className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a] disabled:cursor-not-allowed disabled:opacity-45 dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
+          >
+            {hasMore ? `Load more (${activities.length - visibleActivities.length})` : "All activity loaded"}
           </button>
         </>
       )}
