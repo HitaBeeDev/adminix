@@ -1,3 +1,18 @@
 @import "tailwindcss";
 
 @variant dark (&:is(.dark, .dark *));
+
+select,
+select[class] {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+select option {
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+select option:checked {
+  font-weight: 500;
+}

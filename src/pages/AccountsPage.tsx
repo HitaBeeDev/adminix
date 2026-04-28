@@ -89,14 +89,14 @@ function ActionMenu({ account, onToggleSuspend }: ActionMenuProps) {
         <div className="absolute right-0 top-8 z-20 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden">
           <div className="py-1">
             <button onClick={() => act(() => navigate(`/accounts/${account.id}`))}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
               <Eye size={14} className="text-gray-400" /> View
             </button>
           </div>
           <div className="border-t border-gray-100 dark:border-gray-700 py-1">
             <button
               onClick={() => act(onToggleSuspend)}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
             >
               {isSuspended ? <RefreshCw size={14} /> : <Ban size={14} />}
               {isSuspended ? 'Reactivate' : 'Suspend'}

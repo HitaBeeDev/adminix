@@ -40,10 +40,34 @@ type Notification = {
 };
 
 const INITIAL_NOTIFICATIONS: Notification[] = [
-  { id: 1, title: "New user registered", description: "sarah.k@example.com joined as Viewer", time: "2m ago", read: false },
-  { id: 2, title: "Account suspended", description: "Acme Corp account was suspended", time: "1h ago", read: false },
-  { id: 3, title: "Role updated", description: "Manager permissions were changed", time: "3h ago", read: false },
-  { id: 4, title: "User deleted", description: "john.doe@example.com was removed", time: "5h ago", read: true },
+  {
+    id: 1,
+    title: "New user registered",
+    description: "sarah.k@example.com joined as Viewer",
+    time: "2m ago",
+    read: false,
+  },
+  {
+    id: 2,
+    title: "Account suspended",
+    description: "Acme Corp account was suspended",
+    time: "1h ago",
+    read: false,
+  },
+  {
+    id: 3,
+    title: "Role updated",
+    description: "Manager permissions were changed",
+    time: "3h ago",
+    read: false,
+  },
+  {
+    id: 4,
+    title: "User deleted",
+    description: "john.doe@example.com was removed",
+    time: "5h ago",
+    read: true,
+  },
 ];
 
 export default function Topbar() {
@@ -57,7 +81,9 @@ export default function Topbar() {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>(
+    INITIAL_NOTIFICATIONS,
+  );
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
@@ -70,8 +96,10 @@ export default function Topbar() {
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
-      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node))
+        setNotifOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node))
+        setUserMenuOpen(false);
     }
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -95,10 +123,14 @@ export default function Topbar() {
           <Menu size={18} />
         </button>
 
-        <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1 text-sm rounded-full bg-[#ffffff] px-4 py-2 border border-[#e2e8f0]">
+        <nav
+          aria-label="Breadcrumb"
+          className="hidden md:flex items-center gap-1 text-sm rounded-[1.5rem] bg-[#ffffff] 
+        px-5 py-2 border border-[#e2e8f0]"
+        >
           <Link
             to="/dashboard"
-            className="text-[#64748b] transition-colors hover:text-[#0f172a]"
+            className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a]"
           >
             Workspace
           </Link>
@@ -106,18 +138,17 @@ export default function Topbar() {
             const isLast = i === crumbs.length - 1;
             return (
               <span key={crumb.path} className="flex items-center gap-1">
-                <span
-                  aria-hidden="true"
-                  className="text-xs text-[#94a3b8]"
-                >
+                <span aria-hidden="true" className="text-xs text-[#94a3b8]">
                   /
                 </span>
                 {isLast ? (
-                  <span className="font-medium text-[#0f172a]">{crumb.label}</span>
+                  <span className="text-[0.85rem] font-[400] text-[#0f172a]">
+                    {crumb.label}
+                  </span>
                 ) : (
                   <Link
                     to={crumb.path}
-                    className="text-[#64748b] transition-colors hover:text-[#0f172a]"
+                    className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a]"
                   >
                     {crumb.label}
                   </Link>
@@ -129,46 +160,54 @@ export default function Topbar() {
       </div>
 
       {/* Right: search + actions */}
-      <div className="flex items-center gap-3 flex-1 justify-end">
+      <div className="flex items-center gap-2 flex-1 justify-end">
         {/* Search trigger */}
         <button
           onClick={() => setCommandPaletteOpen(true)}
           aria-label="Open search"
-          className="hidden h-14 w-[min(460px,42vw)] items-center gap-3 rounded-full border border-[#e2e8f0] bg-[#ffffff] px-5 text-sm shadow-[0_18px_48px_-38px_rgba(15,23,42,0.12)] transition-colors hover:border-[#6366f1]/30 sm:flex"
+          className="hidden h-[2.8rem] w-[min(460px,42vw)] items-center gap-3 rounded-full border
+           border-[#e2e8f0] bg-[#ffffff] px-5 text-sm shadow-[0_18px_48px_-38px_rgba(15,23,42,0.12)] 
+           transition-colors hover:border-[#6366f1]/30 sm:flex"
         >
           <Search size={18} className="shrink-0 text-[#94a3b8]" />
-          <span className="flex-1 text-left text-[14px] text-[#94a3b8]">
+
+          <span className="flex-1 text-left text-[0.75rem] text-[#94a3b8] font-[200]">
             Search users, accounts, reports...
           </span>
-          <kbd className="text-[11px] font-semibold px-2 py-1 rounded-full bg-[#f1f5f9] text-[#64748b]">
-            ⌘K
-          </kbd>
         </button>
 
         {/* Notification bell */}
         <div className="relative" ref={notifRef}>
           <button
-            onClick={() => { setNotifOpen((o) => !o); setUserMenuOpen(false); }}
+            onClick={() => {
+              setNotifOpen((o) => !o);
+              setUserMenuOpen(false);
+            }}
             aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
             aria-expanded={notifOpen}
-            className="relative w-12 h-12 flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+            className="relative w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
           >
-            <Bell size={18} />
+            <Bell strokeWidth={1.35} size={18} />
+
             {unread > 0 && (
-              <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#f43f5e] ring-2 ring-[#ffffff]" />
+              <span className="absolute top-[0.65rem] right-[0.65rem] w-[0.4rem] h-[0.4rem] rounded-full bg-[#f43f5e] ring-2 ring-[#ffffff]" />
             )}
           </button>
 
           {notifOpen && (
-            <div
-              className="absolute right-0 top-14 w-80 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]"
-            >
+            <div className="absolute right-0 top-14 w-80 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]">
               <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e8f0]">
-                <span className="text-sm font-semibold text-[#0f172a]">Notifications</span>
+                <span className="text-[0.85rem] font-[500] text-[#0f172a]">
+                  Notifications
+                </span>
                 {unread > 0 && (
                   <button
-                    onClick={() => setNotifications((p) => p.map((n) => ({ ...n, read: true })))}
-                    className="text-xs text-[#6366f1] hover:underline transition-colors"
+                    onClick={() =>
+                      setNotifications((p) =>
+                        p.map((n) => ({ ...n, read: true })),
+                      )
+                    }
+                    className="text-[0.85rem] font-[400] text-[#6366f1] hover:underline transition-colors"
                   >
                     Mark all as read
                   </button>
@@ -178,21 +217,31 @@ export default function Topbar() {
                 {notifications.map((n) => (
                   <li key={n.id}>
                     <button
-                      onClick={() => setNotifications((p) => p.map((x) => x.id === n.id ? { ...x, read: true } : x))}
+                      onClick={() =>
+                        setNotifications((p) =>
+                          p.map((x) =>
+                            x.id === n.id ? { ...x, read: true } : x,
+                          ),
+                        )
+                      }
                       className="w-full flex gap-3 px-4 py-3 text-left hover:bg-[#f8fafc] transition-colors"
                     >
                       <div className="mt-2 shrink-0">
-                        <span className={`block w-1.5 h-1.5 rounded-full ${n.read ? "bg-[#e2e8f0]" : "bg-[#6366f1]"}`} />
+                        <span
+                          className={`block w-1.5 h-1.5 rounded-full ${n.read ? "bg-[#e2e8f0]" : "bg-[#6366f1]"}`}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${n.read ? "text-[#64748b]" : "text-[#0f172a] font-medium"}`}>
+                        <p
+                          className={`text-[0.85rem] ${n.read ? "text-[#64748b] font-[400]" : "text-[#0f172a] font-[500]"}`}
+                        >
                           {n.title}
                         </p>
-                        <p className="text-xs mt-0.5 truncate text-[#94a3b8]">
+                        <p className="text-[0.85rem] font-[400] mt-0.5 truncate text-[#94a3b8]">
                           {n.description}
                         </p>
                       </div>
-                      <span className="text-xs shrink-0 mt-0.5 text-[#94a3b8]">
+                      <span className="text-[0.85rem] font-[400] shrink-0 mt-0.5 text-[#94a3b8]">
                         {n.time}
                       </span>
                     </button>
@@ -203,7 +252,7 @@ export default function Topbar() {
                 <Link
                   to="/activity"
                   onClick={() => setNotifOpen(false)}
-                  className="text-xs text-[#6366f1] hover:underline transition-colors"
+                  className="text-[0.85rem] font-[400] text-[#6366f1] hover:underline transition-colors"
                 >
                   View all activity →
                 </Link>
@@ -216,36 +265,45 @@ export default function Topbar() {
         <button
           onClick={toggleTheme}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+          className="w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
         >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          {isDark ? (
+            <Sun strokeWidth={1.35} size={18} />
+          ) : (
+            <Moon strokeWidth={1.35} size={18} />
+          )}
         </button>
 
         {/* User chip */}
         <div className="relative" ref={userRef}>
           <button
-            onClick={() => { setUserMenuOpen((o) => !o); setNotifOpen(false); }}
+            onClick={() => {
+              setUserMenuOpen((o) => !o);
+              setNotifOpen(false);
+            }}
             aria-label="User menu"
             aria-expanded={userMenuOpen}
-            className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full bg-[#ffffff] hover:bg-[#f1f5f9] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+            className="flex items-center gap-3 pl-[0.4rem] pr-[1.5rem] h-[3.1rem] rounded-full bg-[#ffffff] 
+            hover:bg-[#f1f5f9] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
           >
             <img
               src="/p1.jpg"
               alt={userName}
-              className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
+              className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
             />
             <div className="hidden sm:block text-left leading-tight">
-              <p className="text-sm font-semibold text-[#0f172a]">{userName}</p>
-              <p className="text-[11px] capitalize text-[#64748b]">
+              <p className="text-[0.85rem] font-[400] text-[#0f172a]">
+                {userName}
+              </p>
+
+              <p className="text-[0.65rem] mt-[0.15rem] font-[300] capitalize text-[#64748b]">
                 {userRole}
               </p>
             </div>
           </button>
 
           {userMenuOpen && (
-            <div
-              className="absolute right-0 top-14 w-60 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden p-2 shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]"
-            >
+            <div className="absolute right-0 top-14 w-60 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden p-2 shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]">
               <div className="flex items-center gap-3 px-3 py-2.5 border-b border-[#e2e8f0] mb-1">
                 <img
                   src="/p1.jpg"
@@ -253,8 +311,10 @@ export default function Topbar() {
                   className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
                 />
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-[#0f172a] truncate">{userName}</p>
-                  <p className="text-[11px] truncate capitalize text-[#64748b]">
+                  <p className="text-[0.85rem] font-[500] text-[#0f172a] truncate">
+                    {userName}
+                  </p>
+                  <p className="text-[0.85rem] font-[400] truncate capitalize text-[#64748b]">
                     {userRole}
                   </p>
                 </div>
@@ -262,21 +322,21 @@ export default function Topbar() {
               <Link
                 to="/settings"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
               >
                 Profile
               </Link>
               <Link
                 to="/settings"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
               >
                 Settings
               </Link>
               <div className="my-1 h-px bg-[#e2e8f0]" />
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-sm text-[#f43f5e] hover:bg-[#fff1f2] transition-colors"
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#f43f5e] hover:bg-[#fff1f2] transition-colors"
               >
                 Logout
               </button>

@@ -168,7 +168,7 @@ export default function DropdownMenu({
                       item.onClick?.();
                     }}
                     className={cn(
-                      'flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors',
+                      'flex w-full items-center gap-2.5 px-3 py-2 text-left text-[0.85rem] font-normal transition-colors',
                       'disabled:pointer-events-none disabled:opacity-40',
                       'focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-800',
                       item.destructive

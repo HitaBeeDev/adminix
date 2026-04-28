@@ -50,6 +50,14 @@ function CommandPaletteContent() {
 
   useEffect(() => { setTimeout(() => setFocus("query"), 10); }, [setFocus]);
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [setOpen]);
+
   function handleSelect(item: PaletteItem) {
     if (item.path) navigate(item.path);
     setOpen(false);
@@ -71,12 +79,12 @@ function CommandPaletteContent() {
   const actionOffset = navFiltered.length;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4"
-      onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
-    >
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-[#0f172a]/40 backdrop-blur-sm" />
+      <div
+        className="absolute inset-0 bg-[#0f172a]/40 backdrop-blur-sm"
+        onMouseDown={() => setOpen(false)}
+      />
 
       {/* Palette */}
       <div className="relative w-full max-w-xl bg-[#ffffff] rounded-xl overflow-hidden shadow-[0_8px_24px_-8px_rgba(15,23,42,0.18),0_2px_4px_-2px_rgba(15,23,42,0.08)]">
@@ -155,7 +163,7 @@ function Section({
             className={`mx-1 flex w-[calc(100%_-_8px)] items-center gap-3 rounded-md px-3 py-2 text-left transition-colors duration-100 ${isActive ? "bg-[#eef2ff]" : "bg-transparent hover:bg-[#f8fafc]"}`}
           >
             <Icon size={16} className={`shrink-0 ${isActive ? "text-[#6366f1]" : "text-[#94a3b8]"}`} />
-            <span className={`flex-1 text-sm ${isActive ? "text-[#0f172a] font-medium" : "text-[#64748b]"}`}>
+            <span className={`flex-1 text-[0.85rem] ${isActive ? "text-[#0f172a] font-[500]" : "text-[#64748b] font-[400]"}`}>
               {item.label}
             </span>
             {item.kbd && (

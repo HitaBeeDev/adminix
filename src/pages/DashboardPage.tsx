@@ -261,18 +261,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-7 pt-1 lg:pt-2">
-      {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] leading-10 font-bold tracking-tight text-[#0f172a]">
-            Dashboard Overview
-          </h1>
-          <p className="mt-1.5 text-[15px] text-[#64748b]">
-            Snapshot of activity across your workspace.
-          </p>
-        </div>
-      </div>
-
       {isError && (
         <div className="rounded-3xl border border-[#e2e8f0] bg-[#ffffff]">
           <ErrorState error={error} onRetry={() => void refetch()} />

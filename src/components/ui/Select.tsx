@@ -40,7 +40,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             aria-invalid={!!error}
             aria-describedby={error ? errorId : helperText ? helperId : undefined}
             className={cn(
-              'h-9 w-full appearance-none rounded-lg border bg-white pl-3 pr-8 text-sm text-gray-900 outline-none transition-colors',
+              'h-9 w-full appearance-none rounded-lg border bg-white pl-3 pr-8 text-[0.85rem] font-normal text-gray-900 outline-none transition-colors',
               'dark:bg-gray-900 dark:text-gray-100',
               'focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
               error
