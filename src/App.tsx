@@ -6,7 +6,7 @@ import UsersPage from "@/pages/UsersPage";
 import { AccountsPage } from "@/pages/AccountsPage";
 import RolesPage from "@/pages/RolesPage";
 import { ActivityPage } from "@/pages/ActivityPage";
-import ReportsPage from "@/pages/ReportsPage";
+import { ReportsPage } from "@/pages/ReportsPage";
 import UserDetailPage from "@/pages/UserDetailPage";
 import { AccountDetailPage } from "@/pages/AccountDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
