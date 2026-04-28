@@ -408,7 +408,7 @@ export default function AccountDetailPage() {
                           {member.avatarUrl ? (
                             <img src={member.avatarUrl} alt={member.name} className="w-7 h-7 rounded-full object-cover shrink-0" />
                           ) : (
-                            <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[0.625rem] font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
                               {memberInitials}
                             </div>
                           )}
@@ -451,14 +451,14 @@ export default function AccountDetailPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-100 dark:text-gray-800" vertical={false} />
               <XAxis
                 dataKey="day"
-                tick={{ fontSize: 11, fill: 'currentColor' }}
+                tick={{ fontSize: "0.6875rem", fill: 'currentColor' }}
                 className="text-gray-400 dark:text-gray-500"
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fontSize: 11, fill: 'currentColor' }}
+                tick={{ fontSize: "0.6875rem", fill: 'currentColor' }}
                 className="text-gray-400 dark:text-gray-500"
                 axisLine={false}
                 tickLine={false}

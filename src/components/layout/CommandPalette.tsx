@@ -97,7 +97,7 @@ function CommandPaletteContent() {
             placeholder="Type a command or search…"
             className="flex-1 text-sm text-[#0f172a] placeholder:text-[#94a3b8] bg-transparent outline-none"
           />
-          <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded shrink-0 bg-[#f1f5f9] text-[#64748b]">
+          <kbd className="text-[0.6875rem] font-medium px-1.5 py-0.5 rounded shrink-0 bg-[#f1f5f9] text-[#64748b]">
             esc
           </kbd>
         </div>
@@ -121,7 +121,7 @@ function CommandPaletteContent() {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-4 items-center px-4 py-2.5 border-t border-[#e2e8f0] text-[11px] text-[#94a3b8]">
+        <div className="flex gap-4 items-center px-4 py-2.5 border-t border-[#e2e8f0] text-[0.6875rem] text-[#94a3b8]">
           <span><kbd className="font-sans">↑↓</kbd> navigate</span>
           <span><kbd className="font-sans">↵</kbd> open</span>
           <span><kbd className="font-sans">esc</kbd> close</span>
@@ -148,7 +148,7 @@ function Section({
 }) {
   return (
     <>
-      <p className="px-3 pt-3 pb-1 text-[11px] font-medium tracking-widest uppercase text-[#94a3b8]">
+      <p className="px-3 pt-3 pb-1 text-[0.6875rem] font-medium tracking-widest uppercase text-[#94a3b8]">
         {label}
       </p>
       {items.map((item, localIdx) => {
@@ -167,12 +167,12 @@ function Section({
               {item.label}
             </span>
             {item.kbd && (
-              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#f1f5f9] text-[#64748b]">
+              <kbd className="text-[0.6875rem] font-medium px-1.5 py-0.5 rounded bg-[#f1f5f9] text-[#64748b]">
                 {item.kbd}
               </kbd>
             )}
             {isActive && (
-              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#eef2ff] text-[#6366f1]">
+              <kbd className="text-[0.6875rem] font-medium px-1.5 py-0.5 rounded bg-[#eef2ff] text-[#6366f1]">
                 ↵
               </kbd>
             )}

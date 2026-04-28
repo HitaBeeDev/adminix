@@ -440,7 +440,7 @@ function SessionsTab() {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{session.device}</p>
                   {session.current && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 shrink-0">
+                    <span className="text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 shrink-0">
                       Current
                     </span>
                   )}

@@ -10,7 +10,7 @@ interface AvatarProps {
 }
 
 const sizeClasses: Record<AvatarSize, string> = {
-  xs: 'h-6 w-6 text-[10px]',
+  xs: 'h-6 w-6 text-[0.625rem]',
   sm: 'h-8 w-8 text-xs',
   md: 'h-9 w-9 text-sm',
   lg: 'h-11 w-11 text-base',

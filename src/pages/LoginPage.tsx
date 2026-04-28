@@ -45,7 +45,7 @@ export default function LoginPage() {
             <LayoutGrid size={22} className="text-[#181818]" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#181818]">Adminix</h1>
-          <p className="mt-1 text-[13px] text-[#2e2e2e]/70">
+          <p className="mt-1 text-[0.8125rem] text-[#2e2e2e]/70">
             Sign in to your account
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
 
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-[13px] font-medium text-[#181818]">
+              <label htmlFor="email" className="block text-[0.8125rem] font-medium text-[#181818]">
                 Email address
               </label>
               <input
@@ -80,13 +80,13 @@ export default function LoginPage() {
                 )}
               />
               {errors.email && (
-                <p className="text-[12px] text-[#994ff3]">{errors.email.message}</p>
+                <p className="text-[0.75rem] text-[#994ff3]">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-[13px] font-medium text-[#181818]">
+              <label htmlFor="password" className="block text-[0.8125rem] font-medium text-[#181818]">
                 Password
               </label>
               <div className="relative">
@@ -114,7 +114,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-[12px] text-[#994ff3]">{errors.password.message}</p>
+                <p className="text-[0.75rem] text-[#994ff3]">{errors.password.message}</p>
               )}
             </div>
 
@@ -126,7 +126,7 @@ export default function LoginPage() {
                 {...register("rememberMe")}
                 className="h-4 w-4 rounded border-[#181818]/30 accent-[#4fc4cf]"
               />
-              <label htmlFor="rememberMe" className="text-[13px] text-[#2e2e2e]/70">
+              <label htmlFor="rememberMe" className="text-[0.8125rem] text-[#2e2e2e]/70">
                 Remember me
               </label>
             </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-[12px] text-[#2e2e2e]/50">
+        <p className="mt-6 text-center text-[0.75rem] text-[#2e2e2e]/50">
           Demo: any email · password:{" "}
           <span className="font-mono font-medium text-[#2e2e2e]/60">password</span>
         </p>

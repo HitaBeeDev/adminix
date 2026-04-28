@@ -25,12 +25,12 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
     <div className="xl:col-span-2 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] p-7 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)]">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-[22px] font-bold tracking-tight text-[#0f172a]">User Growth Trends</h3>
+          <h3 className="text-[1.375rem] font-bold tracking-tight text-[#0f172a]">User Growth Trends</h3>
           <div className="flex items-center gap-2 mt-3">
-            <span className="text-[30px] leading-none font-bold tracking-tight text-[#0f172a]">
+            <span className="text-[1.875rem] leading-none font-bold tracking-tight text-[#0f172a]">
               {(data?.kpis.totalUsers ?? 8234).toLocaleString()}
             </span>
-            <span className="inline-flex items-center gap-0.5 h-5 px-2 rounded-full bg-[#ecfdf5] text-[11px] font-medium text-[#059669]">
+            <span className="inline-flex items-center gap-0.5 h-5 px-2 rounded-full bg-[#ecfdf5] text-[0.6875rem] font-medium text-[#059669]">
               ↗ 6.20%
             </span>
           </div>
@@ -54,12 +54,12 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 11, fill: "#94a3b8", fillOpacity: 1, dy: 8 }}
+              tick={{ fontSize: "0.6875rem", fill: "#94a3b8", fillOpacity: 1, dy: 8 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 11, fill: "#94a3b8", fillOpacity: 1 }}
+              tick={{ fontSize: "0.6875rem", fill: "#94a3b8", fillOpacity: 1 }}
               tickFormatter={fmtNum}
               width={40}
             />

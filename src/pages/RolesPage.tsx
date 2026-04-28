@@ -234,7 +234,7 @@ export default function RolesPage() {
                   <Users size={11} />
                   <span>{role.usersCount} user{role.usersCount !== 1 ? 's' : ''}</span>
                   {role.isSystem && (
-                    <span className="ml-auto px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-[10px] font-medium">
+                    <span className="ml-auto px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-[0.625rem] font-medium">
                       System
                     </span>
                   )}
@@ -277,7 +277,7 @@ export default function RolesPage() {
                       <tr key={`group-${group}`} className="bg-gray-50/50 dark:bg-gray-800/20">
                         <td
                           colSpan={roles.length + 1}
-                          className="px-5 py-2 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider"
+                          className="px-5 py-2 text-[0.6875rem] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider"
                         >
                           {group}
                         </td>

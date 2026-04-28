@@ -12,7 +12,7 @@ export default function ActivityFeed({ data, isLoading }: Props) {
   return (
     <div className="bg-[#ffffff] rounded-3xl border border-[#e2e8f0] p-7 flex flex-col shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)]">
       <div className="flex items-center justify-between mb-0">
-        <h3 className="text-[22px] font-bold tracking-tight text-[#0f172a]">Recent Activity</h3>
+        <h3 className="text-[1.375rem] font-bold tracking-tight text-[#0f172a]">Recent Activity</h3>
         <Link
           to="/activity"
           className="flex items-center gap-1 text-sm font-medium text-[#6366f1] hover:underline underline-offset-4 transition-colors"
@@ -54,7 +54,7 @@ export default function ActivityFeed({ data, isLoading }: Props) {
                       <IconComp size={16} className="text-[#d97706]" />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#eef2ff] text-[#6366f1] flex items-center justify-center text-[12px] font-bold shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-[#eef2ff] text-[#6366f1] flex items-center justify-center text-[0.75rem] font-bold shrink-0">
                       {event.actorName?.charAt(0)?.toUpperCase() ?? "?"}
                     </div>
                   )}
@@ -67,11 +67,11 @@ export default function ActivityFeed({ data, isLoading }: Props) {
                         <> <span className="font-medium text-[#0f172a]">{event.targetName}</span></>
                       )}
                     </p>
-                    <p className="text-[12px] mt-0.5 text-[#94a3b8]">
+                    <p className="text-[0.75rem] mt-0.5 text-[#94a3b8]">
                       {fmtRelative(event.timestamp)}
                     </p>
                   </div>
-                  <span className={`shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[10px] font-medium uppercase tracking-wide ${badge.className}`}>
+                  <span className={`shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[0.625rem] font-medium uppercase tracking-wide ${badge.className}`}>
                     {badge.label}
                   </span>
                 </li>
