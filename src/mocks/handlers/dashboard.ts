@@ -1,34 +1,33 @@
 import { http, HttpResponse } from 'msw';
 import { mockUsers, mockAccounts, mockActivity } from '@/mocks/seeds';
 
+// Synthetic totals consistent with the 12-month registration series (sum = 7,078)
+const SYNTHETIC = {
+  totalUsers:     7_078,
+  newThisMonth:     841,
+  activeUsers:    5_167,
+  suspendedUsers:   779,
+  totalAccounts:  1_240,
+  activeAccounts: 1_092,
+  usersByRole: [
+    { role: 'super_admin', count: 142  },
+    { role: 'admin',       count: 1_274 },
+    { role: 'manager',     count: 991  },
+    { role: 'editor',      count: 1_557 },
+    { role: 'viewer',      count: 2_265 },
+    { role: 'guest',       count: 849  },
+  ],
+  usersByStatus: [
+    { status: 'active',    count: 5_167 },
+    { status: 'pending',   count: 1_132 },
+    { status: 'suspended', count: 779  },
+  ],
+};
+
 export const dashboardHandlers = [
   http.get('/api/dashboard/stats', () => {
-    // --- KPI counts ---
-    const totalUsers     = mockUsers.length;
-    const activeUsers    = mockUsers.filter((u) => u.status === 'active').length;
-    const suspendedUsers = mockUsers.filter((u) => u.status === 'suspended').length;
-    const totalAccounts  = mockAccounts.length;
-    const activeAccounts = mockAccounts.filter((a) => a.status === 'active').length;
-
-    const now = new Date('2026-04-08T00:00:00Z');
-    const newThisMonth = mockUsers.filter((u) => {
-      const d = new Date(u.dateJoined);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    }).length;
-
-    // --- Users by role (for pie/bar chart) ---
-    const usersByRole = ['super_admin', 'admin', 'manager', 'editor', 'viewer', 'guest'].map(
-      (role) => ({
-        role,
-        count: mockUsers.filter((u) => u.role === role).length,
-      }),
-    );
-
-    // --- Users by status (for pie chart) ---
-    const usersByStatus = ['active', 'suspended', 'pending'].map((status) => ({
-      status,
-      count: mockUsers.filter((u) => u.status === status).length,
-    }));
+    const { totalUsers, newThisMonth, activeUsers, suspendedUsers,
+            totalAccounts, activeAccounts, usersByRole, usersByStatus } = SYNTHETIC;
 
     // --- Accounts by plan (for bar chart) ---
     const accountsByPlan = ['free', 'starter', 'pro', 'enterprise'].map((plan) => ({

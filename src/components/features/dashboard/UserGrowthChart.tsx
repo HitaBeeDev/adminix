@@ -7,6 +7,67 @@ import { fmtNum } from "@/lib/dashboardUtils";
 import SegmentedControl from "./SegmentedControl";
 import GrowthTooltip from "./GrowthTooltip";
 
+interface DataPoint { label: string; current: number; previous: number }
+
+const DAILY_DATA: DataPoint[] = [
+  { label: "Apr 1",  current: 34, previous: 27 },
+  { label: "Apr 2",  current: 41, previous: 33 },
+  { label: "Apr 3",  current: 38, previous: 30 },
+  { label: "Apr 4",  current: 22, previous: 18 },
+  { label: "Apr 5",  current: 18, previous: 15 },
+  { label: "Apr 6",  current: 37, previous: 29 },
+  { label: "Apr 7",  current: 44, previous: 35 },
+  { label: "Apr 8",  current: 39, previous: 31 },
+  { label: "Apr 9",  current: 46, previous: 37 },
+  { label: "Apr 10", current: 42, previous: 34 },
+  { label: "Apr 11", current: 19, previous: 16 },
+  { label: "Apr 12", current: 16, previous: 13 },
+  { label: "Apr 13", current: 41, previous: 33 },
+  { label: "Apr 14", current: 48, previous: 38 },
+  { label: "Apr 15", current: 45, previous: 36 },
+  { label: "Apr 16", current: 51, previous: 41 },
+  { label: "Apr 17", current: 47, previous: 38 },
+  { label: "Apr 18", current: 21, previous: 17 },
+  { label: "Apr 19", current: 17, previous: 14 },
+  { label: "Apr 20", current: 44, previous: 35 },
+  { label: "Apr 21", current: 52, previous: 42 },
+  { label: "Apr 22", current: 49, previous: 39 },
+  { label: "Apr 23", current: 55, previous: 44 },
+  { label: "Apr 24", current: 50, previous: 40 },
+  { label: "Apr 25", current: 23, previous: 18 },
+  { label: "Apr 26", current: 19, previous: 15 },
+  { label: "Apr 27", current: 47, previous: 38 },
+  { label: "Apr 28", current: 54, previous: 43 },
+  { label: "Apr 29", current: 51, previous: 41 },
+  { label: "Apr 30", current: 58, previous: 46 },
+];
+
+const WEEKLY_DATA: DataPoint[] = [
+  { label: "W1",  current: 182, previous: 148 },
+  { label: "W2",  current: 201, previous: 163 },
+  { label: "W3",  current: 195, previous: 158 },
+  { label: "W4",  current: 218, previous: 177 },
+  { label: "W5",  current: 234, previous: 190 },
+  { label: "W6",  current: 221, previous: 179 },
+  { label: "W7",  current: 248, previous: 201 },
+  { label: "W8",  current: 241, previous: 195 },
+  { label: "W9",  current: 263, previous: 213 },
+  { label: "W10", current: 258, previous: 209 },
+  { label: "W11", current: 274, previous: 222 },
+  { label: "W12", current: 291, previous: 236 },
+];
+
+const PERIOD_META: Record<string, {
+  secondKpi: string;
+  footerAvgLabel: string;
+  rangeLabel: string;
+  xInterval: number;
+}> = {
+  Monthly: { secondKpi: "This Month",  footerAvgLabel: "Monthly Avg", rangeLabel: "12 months", xInterval: 0 },
+  Weekly:  { secondKpi: "This Week",   footerAvgLabel: "Weekly Avg",  rangeLabel: "12 weeks",  xInterval: 1 },
+  Daily:   { secondKpi: "Today",       footerAvgLabel: "Daily Avg",   rangeLabel: "30 days",   xInterval: 4 },
+};
+
 interface Props {
   data: DashboardStats | undefined;
   isLoading: boolean;
@@ -15,20 +76,21 @@ interface Props {
 }
 
 export default function UserGrowthChart({ data, isLoading, period, onPeriodChange }: Props) {
-  const growthData = (data?.registrationsByMonth ?? []).map((d) => ({
-    month: d.month,
+  const monthlyData: DataPoint[] = (data?.registrationsByMonth ?? []).map((d) => ({
+    label: d.month,
     current: d.registrations,
     previous: Math.max(0, Math.round(d.registrations * 0.76 + Math.sin(d.registrations * 0.1) * 55)),
   }));
 
-  const currentValues = growthData.map((d) => d.current);
-  const peak = Math.max(...currentValues, 0);
-  const avg = currentValues.length
-    ? Math.round(currentValues.reduce((a, b) => a + b, 0) / currentValues.length)
-    : 0;
-  const latest = currentValues[currentValues.length - 1] ?? 0;
-  const prevMonth = currentValues[currentValues.length - 2] ?? 0;
-  const momPct = prevMonth > 0 ? (((latest - prevMonth) / prevMonth) * 100).toFixed(1) : null;
+  const chartData = period === "Daily" ? DAILY_DATA : period === "Weekly" ? WEEKLY_DATA : monthlyData;
+  const meta = PERIOD_META[period] ?? PERIOD_META.Monthly;
+
+  const currentValues = chartData.map((d) => d.current);
+  const peak    = Math.max(...currentValues, 0);
+  const avg     = currentValues.length ? Math.round(currentValues.reduce((a, b) => a + b, 0) / currentValues.length) : 0;
+  const latest  = currentValues[currentValues.length - 1] ?? 0;
+  const prev    = currentValues[currentValues.length - 2] ?? 0;
+  const momPct  = prev > 0 ? (((latest - prev) / prev) * 100).toFixed(1) : null;
 
   return (
     <div className="xl:col-span-2 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-5 px-6 pb-5 flex flex-col transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]">
@@ -37,9 +99,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
       <div className="flex items-start justify-between gap-4 mb-5">
         <div className="flex items-start gap-6">
           <div>
-            <p className="text-[0.7rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-2">
-              Total Users
-            </p>
+            <p className="text-[0.7rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-2">Total Users</p>
             <div className="flex items-end gap-2">
               <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a]">
                 {(data?.kpis.totalUsers ?? 8_234).toLocaleString()}
@@ -54,7 +114,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
 
           <div>
             <p className="text-[0.7rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-2">
-              This Month
+              {meta.secondKpi}
             </p>
             <div className="flex items-end gap-2">
               <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a]">
@@ -95,7 +155,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
         <div className="h-[220px] rounded-[1.2rem] animate-pulse bg-[#f1f5f9]" />
       ) : (
         <ResponsiveContainer width="100%" height={220}>
-          <AreaChart data={growthData} margin={{ top: 6, right: 2, left: -14, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 6, right: 2, left: -14, bottom: 0 }}>
             <defs>
               <linearGradient id="gc1" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%"   stopColor="#6366f1" stopOpacity={0.45} />
@@ -114,10 +174,11 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
             <CartesianGrid vertical={false} stroke="#f1f5f9" strokeOpacity={1} />
 
             <XAxis
-              dataKey="month"
+              dataKey="label"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: "0.6875rem", fill: "#94a3b8", dy: 8 }}
+              interval={meta.xInterval}
             />
             <YAxis
               axisLine={false}
@@ -138,13 +199,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
               stroke="#cbd5e1"
               strokeDasharray="4 4"
               strokeWidth={1}
-              label={{
-                value: `avg ${fmtNum(avg)}`,
-                position: "insideTopRight",
-                fontSize: 10,
-                fill: "#94a3b8",
-                dy: -4,
-              }}
+              label={{ value: `avg ${fmtNum(avg)}`, position: "insideTopRight", fontSize: 10, fill: "#94a3b8", dy: -4 }}
             />
 
             <Area
@@ -166,13 +221,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
               fill="url(#gc1)"
               isAnimationActive={false}
               dot={false}
-              activeDot={{
-                r: 5,
-                fill: "#6366f1",
-                stroke: "#ffffff",
-                strokeWidth: 2.5,
-                filter: "url(#dot-glow)",
-              }}
+              activeDot={{ r: 5, fill: "#6366f1", stroke: "#ffffff", strokeWidth: 2.5, filter: "url(#dot-glow)" }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -186,14 +235,14 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
             <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{peak.toLocaleString()}</p>
           </div>
           <div>
-            <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">Monthly Avg</p>
+            <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">{meta.footerAvgLabel}</p>
             <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{avg.toLocaleString()}</p>
           </div>
           <div>
             <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">Latest</p>
             <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{latest.toLocaleString()}</p>
           </div>
-          <p className="ml-auto text-[0.7rem] text-[#c8d3df]">12 months · {period.toLowerCase()}</p>
+          <p className="ml-auto text-[0.7rem] text-[#c8d3df]">{meta.rangeLabel}</p>
         </div>
       )}
     </div>
