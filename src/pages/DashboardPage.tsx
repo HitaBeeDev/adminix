@@ -85,14 +85,14 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {!isError && <QuickActions />}
+
       {!isError && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
           <AccountStatusChart data={data} isLoading={isLoading} />
           <ActivityFeed data={data} isLoading={isLoading} />
         </div>
       )}
-
-      {!isError && <QuickActions />}
     </div>
   );
 }
