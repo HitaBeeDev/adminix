@@ -3,7 +3,7 @@ import { Users, UserCheck, Star, Repeat } from "lucide-react";
 import { useDashboardStats } from "@/hooks/useDashboard";
 import ErrorState from "@/components/ui/ErrorState";
 import KpiCard from "@/components/features/dashboard/KpiCard";
-import UserGrowthChart from "@/components/features/dashboard/UserGrowthChart";
+import { UserGrowthChart } from "@/components/features/dashboard/UserGrowthChart";
 import { RoleDistributionChart } from "@/components/features/dashboard/RoleDistributionChart";
 import AccountStatusChart from "@/components/features/dashboard/AccountStatusChart";
 import ActivityFeed from "@/components/features/dashboard/ActivityFeed";
