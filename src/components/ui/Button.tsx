@@ -11,10 +11,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary:     "bg-[#4fc4cf] text-[#181818] shadow-[0_12px_28px_-18px_#4fc4cf] hover:brightness-105 active:brightness-95",
-  secondary:   "bg-[#ffffff] text-[#181818] border border-[#181818]/10 hover:bg-[#4fc4cf]/10 hover:border-[#4fc4cf]/25 active:brightness-95",
-  ghost:       "text-[#2e2e2e] hover:bg-[#4fc4cf]/10 active:brightness-95",
-  destructive: "bg-[#994ff3] text-main hover:brightness-105 active:brightness-95",
+  primary:     "bg-[#4fc4cf] text-[#181818] shadow-[0_12px_28px_-18px_#4fc4cf] hover:bg-[#43b6c0] active:brightness-95",
+  secondary:   "bg-[#994ff3] text-[#ffffff] hover:bg-[#873de1] active:brightness-95",
+  ghost:       "text-[#2e2e2e] hover:bg-[#f2eef5] active:brightness-95",
+  destructive: "bg-[#994ff3] text-[#ffffff] hover:bg-[#873de1] active:brightness-95",
   link:        "text-[#4fc4cf] underline-offset-4 hover:underline",
 };
 

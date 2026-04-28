@@ -23,7 +23,7 @@ export default function AppShell() {
   }, [setCommandPaletteOpen]);
 
   return (
-    <div className="flex h-screen bg-[#ffffff] overflow-hidden">
+    <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
       <Sidebar />
 
       {mobileOpen && (

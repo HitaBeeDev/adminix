@@ -76,20 +76,20 @@ function CommandPaletteContent() {
       onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-[#181818]/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-[#0f172a]/40 backdrop-blur-sm" />
 
       {/* Palette */}
-      <div className="relative w-full max-w-xl bg-[#ffffff] rounded-xl overflow-hidden shadow-[0_8px_24px_-8px_rgba(24,24,24,0.18),0_2px_4px_-2px_rgba(24,24,24,0.08)]">
+      <div className="relative w-full max-w-xl bg-[#ffffff] rounded-xl overflow-hidden shadow-[0_8px_24px_-8px_rgba(15,23,42,0.18),0_2px_4px_-2px_rgba(15,23,42,0.08)]">
         {/* Search row */}
-        <div className="flex items-center gap-3 px-4 h-12 border-b border-[#181818]/8">
-          <Search size={16} className="shrink-0 text-[#2e2e2e]/50" />
+        <div className="flex items-center gap-3 px-4 h-12 border-b border-[#e2e8f0]">
+          <Search size={16} className="shrink-0 text-[#94a3b8]" />
           <input
             {...register("query", { onChange: () => setActiveIndex(0) })}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search…"
-            className="flex-1 text-sm text-[#181818] placeholder:text-[#2e2e2e]/50 bg-transparent outline-none"
+            className="flex-1 text-sm text-[#0f172a] placeholder:text-[#94a3b8] bg-transparent outline-none"
           />
-          <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded shrink-0 bg-[#fbdd74] text-[#2e2e2e]/60">
+          <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded shrink-0 bg-[#f1f5f9] text-[#64748b]">
             esc
           </kbd>
         </div>
@@ -97,7 +97,7 @@ function CommandPaletteContent() {
         {/* Results */}
         <div className="max-h-80 overflow-y-auto py-1.5">
           {filtered.length === 0 ? (
-            <p className="px-4 py-6 text-sm text-center text-[#2e2e2e]/50">
+            <p className="px-4 py-6 text-sm text-center text-[#94a3b8]">
               No results for &ldquo;{query}&rdquo;
             </p>
           ) : (
@@ -113,7 +113,7 @@ function CommandPaletteContent() {
         </div>
 
         {/* Footer */}
-        <div className="flex gap-4 items-center px-4 py-2.5 border-t border-[#181818]/8 text-[11px] text-[#2e2e2e]/50">
+        <div className="flex gap-4 items-center px-4 py-2.5 border-t border-[#e2e8f0] text-[11px] text-[#94a3b8]">
           <span><kbd className="font-sans">↑↓</kbd> navigate</span>
           <span><kbd className="font-sans">↵</kbd> open</span>
           <span><kbd className="font-sans">esc</kbd> close</span>
@@ -140,7 +140,7 @@ function Section({
 }) {
   return (
     <>
-      <p className="px-3 pt-3 pb-1 text-[11px] font-medium tracking-widest uppercase text-[#2e2e2e]/60">
+      <p className="px-3 pt-3 pb-1 text-[11px] font-medium tracking-widest uppercase text-[#94a3b8]">
         {label}
       </p>
       {items.map((item, localIdx) => {
@@ -152,19 +152,19 @@ function Section({
             key={item.label}
             onMouseEnter={() => onHover(globalIdx)}
             onClick={() => onSelect(item)}
-            className={`mx-1 flex w-[calc(100%_-_8px)] items-center gap-3 rounded-md px-3 py-2 text-left transition-colors duration-100 ${isActive ? "bg-[#fbdd74]" : "bg-transparent"}`}
+            className={`mx-1 flex w-[calc(100%_-_8px)] items-center gap-3 rounded-md px-3 py-2 text-left transition-colors duration-100 ${isActive ? "bg-[#eef2ff]" : "bg-transparent hover:bg-[#f8fafc]"}`}
           >
-            <Icon size={16} className={`shrink-0 ${isActive ? "text-[#4fc4cf]" : "text-[#2e2e2e]/60"}`} />
-            <span className={`flex-1 text-sm ${isActive ? "text-[#181818] font-medium" : "text-[#2e2e2e]"}`}>
+            <Icon size={16} className={`shrink-0 ${isActive ? "text-[#6366f1]" : "text-[#94a3b8]"}`} />
+            <span className={`flex-1 text-sm ${isActive ? "text-[#0f172a] font-medium" : "text-[#64748b]"}`}>
               {item.label}
             </span>
             {item.kbd && (
-              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#fbdd74] text-[#2e2e2e]/60">
+              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#f1f5f9] text-[#64748b]">
                 {item.kbd}
               </kbd>
             )}
             {isActive && (
-              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#fbdd74] text-[#2e2e2e]/60">
+              <kbd className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#eef2ff] text-[#6366f1]">
                 ↵
               </kbd>
             )}
