@@ -1,89 +1,131 @@
-import { useRef, useEffect, useState } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { Search, ChevronUp, ChevronDown, ChevronsUpDown, MoreHorizontal, Eye, Pencil, Ban, RefreshCw, Trash2, X } from 'lucide-react';
-import { useUsers, useUpdateUserInline, useDeleteUser } from '@/hooks/useUsers';
-import InviteUserModal from '@/components/features/InviteUserModal';
-import ErrorState from '@/components/ui/ErrorState';
-import { useDebounce } from '@/hooks/useDebounce';
-import { toast } from '@/stores/toastStore';
-import type { UserRole, UserStatus, UserFilters, User } from '@/types/user';
-import { cn } from '@/lib/utils';
+import { useRef, useEffect, useState } from "react";
+import { useSearchParams, Link, useNavigate } from "react-router";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import {
+  Search,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
+  MoreHorizontal,
+  Eye,
+  Pencil,
+  Ban,
+  RefreshCw,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useUsers, useUpdateUserInline, useDeleteUser } from "@/hooks/useUsers";
+import InviteUserModal from "@/components/features/InviteUserModal";
+import ErrorState from "@/components/ui/ErrorState";
+import { useDebounce } from "@/hooks/useDebounce";
+import { toast } from "@/stores/toastStore";
+import type { UserRole, UserStatus, UserFilters, User } from "@/types/user";
+import { cn } from "@/lib/utils";
 
-const ROLE_OPTIONS: { value: UserRole | ''; label: string }[] = [
-  { value: '',            label: 'All roles' },
-  { value: 'super_admin', label: 'Super Admin' },
-  { value: 'admin',       label: 'Admin' },
-  { value: 'manager',     label: 'Manager' },
-  { value: 'editor',      label: 'Editor' },
-  { value: 'viewer',      label: 'Viewer' },
-  { value: 'guest',       label: 'Guest' },
+const ROLE_OPTIONS: { value: UserRole | ""; label: string }[] = [
+  { value: "", label: "All roles" },
+  { value: "super_admin", label: "Super Admin" },
+  { value: "admin", label: "Admin" },
+  { value: "manager", label: "Manager" },
+  { value: "editor", label: "Editor" },
+  { value: "viewer", label: "Viewer" },
+  { value: "guest", label: "Guest" },
 ];
 
-const STATUS_OPTIONS: { value: UserStatus | ''; label: string }[] = [
-  { value: '',            label: 'All statuses' },
-  { value: 'active',      label: 'Active' },
-  { value: 'suspended',   label: 'Suspended' },
-  { value: 'pending',     label: 'Pending' },
+const STATUS_OPTIONS: { value: UserStatus | ""; label: string }[] = [
+  { value: "", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "suspended", label: "Suspended" },
+  { value: "pending", label: "Pending" },
 ];
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  super_admin: 'Super Admin',
-  admin:       'Admin',
-  manager:     'Manager',
-  editor:      'Editor',
-  viewer:      'Viewer',
-  guest:       'Guest',
+  super_admin: "Super Admin",
+  admin: "Admin",
+  manager: "Manager",
+  editor: "Editor",
+  viewer: "Viewer",
+  guest: "Guest",
 };
 
 const STATUS_STYLES: Record<UserStatus, string> = {
-  active:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  suspended: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-  pending:   'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  active:
+    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  suspended: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+  pending:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
-type SortableColumn = NonNullable<UserFilters['sortBy']>;
+type SortableColumn = NonNullable<UserFilters["sortBy"]>;
 
 const COLUMNS: { key: SortableColumn; label: string }[] = [
-  { key: 'name',       label: 'Name' },
-  { key: 'email',      label: 'Email' },
-  { key: 'role',       label: 'Role' },
-  { key: 'status',     label: 'Status' },
-  { key: 'dateJoined', label: 'Joined' },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "role", label: "Role" },
+  { key: "status", label: "Status" },
+  { key: "dateJoined", label: "Joined" },
 ];
 
 const VIRTUAL_PAGE_SIZE = 100_000;
 const USER_ROW_HEIGHT = 60;
-const USER_GRID_COLUMNS = '44px minmax(220px, 1.25fr) minmax(260px, 1.4fr) 140px 130px 130px 64px';
+const USER_GRID_COLUMNS =
+  "44px minmax(220px, 1.25fr) minmax(260px, 1.4fr) 140px 130px 130px 64px";
 
-function SortIcon({ col, sortBy, sortDir }: { col: SortableColumn; sortBy: SortableColumn; sortDir: 'asc' | 'desc' }) {
-  if (col !== sortBy) return <ChevronsUpDown size={13} className="text-gray-300 dark:text-gray-600" />;
-  return sortDir === 'asc'
-    ? <ChevronUp size={13} className="text-indigo-500" />
-    : <ChevronDown size={13} className="text-indigo-500" />;
+function SortIcon({
+  col,
+  sortBy,
+  sortDir,
+}: {
+  col: SortableColumn;
+  sortBy: SortableColumn;
+  sortDir: "asc" | "desc";
+}) {
+  if (col !== sortBy)
+    return (
+      <ChevronsUpDown size={13} className="text-gray-300 dark:text-gray-600" />
+    );
+  return sortDir === "asc" ? (
+    <ChevronUp size={13} className="text-indigo-500" />
+  ) : (
+    <ChevronDown size={13} className="text-indigo-500" />
+  );
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function UserRowSkeleton() {
   return (
     <tr className="border-b border-gray-100 dark:border-gray-800">
-      <td className="pl-4 pr-2 py-3"><div className="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" /></td>
+      <td className="pl-4 pr-2 py-3">
+        <div className="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+      </td>
       {[40, 56, 24, 20, 32].map((w, i) => (
         <td key={i} className="px-4 py-3">
-          <div className="h-3.5 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" style={{ width: `${w * 2}px` }} />
+          <div
+            className="h-3.5 rounded bg-gray-100 dark:bg-gray-800 animate-pulse"
+            style={{ width: `${w * 2}px` }}
+          />
         </td>
       ))}
-      <td className="px-4 py-3"><div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" /></td>
+      <td className="px-4 py-3">
+        <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+      </td>
     </tr>
   );
 }
 
 interface RowActionMenuProps {
   user: User;
-  onUpdate: (payload: { id: string; payload: { status: User['status'] } }) => void;
+  onUpdate: (payload: {
+    id: string;
+    payload: { status: User["status"] };
+  }) => void;
   onDelete: (id: string) => void;
 }
 
@@ -95,13 +137,14 @@ function RowActionMenu({ user, onUpdate, onDelete }: RowActionMenuProps) {
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  const isSuspended = user.status === 'suspended';
+  const isSuspended = user.status === "suspended";
 
   function action(fn: () => void) {
     fn();
@@ -120,22 +163,33 @@ function RowActionMenu({ user, onUpdate, onDelete }: RowActionMenuProps) {
       {open && (
         <div className="absolute right-0 top-8 z-20 w-44 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden">
           <div className="py-1">
-            <button onClick={() => action(() => navigate(`/users/${user.id}`))}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button
+              onClick={() => action(() => navigate(`/users/${user.id}`))}
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
               <Eye size={14} className="text-gray-400" /> View
             </button>
-            <button onClick={() => action(() => navigate(`/users/${user.id}`))}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <button
+              onClick={() => action(() => navigate(`/users/${user.id}`))}
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
               <Pencil size={14} className="text-gray-400" /> Edit
             </button>
           </div>
           <div className="border-t border-gray-100 dark:border-gray-700 py-1">
             <button
-              onClick={() => action(() => onUpdate({ id: user.id, payload: { status: isSuspended ? 'active' : 'suspended' } }))}
+              onClick={() =>
+                action(() =>
+                  onUpdate({
+                    id: user.id,
+                    payload: { status: isSuspended ? "active" : "suspended" },
+                  }),
+                )
+              }
               className="flex items-center gap-2.5 w-full px-3 py-2 text-[0.85rem] font-[400] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
             >
               {isSuspended ? <RefreshCw size={14} /> : <Ban size={14} />}
-              {isSuspended ? 'Reactivate' : 'Suspend'}
+              {isSuspended ? "Reactivate" : "Suspend"}
             </button>
             <button
               onClick={() => action(() => onDelete(user.id))}
@@ -154,11 +208,11 @@ export default function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tableScrollRef = useRef<HTMLDivElement>(null);
 
-  const searchInput = searchParams.get('search') ?? '';
-  const role        = (searchParams.get('role')    ?? '') as UserRole   | '';
-  const status      = (searchParams.get('status')  ?? '') as UserStatus | '';
-  const sortBy      = (searchParams.get('sortBy')  ?? 'name') as SortableColumn;
-  const sortDir     = (searchParams.get('sortDir') ?? 'asc') as 'asc' | 'desc';
+  const searchInput = searchParams.get("search") ?? "";
+  const role = (searchParams.get("role") ?? "") as UserRole | "";
+  const status = (searchParams.get("status") ?? "") as UserStatus | "";
+  const sortBy = (searchParams.get("sortBy") ?? "name") as SortableColumn;
+  const sortDir = (searchParams.get("sortDir") ?? "asc") as "asc" | "desc";
   const debouncedSearch = useDebounce(searchInput, 300);
 
   const { data, isLoading, isError, error, refetch } = useUsers({
@@ -174,17 +228,19 @@ export default function UsersPage() {
   function handleSearch(value: string) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value) next.set('search', value); else next.delete('search');
-      next.delete('page');
+      if (value) next.set("search", value);
+      else next.delete("search");
+      next.delete("page");
       return next;
     });
   }
 
-  function handleFilter(key: 'role' | 'status', value: string) {
+  function handleFilter(key: "role" | "status", value: string) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value) next.set(key, value); else next.delete(key);
-      next.delete('page');
+      if (value) next.set(key, value);
+      else next.delete(key);
+      next.delete("page");
       return next;
     });
   }
@@ -193,12 +249,12 @@ export default function UsersPage() {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (col === sortBy) {
-        next.set('sortDir', sortDir === 'asc' ? 'desc' : 'asc');
+        next.set("sortDir", sortDir === "asc" ? "desc" : "asc");
       } else {
-        next.set('sortBy', col);
-        next.set('sortDir', 'asc');
+        next.set("sortBy", col);
+        next.set("sortDir", "asc");
       }
-      next.delete('page');
+      next.delete("page");
       return next;
     });
   }
@@ -211,21 +267,23 @@ export default function UsersPage() {
     try {
       await Promise.all([...selected].map((id) => deleteUser.mutateAsync(id)));
       setSelected(new Set());
-      toast.success('Selected users deleted.');
+      toast.success("Selected users deleted.");
     } catch {
-      toast.error('Failed to delete selected users.');
+      toast.error("Failed to delete selected users.");
     }
   }
 
   async function handleBulkSuspend() {
     try {
       await Promise.all(
-        [...selected].map((id) => updateUser.mutateAsync({ id, payload: { status: 'suspended' } }))
+        [...selected].map((id) =>
+          updateUser.mutateAsync({ id, payload: { status: "suspended" } }),
+        ),
       );
       setSelected(new Set());
-      toast.success('Selected users suspended.');
+      toast.success("Selected users suspended.");
     } catch {
-      toast.error('Failed to suspend selected users.');
+      toast.error("Failed to suspend selected users.");
     }
   }
   const users: User[] = data?.data ?? [];
@@ -249,8 +307,10 @@ export default function UsersPage() {
     setExpanded(new Set());
   }, [pageKey]);
 
-  const allLoadedSelected = users.length > 0 && users.every((u) => selected.has(u.id));
-  const someLoadedSelected = users.some((u) => selected.has(u.id)) && !allLoadedSelected;
+  const allLoadedSelected =
+    users.length > 0 && users.every((u) => selected.has(u.id));
+  const someLoadedSelected =
+    users.some((u) => selected.has(u.id)) && !allLoadedSelected;
 
   function toggleAll() {
     setSelected((prev) => {
@@ -267,7 +327,8 @@ export default function UsersPage() {
   function toggleOne(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -275,34 +336,20 @@ export default function UsersPage() {
   function toggleExpanded(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
     window.requestAnimationFrame(() => rowVirtualizer.measure());
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-[#181818]">Users</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {isLoading ? (
-              <span className="block h-4 w-20 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
-            ) : (
-              selected.size > 0
-                ? `${selected.size} of ${data?.total ?? 0} selected`
-                : `${data?.total ?? 0} users`
-            )}
-          </p>
-        </div>
-        <button
-          onClick={() => setInviteOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] transition-colors"
-        >
-          + Invite user
-        </button>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-[#181818]">
+          Users
+        </h1>
       </div>
 
       <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
@@ -310,7 +357,10 @@ export default function UsersPage() {
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48 max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
+          />
           <input
             type="text"
             value={searchInput}
@@ -322,30 +372,41 @@ export default function UsersPage() {
 
         <select
           value={role}
-          onChange={(e) => handleFilter('role', e.target.value)}
+          onChange={(e) => handleFilter("role", e.target.value)}
           className="py-2 pl-3 pr-8 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none cursor-pointer"
         >
           {ROLE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
 
         <select
           value={status}
-          onChange={(e) => handleFilter('status', e.target.value)}
+          onChange={(e) => handleFilter("status", e.target.value)}
           className="py-2 pl-3 pr-8 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition appearance-none cursor-pointer"
         >
           {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
+
+        <button
+          onClick={() => setInviteOpen(true)}
+          className="ml-auto flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] transition-colors"
+        >
+          + Invite user
+        </button>
       </div>
 
       {/* Bulk actions bar */}
       {selected.size > 0 && (
         <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
           <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300 flex-1">
-            {selected.size} user{selected.size > 1 ? 's' : ''} selected
+            {selected.size} user{selected.size > 1 ? "s" : ""} selected
           </span>
           <button
             onClick={handleBulkSuspend}
@@ -383,13 +444,18 @@ export default function UsersPage() {
                 <input
                   type="checkbox"
                   checked={allLoadedSelected}
-                  ref={(el) => { if (el) el.indeterminate = someLoadedSelected; }}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someLoadedSelected;
+                  }}
                   onChange={toggleAll}
                   className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                 />
               </div>
               {COLUMNS.map(({ key, label }) => (
-                <div key={key} className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">
+                <div
+                  key={key}
+                  className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400"
+                >
                   <button
                     onClick={() => handleSort(key)}
                     className="flex items-center gap-1.5 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
@@ -404,7 +470,11 @@ export default function UsersPage() {
 
             {isLoading ? (
               <table className="w-full">
-                <tbody>{Array.from({ length: 8 }).map((_, i) => <UserRowSkeleton key={i} />)}</tbody>
+                <tbody>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <UserRowSkeleton key={i} />
+                  ))}
+                </tbody>
               </table>
             ) : isError ? (
               <ErrorState error={error} onRetry={() => void refetch()} />
@@ -412,14 +482,19 @@ export default function UsersPage() {
               <div className="px-4 py-20 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                    <Search size={20} className="text-gray-400 dark:text-gray-500" />
+                    <Search
+                      size={20}
+                      className="text-gray-400 dark:text-gray-500"
+                    />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No users found</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      No users found
+                    </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                       {debouncedSearch || role || status
-                        ? 'Try adjusting your filters or search term'
-                        : 'Invite your first user to get started'}
+                        ? "Try adjusting your filters or search term"
+                        : "Invite your first user to get started"}
                     </p>
                   </div>
                   {(debouncedSearch || role || status) && (
@@ -449,10 +524,10 @@ export default function UsersPage() {
                         data-index={virtualRow.index}
                         ref={rowVirtualizer.measureElement}
                         className={cn(
-                          'absolute left-0 top-0 grid w-full border-b border-gray-50 dark:border-gray-800 transition-colors',
+                          "absolute left-0 top-0 grid w-full border-b border-gray-50 dark:border-gray-800 transition-colors",
                           selected.has(user.id)
-                            ? 'bg-indigo-50/50 dark:bg-indigo-900/10'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
+                            ? "bg-indigo-50/50 dark:bg-indigo-900/10"
+                            : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
                         )}
                         style={{
                           minHeight: USER_ROW_HEIGHT,
@@ -473,43 +548,76 @@ export default function UsersPage() {
                             <button
                               type="button"
                               onClick={() => toggleExpanded(user.id)}
-                              aria-label={isExpanded ? `Collapse ${user.name}` : `Expand ${user.name}`}
+                              aria-label={
+                                isExpanded
+                                  ? `Collapse ${user.name}`
+                                  : `Expand ${user.name}`
+                              }
                               aria-expanded={isExpanded}
                               className="shrink-0 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition-colors"
                             >
-                              <ChevronDown size={14} className={cn('transition-transform', isExpanded ? 'rotate-0' : '-rotate-90')} />
+                              <ChevronDown
+                                size={14}
+                                className={cn(
+                                  "transition-transform",
+                                  isExpanded ? "rotate-0" : "-rotate-90",
+                                )}
+                              />
                             </button>
-                            <Link to={`/users/${user.id}`} className="flex items-center gap-3 group min-w-0">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
-                              {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                            </div>
-                            <span className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
-                              {user.name}
-                            </span>
+                            <Link
+                              to={`/users/${user.id}`}
+                              className="flex items-center gap-3 group min-w-0"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
+                                {user.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()}
+                              </div>
+                              <span className="font-medium text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                                {user.name}
+                              </span>
                             </Link>
                           </div>
                         </div>
-                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
-                        <div className="px-4 py-3 flex items-center text-gray-600 dark:text-gray-300">{ROLE_LABELS[user.role]}</div>
+                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400 truncate">
+                          {user.email}
+                        </div>
+                        <div className="px-4 py-3 flex items-center text-gray-600 dark:text-gray-300">
+                          {ROLE_LABELS[user.role]}
+                        </div>
                         <div className="px-4 py-3 flex items-center">
-                          <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize', STATUS_STYLES[user.status])}>
+                          <span
+                            className={cn(
+                              "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize",
+                              STATUS_STYLES[user.status],
+                            )}
+                          >
                             {user.status}
                           </span>
                         </div>
-                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400">{formatDate(user.dateJoined)}</div>
+                        <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400">
+                          {formatDate(user.dateJoined)}
+                        </div>
                         <div className="px-4 py-3 flex items-center justify-end">
                           <RowActionMenu
                             user={user}
                             onUpdate={(args) => {
                               updateUser.mutate(args, {
-                                onSuccess: () => toast.success(`${user.name} updated.`),
-                                onError: () => toast.error(`Failed to update ${user.name}.`),
+                                onSuccess: () =>
+                                  toast.success(`${user.name} updated.`),
+                                onError: () =>
+                                  toast.error(`Failed to update ${user.name}.`),
                               });
                             }}
                             onDelete={(id) => {
                               deleteUser.mutate(id, {
-                                onSuccess: () => toast.success(`${user.name} deleted.`),
-                                onError: () => toast.error(`Failed to delete ${user.name}.`),
+                                onSuccess: () =>
+                                  toast.success(`${user.name} deleted.`),
+                                onError: () =>
+                                  toast.error(`Failed to delete ${user.name}.`),
                               });
                             }}
                           />
@@ -518,22 +626,38 @@ export default function UsersPage() {
                           <div className="col-span-full border-t border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-950/30 px-4 py-4">
                             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
                               <div>
-                                <p className="font-medium text-gray-500 dark:text-gray-400">User ID</p>
-                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.id}</p>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">
+                                  User ID
+                                </p>
+                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">
+                                  {user.id}
+                                </p>
                               </div>
                               <div>
-                                <p className="font-medium text-gray-500 dark:text-gray-400">Account</p>
-                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.accountId ?? 'Unassigned'}</p>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">
+                                  Account
+                                </p>
+                                <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">
+                                  {user.accountId ?? "Unassigned"}
+                                </p>
                               </div>
                               <div>
-                                <p className="font-medium text-gray-500 dark:text-gray-400">Last active</p>
-                                <p className="mt-1 text-gray-800 dark:text-gray-100">{formatDate(user.lastActive)}</p>
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-500 dark:text-gray-400">Security</p>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">
+                                  Last active
+                                </p>
                                 <p className="mt-1 text-gray-800 dark:text-gray-100">
-                                  {user.twoFactorEnabled ? '2FA enabled' : '2FA disabled'}
-                                  {user.lastIp ? ` · ${user.lastIp}` : ''}
+                                  {formatDate(user.lastActive)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-500 dark:text-gray-400">
+                                  Security
+                                </p>
+                                <p className="mt-1 text-gray-800 dark:text-gray-100">
+                                  {user.twoFactorEnabled
+                                    ? "2FA enabled"
+                                    : "2FA disabled"}
+                                  {user.lastIp ? ` · ${user.lastIp}` : ""}
                                 </p>
                               </div>
                             </div>
@@ -552,10 +676,12 @@ export default function UsersPage() {
       {data && (
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>
-            Showing {users.length.toLocaleString()} of {data.total.toLocaleString()} users
+            Showing {users.length.toLocaleString()} of{" "}
+            {data.total.toLocaleString()} users
           </span>
           <span>
-            Rendering {rowVirtualizer.getVirtualItems().length.toLocaleString()} visible rows
+            Rendering {rowVirtualizer.getVirtualItems().length.toLocaleString()}{" "}
+            visible rows
           </span>
         </div>
       )}

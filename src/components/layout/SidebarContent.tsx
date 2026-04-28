@@ -88,11 +88,6 @@ export default function SidebarContent({
       )}
 
       <div className={cn("mt-1", collapsed ? "px-2" : "px-4")}>
-        {!collapsed && (
-          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
-            Main
-          </p>
-        )}
         <nav className="space-y-1.5" aria-label="Primary navigation">
           {PRIMARY_NAV.map((link) => (
             <SidebarNavItem
@@ -108,11 +103,6 @@ export default function SidebarContent({
       <div className="mt-auto" />
 
       <div className={cn("mt-7 pb-6", collapsed ? "px-2" : "px-4")}>
-        {!collapsed && (
-          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
-            Other
-          </p>
-        )}
         <nav aria-label="Secondary navigation">
           {OTHER_NAV.map((link) => (
             <SidebarNavItem
