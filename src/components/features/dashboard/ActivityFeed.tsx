@@ -1,0 +1,88 @@
+import { Link } from "react-router";
+import { ArrowRight, ScrollText } from "lucide-react";
+import type { DashboardStats } from "@/api/dashboard";
+import { fmtRelative, ACTION_LABEL, activityBadge, activityIcon } from "@/lib/dashboardUtils";
+
+interface Props {
+  data: DashboardStats | undefined;
+  isLoading: boolean;
+}
+
+export default function ActivityFeed({ data, isLoading }: Props) {
+  return (
+    <div className="bg-[#ffffff] rounded-3xl border border-[#e2e8f0] p-7 flex flex-col shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)]">
+      <div className="flex items-center justify-between mb-0">
+        <h3 className="text-[22px] font-bold tracking-tight text-[#0f172a]">Recent Activity</h3>
+        <Link
+          to="/activity"
+          className="flex items-center gap-1 text-sm font-medium text-[#6366f1] hover:underline underline-offset-4 transition-colors"
+        >
+          View all <ArrowRight size={14} />
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="flex-1 space-y-3 mt-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex gap-3 items-start py-3 border-t border-[#e2e8f0]">
+              <div className="w-8 h-8 rounded-full bg-[#f1f5f9] animate-pulse shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 w-48 rounded bg-[#f1f5f9] animate-pulse" />
+                <div className="h-3 w-28 rounded bg-[#f1f5f9] animate-pulse" />
+              </div>
+              <div className="h-5 w-14 rounded-full bg-[#f1f5f9] animate-pulse" />
+            </div>
+          ))}
+        </div>
+      ) : !data?.recentActivity?.length ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <ScrollText size={24} className="text-[#94a3b8]" />
+          <p className="text-sm text-[#64748b]">
+            Nothing's happened yet. Activity will show up here as your team uses the app.
+          </p>
+        </div>
+      ) : (
+        <>
+          <ul className="flex-1">
+            {data.recentActivity.slice(0, 6).map((event) => {
+              const badge = activityBadge(event.action);
+              const IconComp = activityIcon(event.action);
+              return (
+                <li key={event.id} className="flex items-start gap-3 py-4 border-t border-[#e2e8f0]">
+                  {IconComp ? (
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-[#fffbeb]">
+                      <IconComp size={16} className="text-[#d97706]" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#eef2ff] text-[#6366f1] flex items-center justify-center text-[12px] font-bold shrink-0">
+                      {event.actorName?.charAt(0)?.toUpperCase() ?? "?"}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-[#64748b] leading-snug">
+                      <span className="font-medium text-[#0f172a]">{event.actorName}</span>
+                      {" "}
+                      <span>{ACTION_LABEL[event.action] ?? event.action}</span>
+                      {event.targetName && (
+                        <> <span className="font-medium text-[#0f172a]">{event.targetName}</span></>
+                      )}
+                    </p>
+                    <p className="text-[12px] mt-0.5 text-[#94a3b8]">
+                      {fmtRelative(event.timestamp)}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[10px] font-medium uppercase tracking-wide ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <button className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a]">
+            Load more
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
