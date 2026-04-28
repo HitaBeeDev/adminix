@@ -26,7 +26,7 @@ export default function DashboardPage() {
     : undefined;
 
   return (
-    <div className="space-y-7 pt-1 lg:pt-2">
+    <div className="space-y-3 pt-1 lg:pt-2">
       {isError && (
         <div className="rounded-3xl border border-[#e2e8f0] bg-[#ffffff]">
           <ErrorState error={error} onRetry={() => void refetch()} />
@@ -34,7 +34,7 @@ export default function DashboardPage() {
       )}
 
       {!isError && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           <KpiCard
             label="Total Users"
             value={data?.kpis.totalUsers}
@@ -79,14 +79,14 @@ export default function DashboardPage() {
       )}
 
       {!isError && (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
           <UserGrowthChart data={data} isLoading={isLoading} period={period} onPeriodChange={setPeriod} />
           <RoleDistributionChart data={data} isLoading={isLoading} />
         </div>
       )}
 
       {!isError && (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
           <AccountStatusChart data={data} isLoading={isLoading} />
           <ActivityFeed data={data} isLoading={isLoading} />
         </div>

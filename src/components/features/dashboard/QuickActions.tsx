@@ -10,15 +10,15 @@ const QUICK_ACTIONS = [
 
 export default function QuickActions() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {QUICK_ACTIONS.map(({ label, icon: Icon, to }) => (
         <Link
           key={label}
           to={to}
-          className="flex flex-col justify-between h-28 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] p-5 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-54px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:bg-[#fafbff] hover:border-[#6366f1]/25 hover:shadow-[0_28px_70px_-52px_rgba(99,102,241,0.15)]"
+          className="flex flex-col justify-between h-24 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:bg-[#fafbff] hover:border-[#6366f1]/25 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]"
         >
-          <Icon size={20} className="text-[#94a3b8]" />
-          <span className="text-sm font-medium text-[#0f172a]">{label}</span>
+          <Icon size={18} className="text-[#94a3b8]" />
+          <span className="text-[0.78rem] font-[500] text-[#0f172a]">{label}</span>
         </Link>
       ))}
     </div>

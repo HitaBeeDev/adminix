@@ -37,18 +37,14 @@ export const dashboardHandlers = [
     }));
 
     // --- Registrations over last 12 months (for line chart) ---
+    // Synthetic growth series: realistic SaaS ramp with seasonal variation
+    const MONTHLY_REGS = [382, 418, 445, 523, 487, 561, 624, 598, 689, 712, 798, 841];
     const registrationsByMonth: { month: string; registrations: number }[] = [];
     for (let i = 11; i >= 0; i--) {
       const d = new Date('2026-04-01T00:00:00Z');
       d.setMonth(d.getMonth() - i);
-      const year = d.getFullYear();
-      const month = d.getMonth();
       const label = d.toLocaleString('en-US', { month: 'short', year: '2-digit' });
-      const registrations = mockUsers.filter((u) => {
-        const joined = new Date(u.dateJoined);
-        return joined.getFullYear() === year && joined.getMonth() === month;
-      }).length;
-      registrationsByMonth.push({ month: label, registrations });
+      registrationsByMonth.push({ month: label, registrations: MONTHLY_REGS[11 - i] });
     }
 
     // --- Activity over the last 14 days (for line chart) ---
