@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router";
 import AppShell from "@/components/layout/AppShell";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import DashboardPage from "@/pages/DashboardPage";
-import UsersPage from "@/pages/UsersPage";
+import { UsersPage } from "@/pages/UsersPage";
 import { AccountsPage } from "@/pages/AccountsPage";
 import { RolesPage } from "@/pages/RolesPage";
 import { ActivityPage } from "@/pages/ActivityPage";
