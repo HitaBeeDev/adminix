@@ -13,6 +13,18 @@ export default function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useDashboardStats();
   const [period, setPeriod] = useState("Monthly");
 
+  const months = data?.registrationsByMonth ?? [];
+  const currentMonthReg = months[months.length - 1]?.registrations ?? 0;
+  const prevMonthReg = months[months.length - 2]?.registrations ?? 0;
+  const regGrowthPct = prevMonthReg > 0
+    ? Math.abs(((currentMonthReg - prevMonthReg) / prevMonthReg) * 100).toFixed(1)
+    : "0";
+  const regGrowthUp = currentMonthReg >= prevMonthReg;
+
+  const retentionPct = data
+    ? Math.round((data.kpis.activeAccounts / data.kpis.totalAccounts) * 100)
+    : undefined;
+
   return (
     <div className="space-y-7 pt-1 lg:pt-2">
       {isError && (
@@ -27,17 +39,17 @@ export default function DashboardPage() {
             label="Total Users"
             value={data?.kpis.totalUsers}
             description="All registered users"
-            trend={{ pct: "8.2%", up: true }}
+            trend={{ pct: `${regGrowthPct}%`, up: regGrowthUp }}
             icon={Users}
             iconClassName="bg-[#eef2ff] text-[#6366f1]"
             to="/users"
             loading={isLoading}
           />
           <KpiCard
-            label="Active This Month"
-            value={data?.kpis.activeUsers}
-            description="Active users this month"
-            trend={{ pct: "24%", up: true }}
+            label="New This Month"
+            value={data?.kpis.newThisMonth}
+            description="Registrations this month"
+            trend={{ pct: `${regGrowthPct}%`, up: regGrowthUp }}
             icon={UserCheck}
             iconClassName="bg-[#eef2ff] text-[#6366f1]"
             to="/users"
@@ -45,7 +57,7 @@ export default function DashboardPage() {
           />
           <KpiCard
             label="Avg. Session Rating"
-            value={4.7}
+            value={data?.kpis.sessionRating}
             description="Recent session score"
             trend={{ pct: "0.3%", up: true }}
             icon={Star}
@@ -55,9 +67,9 @@ export default function DashboardPage() {
           />
           <KpiCard
             label="Account Retention"
-            value={67}
-            description="Latest retention rate"
-            trend={{ pct: "8.2%", up: true }}
+            value={retentionPct}
+            description={`${data?.kpis.activeAccounts ?? 0} of ${data?.kpis.totalAccounts ?? 0} accounts active`}
+            trend={{ pct: `${retentionPct ?? 0}%`, up: true }}
             icon={Repeat}
             iconClassName="bg-[#ecfdf5] text-[#059669]"
             to="/accounts"

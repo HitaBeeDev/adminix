@@ -7,6 +7,7 @@ export interface DashboardKpis {
   newThisMonth: number;
   totalAccounts: number;
   activeAccounts: number;
+  sessionRating: number;
 }
 
 export interface DashboardStats {

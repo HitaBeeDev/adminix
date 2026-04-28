@@ -13,25 +13,14 @@ export interface KpiProps {
   loading: boolean;
 }
 
-export default function KpiCard({
-  label,
-  value,
-  description,
-  trend,
-  icon: Icon,
-  iconClassName,
-  to,
-  loading,
-}: KpiProps) {
+export default function KpiCard({ label, value, description, trend, icon: Icon, iconClassName, to, loading }: KpiProps) {
   const animated = useCountUp(value);
 
   return (
     <div className="bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] p-6 transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]">
       <div className="flex items-start justify-between">
         <p className="text-[15px] font-semibold text-[#0f172a]">{label}</p>
-        <div
-          className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${iconClassName}`}
-        >
+        <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${iconClassName}`}>
           <Icon size={16} />
         </div>
       </div>
@@ -47,9 +36,7 @@ export default function KpiCard({
             >
               {value !== undefined ? animated.toLocaleString() : "—"}
             </span>
-            <span
-              className={`mb-1 inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[12px] font-semibold ${trend.up ? "bg-[#ecfdf5] text-[#059669]" : "bg-[#fff1f2] text-[#f43f5e]"}`}
-            >
+            <span className={`mb-1 inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[12px] font-semibold ${trend.up ? "bg-[#ecfdf5] text-[#059669]" : "bg-[#fff1f2] text-[#f43f5e]"}`}>
               {trend.up ? "▲" : "▼"} {trend.pct}
             </span>
           </>
@@ -57,9 +44,7 @@ export default function KpiCard({
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="min-w-0 text-[13px] leading-5 font-medium text-[#64748b]">
-          {description}
-        </p>
+        <p className="min-w-0 text-[13px] leading-5 font-medium text-[#64748b]">{description}</p>
         <Link
           to={to}
           aria-label={`View ${label}`}

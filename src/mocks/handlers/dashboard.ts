@@ -85,6 +85,7 @@ export const dashboardHandlers = [
         newThisMonth,
         totalAccounts,
         activeAccounts,
+        sessionRating: 4.7,
       },
       usersByRole,
       usersByStatus,
