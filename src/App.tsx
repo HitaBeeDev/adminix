@@ -4,7 +4,7 @@ import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import DashboardPage from "@/pages/DashboardPage";
 import UsersPage from "@/pages/UsersPage";
 import { AccountsPage } from "@/pages/AccountsPage";
-import RolesPage from "@/pages/RolesPage";
+import { RolesPage } from "@/pages/RolesPage";
 import { ActivityPage } from "@/pages/ActivityPage";
 import { ReportsPage } from "@/pages/ReportsPage";
 import UserDetailPage from "@/pages/UserDetailPage";
