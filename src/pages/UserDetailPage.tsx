@@ -188,7 +188,7 @@ function ProfileTab() {
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-headline">Profile Information</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818]">Profile Information</h2>
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
@@ -207,7 +207,7 @@ function ProfileTab() {
             <button
               onClick={handleSubmit(onSubmit)}
               disabled={updateUser.isPending}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-button hover:brightness-105 text-button-text font-medium disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] font-medium disabled:opacity-50 transition-colors"
             >
               <Check size={13} /> {updateUser.isPending ? 'Saving…' : 'Save'}
             </button>
@@ -292,7 +292,7 @@ function ActivityTab() {
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-headline">Recent Activity</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818]">Recent Activity</h2>
         <Link
           to={`/activity?userId=${userId}`}
           className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -394,7 +394,7 @@ function SessionsTab() {
   if (user.status === 'suspended') {
     return (
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-headline mb-5">Active Sessions</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818] mb-5">Active Sessions</h2>
         <div className="py-10 flex flex-col items-center gap-2 text-center">
           <Monitor size={24} className="text-gray-300 dark:text-gray-600" />
           <p className="text-sm text-gray-500 dark:text-gray-400">No active sessions</p>
@@ -408,7 +408,7 @@ function SessionsTab() {
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-headline">Active Sessions</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818]">Active Sessions</h2>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Devices currently signed in</p>
         </div>
         {sessions.length > 1 && (
@@ -482,7 +482,7 @@ function PermissionsTab() {
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-headline">Permissions</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818]">Permissions</h2>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             Granted via the <span className={cn('font-medium', ROLE_COLORS[user.role]?.split(' ')[1])}>{ROLE_LABELS[user.role]}</span> role
           </p>
@@ -521,9 +521,9 @@ function PermissionsTab() {
                   return (
                     <div key={perm.key} className="flex items-start gap-2.5">
                       <div className={cn(
-                        'mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 text-button-text',
+                        'mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 text-[#181818]',
                         granted
-                          ? 'bg-button'
+                          ? 'bg-[#4fc4cf]'
                           : 'bg-gray-100 dark:bg-gray-800',
                       )}>
                         {granted && (
@@ -559,7 +559,7 @@ function SecurityTab() {
   const { user } = useUserDetailContext();
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-      <h2 className="text-sm font-semibold text-gray-900 dark:text-headline mb-5">Security & Access</h2>
+      <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818] mb-5">Security & Access</h2>
 
       <div className="space-y-4">
         <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
@@ -715,7 +715,7 @@ export default function UserDetailPage() {
               </div>
             )}
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-headline">{user.name}</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#181818]">{user.name}</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', ROLE_COLORS[user.role])}>

@@ -77,7 +77,7 @@ export default function SlideOver({ open, onClose, title, description, children 
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div>
-            <h2 id={titleId} className="text-base font-semibold text-gray-900 dark:text-headline">{title}</h2>
+            <h2 id={titleId} className="text-base font-semibold text-gray-900 dark:text-[#181818]">{title}</h2>
             {description && (
               <p id={descriptionId} className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{description}</p>
             )}

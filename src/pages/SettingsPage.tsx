@@ -90,7 +90,7 @@ function ProfileTab() {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Avatar</h3>
         <div className="flex items-center gap-5">
           <div className="relative group">
-            <div className="w-20 h-20 rounded-full bg-button flex items-center justify-center text-xl font-bold text-button-text select-none">
+            <div className="w-20 h-20 rounded-full bg-[#4fc4cf] flex items-center justify-center text-xl font-bold text-[#181818] select-none">
               {user ? initials(user.name) : 'AU'}
             </div>
             <button className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -142,7 +142,7 @@ function ProfileTab() {
             <button
               type="submit"
               disabled={!isDirty || saving}
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-button text-button-text hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>
@@ -195,7 +195,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       className={cn(
         'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
-        checked ? 'bg-button' : 'bg-gray-200 dark:bg-gray-700',
+        checked ? 'bg-[#4fc4cf]' : 'bg-gray-200 dark:bg-gray-700',
       )}
     >
       <span
@@ -451,7 +451,7 @@ function SecurityTab() {
           <button
             type="submit"
             disabled={isPasswordSubmitting}
-            className="mt-1 flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-button text-button-text hover:brightness-105 transition"
+            className="mt-1 flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 transition"
           >
             <Key size={14} />
             {isPasswordSubmitting ? 'Updating...' : 'Update Password'}
@@ -512,7 +512,7 @@ function SecurityTab() {
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={confirmEnable}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-button text-button-text hover:brightness-105 transition"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 transition"
                   >
                     <CheckCircle2 size={12} /> Confirm & Enable
                   </button>

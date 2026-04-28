@@ -25,13 +25,13 @@ const intentConfig: Record<
     icon: <AlertTriangle size={16} className="text-rose-600 dark:text-rose-400" />,
     iconWrap: 'bg-rose-100 dark:bg-rose-900/30',
     confirmBtn:
-      'bg-secondary text-main hover:brightness-105',
+      'bg-[#994ff3] text-main hover:brightness-105',
   },
   default: {
     icon: <Info size={16} className="text-indigo-600 dark:text-indigo-400" />,
     iconWrap: 'bg-indigo-100 dark:bg-indigo-900/30',
     confirmBtn:
-      'bg-button text-button-text hover:brightness-105',
+      'bg-[#4fc4cf] text-[#181818] hover:brightness-105',
   },
 };
 

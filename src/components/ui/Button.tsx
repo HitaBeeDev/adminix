@@ -11,11 +11,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary:     "bg-button text-button-text shadow-[0_12px_28px_-18px_var(--highlight)] hover:brightness-105 active:brightness-95",
-  secondary:   "bg-main text-headline border border-stroke/10 hover:bg-highlight/10 hover:border-highlight/25 active:brightness-95",
-  ghost:       "text-paragraph hover:bg-highlight/10 active:brightness-95",
-  destructive: "bg-secondary text-main hover:brightness-105 active:brightness-95",
-  link:        "text-highlight underline-offset-4 hover:underline",
+  primary:     "bg-[#4fc4cf] text-[#181818] shadow-[0_12px_28px_-18px_#4fc4cf] hover:brightness-105 active:brightness-95",
+  secondary:   "bg-[#ffffff] text-[#181818] border border-[#181818]/10 hover:bg-[#4fc4cf]/10 hover:border-[#4fc4cf]/25 active:brightness-95",
+  ghost:       "text-[#2e2e2e] hover:bg-[#4fc4cf]/10 active:brightness-95",
+  destructive: "bg-[#994ff3] text-main hover:brightness-105 active:brightness-95",
+  link:        "text-[#4fc4cf] underline-offset-4 hover:underline",
 };
 
 const sizes: Record<Size, string> = {
@@ -35,7 +35,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       aria-busy={loading}
       className={cn(
         "inline-flex items-center justify-center font-semibold rounded-2xl transition-colors duration-150",
-        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-highlight/25",
+        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#4fc4cf]/25",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         variants[variant],
         sizes[size],

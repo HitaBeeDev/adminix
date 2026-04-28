@@ -286,7 +286,7 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-headline">Users</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-[#181818]">Users</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {isLoading ? (
               <span className="block h-4 w-20 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
@@ -299,7 +299,7 @@ export default function UsersPage() {
         </div>
         <button
           onClick={() => setInviteOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-button hover:brightness-105 text-button-text transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] transition-colors"
         >
           + Invite user
         </button>

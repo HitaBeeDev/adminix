@@ -82,12 +82,12 @@ const ACTION_LABEL: Record<string, string> = {
 
 function activityBadge(action: ActivityEvent["action"]) {
   if (action.includes("delete") || action.includes("suspend"))
-    return { label: "Suspend", style: { background: "color-mix(in srgb, var(--secondary) 15%, transparent)", color: "var(--secondary)" } };
+    return { label: "Suspend", className: "bg-[#994ff3]/15 text-[#994ff3]" };
   if (action.includes("role"))
-    return { label: "Role", style: { background: "color-mix(in srgb, var(--tertiary) 34%, transparent)", color: "color-mix(in srgb, var(--tertiary) 58%, var(--headline))" } };
+    return { label: "Role", className: "bg-[#fbdd74]/34 text-[#6d5b25]" };
   if (action.includes("created") || action.includes("invited"))
-    return { label: "Invite", style: { background: "color-mix(in srgb, var(--highlight) 12%, transparent)", color: "var(--highlight)" } };
-  return { label: "System", style: { background: "color-mix(in srgb, var(--stroke) 8%, transparent)", color: "var(--paragraph)", border: "1px solid color-mix(in srgb, var(--stroke) 15%, transparent)" } };
+    return { label: "Invite", className: "bg-[#4fc4cf]/12 text-[#4fc4cf]" };
+  return { label: "System", className: "border border-[#181818]/15 bg-[#181818]/8 text-[#2e2e2e]" };
 }
 
 function activityIcon(action: ActivityEvent["action"]) {
@@ -105,23 +105,23 @@ interface KpiProps {
   trend: { pct: string; up: boolean };
   sparkline: number[];
   icon: React.ElementType;
-  iconStyle: React.CSSProperties;
+  iconClassName: string;
   loading: boolean;
 }
 
-function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconStyle, loading }: KpiProps) {
+function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconClassName, loading }: KpiProps) {
   const animated = useCountUp(value);
   const sparkData = sparkline.map((v) => ({ v }));
-  const trendColor = trend.up ? "var(--highlight)" : "var(--secondary)";
+  const trendColor = trend.up ? "#4fc4cf" : "#994ff3";
 
   return (
-    <div className="bg-main rounded-3xl border border-stroke/6 p-6 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_var(--stroke)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_var(--stroke)]">
+    <div className="bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-6 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_#181818] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_#181818]">
       {/* Icon + label */}
       <div className="flex items-start justify-between">
-        <p className="text-[15px] font-semibold text-headline">
+        <p className="text-[15px] font-semibold text-[#181818]">
           {label}
         </p>
-        <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={iconStyle}>
+        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${iconClassName}`}>
           <Icon size={16} />
         </div>
       </div>
@@ -129,22 +129,16 @@ function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconStyl
       {/* Value + trend */}
       <div className="flex items-end gap-2.5 mt-5">
         {loading ? (
-          <div className="h-8 w-20 rounded-md animate-pulse bg-stroke/8" />
+          <div className="h-8 w-20 rounded-md animate-pulse bg-[#181818]/8" />
         ) : (
           <>
             <span
-              className="text-[38px] leading-none font-bold tracking-tight text-headline"
+              className="text-[38px] leading-none font-bold tracking-tight text-[#181818]"
               style={{ fontFeatureSettings: '"tnum"' }}
             >
               {value !== undefined ? animated.toLocaleString() : "—"}
             </span>
-            <span
-              className="mb-1 inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[12px] font-semibold"
-              style={{
-                background: `color-mix(in srgb, ${trendColor} 12%, transparent)`,
-                color: trendColor,
-              }}
-            >
+            <span className={`mb-1 inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[12px] font-semibold ${trend.up ? "bg-[#4fc4cf]/12 text-[#4fc4cf]" : "bg-[#994ff3]/12 text-[#994ff3]"}`}>
               {trend.up ? "▲" : "▼"} {trend.pct}
             </span>
           </>
@@ -152,8 +146,8 @@ function KpiCard({ label, value, subtext, trend, sparkline, icon: Icon, iconStyl
       </div>
 
       {/* Subtext + sparkline */}
-      <div className="flex items-end justify-between mt-4 pt-4 border-t border-stroke/6">
-        <p className="text-[13px]" style={{ color: "color-mix(in srgb, var(--paragraph) 72%, transparent)" }}>
+      <div className="flex items-end justify-between mt-4 pt-4 border-t border-[#181818]/6">
+        <p className="text-[13px] text-[#2e2e2e]/72">
           {subtext}
         </p>
         <div className="w-[88px] h-7">
@@ -194,17 +188,12 @@ function SegmentedControl({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="inline-flex items-center gap-1 p-1 rounded-full" style={{ background: "color-mix(in srgb, var(--highlight) 10%, white)" }}>
+    <div className="inline-flex items-center gap-1 p-1 rounded-full bg-[#4fc4cf]/10">
       {options.map((opt) => (
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className="h-8 px-4 text-xs font-semibold rounded-full transition-colors duration-150"
-          style={
-            opt === value
-              ? { background: "var(--main)", color: "var(--headline)", boxShadow: "0 10px 22px -18px color-mix(in srgb, var(--stroke) 55%, transparent)" }
-              : { color: "color-mix(in srgb, var(--paragraph) 70%, transparent)" }
-          }
+          className={`h-8 px-4 text-xs font-semibold rounded-full transition-colors duration-150 ${opt === value ? "bg-[#ffffff] text-[#181818] shadow-[0_10px_22px_-18px_rgba(24,24,24,0.55)]" : "text-[#2e2e2e]/70"}`}
         >
           {opt}
         </button>
@@ -218,14 +207,7 @@ function SegmentedControl({
 function GrowthTooltip({ active, payload }: { active?: boolean; payload?: Array<{ value: number }> }) {
   if (!active || !payload?.length) return null;
   return (
-    <div
-      className="text-[11px] font-semibold px-2.5 py-1 rounded-md"
-      style={{
-        background: "var(--highlight)",
-        color: "var(--headline)",
-        boxShadow: "0 4px 12px -4px color-mix(in srgb, var(--highlight) 50%, transparent)",
-      }}
-    >
+    <div className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-[#4fc4cf] text-[#181818] shadow-[0_4px_12px_-4px_rgba(79,196,207,0.5)]">
       {payload[0].value.toLocaleString()}
     </div>
   );
@@ -271,10 +253,10 @@ export default function DashboardPage() {
   const totalStatusCount = statusData.reduce((s, d) => s + d.value, 0);
 
   const DONUT_COLORS = [
-    "var(--highlight)",
-    "color-mix(in srgb, var(--highlight) 70%, white)",
-    "color-mix(in srgb, var(--highlight) 45%, white)",
-    "color-mix(in srgb, var(--highlight) 25%, white)",
+    "#4fc4cf",
+    "#84d6de",
+    "#ade4e9",
+    "#d3f1f3",
   ];
 
   return (
@@ -282,17 +264,17 @@ export default function DashboardPage() {
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-[30px] leading-10 font-bold tracking-tight text-headline">
+          <h1 className="text-[30px] leading-10 font-bold tracking-tight text-[#181818]">
             Dashboard Overview
           </h1>
-          <p className="mt-1.5 text-[15px]" style={{ color: "color-mix(in srgb, var(--paragraph) 76%, transparent)" }}>
+          <p className="mt-1.5 text-[15px] text-[#2e2e2e]/76">
             Snapshot of activity across your workspace.
           </p>
         </div>
       </div>
 
       {isError && (
-        <div className="rounded-3xl border border-stroke/8 bg-main">
+        <div className="rounded-3xl border border-[#181818]/8 bg-[#ffffff]">
           <ErrorState error={error} onRetry={() => void refetch()} />
         </div>
       )}
@@ -307,7 +289,7 @@ export default function DashboardPage() {
             trend={{ pct: "8.2%", up: true }}
             sparkline={SPARK_UP}
             icon={Users}
-            iconStyle={{ background: "color-mix(in srgb, var(--highlight) 16%, white)", color: "var(--highlight)" }}
+            iconClassName="bg-[#4fc4cf]/16 text-[#4fc4cf]"
             loading={isLoading}
           />
           <KpiCard
@@ -317,7 +299,7 @@ export default function DashboardPage() {
             trend={{ pct: "24%", up: true }}
             sparkline={SPARK_UP}
             icon={UserCheck}
-            iconStyle={{ background: "color-mix(in srgb, var(--highlight) 18%, white)", color: "var(--highlight)" }}
+            iconClassName="bg-[#4fc4cf]/18 text-[#4fc4cf]"
             loading={isLoading}
           />
           <KpiCard
@@ -327,7 +309,7 @@ export default function DashboardPage() {
             trend={{ pct: "0.3%", up: true }}
             sparkline={SPARK_FLAT}
             icon={Star}
-            iconStyle={{ background: "color-mix(in srgb, var(--secondary) 12%, transparent)", color: "var(--secondary)" }}
+            iconClassName="bg-[#994ff3]/12 text-[#994ff3]"
             loading={isLoading}
           />
           <KpiCard
@@ -337,7 +319,7 @@ export default function DashboardPage() {
             trend={{ pct: "8.2%", up: true }}
             sparkline={SPARK_FLAT}
             icon={Repeat}
-            iconStyle={{ background: "color-mix(in srgb, var(--highlight) 12%, transparent)", color: "var(--highlight)" }}
+            iconClassName="bg-[#4fc4cf]/12 text-[#4fc4cf]"
             loading={isLoading}
           />
         </div>
@@ -347,18 +329,15 @@ export default function DashboardPage() {
       {!isError && (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
           {/* User Growth Trends */}
-          <div className="xl:col-span-2 bg-main rounded-3xl border border-stroke/6 p-7 shadow-[0_22px_60px_-50px_var(--stroke)]">
+          <div className="xl:col-span-2 bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-7 shadow-[0_22px_60px_-50px_#181818]">
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <h3 className="text-[22px] font-bold tracking-tight text-headline">User Growth Trends</h3>
+                <h3 className="text-[22px] font-bold tracking-tight text-[#181818]">User Growth Trends</h3>
                 <div className="flex items-center gap-2 mt-3">
-                  <span className="text-[30px] leading-none font-bold tracking-tight text-headline">
+                  <span className="text-[30px] leading-none font-bold tracking-tight text-[#181818]">
                     {(data?.kpis.totalUsers ?? 8234).toLocaleString()}
                   </span>
-                  <span
-                    className="inline-flex items-center gap-0.5 h-5 px-2 rounded-full text-[11px] font-medium"
-                    style={{ background: "color-mix(in srgb, var(--highlight) 12%, transparent)", color: "var(--highlight)" }}
-                  >
+                  <span className="inline-flex items-center gap-0.5 h-5 px-2 rounded-full bg-[#4fc4cf]/12 text-[11px] font-medium text-[#4fc4cf]">
                     ↗ 6.20%
                   </span>
                 </div>
@@ -367,39 +346,39 @@ export default function DashboardPage() {
             </div>
 
             {isLoading ? (
-              <div className="h-[300px] rounded-3xl animate-pulse bg-stroke/8" />
+              <div className="h-[300px] rounded-3xl animate-pulse bg-[#181818]/8" />
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={growthData} margin={{ top: 8, right: 0, left: -8, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gc1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--highlight)" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="var(--highlight)" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#4fc4cf" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#4fc4cf" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid vertical={false} stroke="var(--stroke)" strokeOpacity={0.06} strokeDasharray="3 3" />
+                  <CartesianGrid vertical={false} stroke="#181818" strokeOpacity={0.06} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="month"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "var(--paragraph)", fillOpacity: 0.6, dy: 8 }}
+                    tick={{ fontSize: 11, fill: "#2e2e2e", fillOpacity: 0.6, dy: 8 }}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "var(--paragraph)", fillOpacity: 0.6 }}
+                    tick={{ fontSize: 11, fill: "#2e2e2e", fillOpacity: 0.6 }}
                     tickFormatter={fmtNum}
                     width={40}
                   />
                   <Tooltip
                     content={<GrowthTooltip />}
-                    cursor={{ stroke: "var(--highlight)", strokeOpacity: 0.6, strokeDasharray: "3 3" }}
+                    cursor={{ stroke: "#4fc4cf", strokeOpacity: 0.6, strokeDasharray: "3 3" }}
                   />
                   {/* Previous period */}
                   <Area
                     type="monotone"
                     dataKey="previous"
-                    stroke="var(--highlight)"
+                    stroke="#4fc4cf"
                     strokeOpacity={0.45}
                     strokeWidth={1.5}
                     strokeDasharray="4 4"
@@ -411,12 +390,12 @@ export default function DashboardPage() {
                   <Area
                     type="monotone"
                     dataKey="current"
-                    stroke="var(--highlight)"
+                    stroke="#4fc4cf"
                     strokeWidth={3}
                     fill="url(#gc1)"
                     isAnimationActive={false}
                     dot={false}
-                    activeDot={{ r: 5, fill: "var(--highlight)", stroke: "var(--main)", strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: "#4fc4cf", stroke: "#ffffff", strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -424,47 +403,47 @@ export default function DashboardPage() {
           </div>
 
           {/* Role Distribution */}
-          <div className="bg-main rounded-3xl border border-stroke/6 p-7 shadow-[0_22px_60px_-50px_var(--stroke)]">
+          <div className="bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-7 shadow-[0_22px_60px_-50px_#181818]">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-[22px] font-bold tracking-tight text-headline">Role Distribution</h3>
-              <button className="w-10 h-10 flex items-center justify-center rounded-full text-paragraph/60 hover:bg-highlight/10 transition-colors">
+              <h3 className="text-[22px] font-bold tracking-tight text-[#181818]">Role Distribution</h3>
+              <button className="w-10 h-10 flex items-center justify-center rounded-full text-[#2e2e2e]/60 hover:bg-[#4fc4cf]/10 transition-colors">
                 <MoreHorizontal size={16} />
               </button>
             </div>
 
             {isLoading ? (
-              <div className="h-[300px] rounded-3xl animate-pulse bg-stroke/8" />
+              <div className="h-[300px] rounded-3xl animate-pulse bg-[#181818]/8" />
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={roleData} margin={{ top: 24, right: 0, left: 0, bottom: 4 }}>
                   <defs>
                     <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--highlight)" stopOpacity={1} />
-                      <stop offset="100%" stopColor="var(--highlight)" stopOpacity={0.18} />
+                      <stop offset="0%" stopColor="#4fc4cf" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#4fc4cf" stopOpacity={0.18} />
                     </linearGradient>
                   </defs>
                   <XAxis
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "var(--paragraph)", fillOpacity: 0.6 }}
+                    tick={{ fontSize: 11, fill: "#2e2e2e", fillOpacity: 0.6 }}
                   />
                   <YAxis hide />
                   <Tooltip
-                    cursor={{ fill: "color-mix(in srgb, var(--stroke) 4%, transparent)" }}
+                    cursor={{ fill: "rgb(24 24 24 / 0.04)" }}
                     contentStyle={{
-                      background: "var(--main)",
-                      border: "1px solid color-mix(in srgb, var(--stroke) 8%, transparent)",
+                      background: "#ffffff",
+                      border: "1px solid rgb(24 24 24 / 0.08)",
                       borderRadius: 8,
                       fontSize: 12,
-                      color: "var(--headline)",
+                      color: "#181818",
                     }}
                   />
                   <Bar dataKey="value" fill="url(#barGrad)" radius={[12, 12, 0, 0]} maxBarSize={48}>
                     <LabelList
                       dataKey="value"
                       position="top"
-                      style={{ fontSize: 11, fontWeight: 600, fill: "var(--headline)" }}
+                      style={{ fontSize: 11, fontWeight: 600, fill: "#181818" }}
                     />
                   </Bar>
                 </BarChart>
@@ -478,16 +457,16 @@ export default function DashboardPage() {
       {!isError && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           {/* Account Status donut */}
-          <div className="bg-main rounded-3xl border border-stroke/6 p-7 shadow-[0_22px_60px_-50px_var(--stroke)]">
+          <div className="bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-7 shadow-[0_22px_60px_-50px_#181818]">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[22px] font-bold tracking-tight text-headline">Account Status</h3>
-              <button className="w-10 h-10 flex items-center justify-center rounded-full text-paragraph/60 hover:bg-highlight/10 transition-colors">
+              <h3 className="text-[22px] font-bold tracking-tight text-[#181818]">Account Status</h3>
+              <button className="w-10 h-10 flex items-center justify-center rounded-full text-[#2e2e2e]/60 hover:bg-[#4fc4cf]/10 transition-colors">
                 <MoreHorizontal size={16} />
               </button>
             </div>
 
             {isLoading ? (
-              <div className="h-[320px] rounded-3xl animate-pulse bg-stroke/8" />
+              <div className="h-[320px] rounded-3xl animate-pulse bg-[#181818]/8" />
             ) : (
               <div className="flex flex-col items-center">
                 <ResponsiveContainer width="100%" height={260}>
@@ -507,11 +486,11 @@ export default function DashboardPage() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "var(--main)",
-                        border: "1px solid color-mix(in srgb, var(--stroke) 8%, transparent)",
+                        background: "#ffffff",
+                        border: "1px solid rgb(24 24 24 / 0.08)",
                         borderRadius: 8,
                         fontSize: 12,
-                        color: "var(--headline)",
+                        color: "#181818",
                       }}
                     />
                   </PieChart>
@@ -524,14 +503,14 @@ export default function DashboardPage() {
                         className="w-2 h-2 rounded-full shrink-0"
                         style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }}
                       />
-                      <span style={{ color: "color-mix(in srgb, var(--paragraph) 70%, transparent)" }}>
+                      <span className="text-[#2e2e2e]/70">
                         {d.name}
                       </span>
-                      <span className="font-medium text-headline">{d.value.toLocaleString()}</span>
+                      <span className="font-medium text-[#181818]">{d.value.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[12px]" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                <p className="mt-2 text-[12px] text-[#2e2e2e]/60">
                   Total Accounts: {totalStatusCount.toLocaleString()}
                 </p>
               </div>
@@ -539,12 +518,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Activity feed */}
-          <div className="bg-main rounded-3xl border border-stroke/6 p-7 flex flex-col shadow-[0_22px_60px_-50px_var(--stroke)]">
+          <div className="bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-7 flex flex-col shadow-[0_22px_60px_-50px_#181818]">
             <div className="flex items-center justify-between mb-0">
-              <h3 className="text-[22px] font-bold tracking-tight text-headline">Recent Activity</h3>
+              <h3 className="text-[22px] font-bold tracking-tight text-[#181818]">Recent Activity</h3>
               <Link
                 to="/activity"
-                className="flex items-center gap-1 text-sm font-medium text-highlight hover:underline underline-offset-4 transition-colors"
+                className="flex items-center gap-1 text-sm font-medium text-[#4fc4cf] hover:underline underline-offset-4 transition-colors"
               >
                 View all <ArrowRight size={14} />
               </Link>
@@ -553,20 +532,20 @@ export default function DashboardPage() {
             {isLoading ? (
               <div className="flex-1 space-y-3 mt-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex gap-3 items-start py-3 border-t border-stroke/6">
-                    <div className="w-8 h-8 rounded-full bg-stroke/8 animate-pulse shrink-0" />
+                  <div key={i} className="flex gap-3 items-start py-3 border-t border-[#181818]/6">
+                    <div className="w-8 h-8 rounded-full bg-[#181818]/8 animate-pulse shrink-0" />
                     <div className="flex-1 space-y-1.5">
-                      <div className="h-3.5 w-48 rounded bg-stroke/8 animate-pulse" />
-                      <div className="h-3 w-28 rounded bg-stroke/8 animate-pulse" />
+                      <div className="h-3.5 w-48 rounded bg-[#181818]/8 animate-pulse" />
+                      <div className="h-3 w-28 rounded bg-[#181818]/8 animate-pulse" />
                     </div>
-                    <div className="h-5 w-14 rounded-full bg-stroke/8 animate-pulse" />
+                    <div className="h-5 w-14 rounded-full bg-[#181818]/8 animate-pulse" />
                   </div>
                 ))}
               </div>
             ) : !data?.recentActivity?.length ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <ScrollText size={24} style={{ color: "color-mix(in srgb, var(--paragraph) 30%, transparent)" }} />
-                <p className="text-sm" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                <ScrollText size={24} className="text-[#2e2e2e]/30" />
+                <p className="text-sm text-[#2e2e2e]/60">
                   Nothing's happened yet. Activity will show up here as your team uses the app.
                 </p>
               </div>
@@ -577,41 +556,35 @@ export default function DashboardPage() {
                     const badge = activityBadge(event.action);
                     const IconComp = activityIcon(event.action);
                     return (
-                      <li key={event.id} className="flex items-start gap-3 py-4 border-t border-stroke/6">
+                      <li key={event.id} className="flex items-start gap-3 py-4 border-t border-[#181818]/6">
                         {/* Avatar or icon tile */}
                         {IconComp ? (
-                          <div
-                            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-                            style={{ background: "color-mix(in srgb, var(--tertiary) 65%, white)" }}
-                          >
-                            <IconComp size={16} style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }} />
+                          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-[#fbdd74]/65">
+                            <IconComp size={16} className="text-[#2e2e2e]/60" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-highlight/15 text-highlight flex items-center justify-center text-[12px] font-bold shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-[#4fc4cf]/15 text-[#4fc4cf] flex items-center justify-center text-[12px] font-bold shrink-0">
                             {event.actorName?.charAt(0)?.toUpperCase() ?? "?"}
                           </div>
                         )}
 
                         {/* Text */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-paragraph leading-snug">
-                            <span className="font-medium text-headline">{event.actorName}</span>
+                          <p className="text-sm text-[#2e2e2e] leading-snug">
+                            <span className="font-medium text-[#181818]">{event.actorName}</span>
                             {" "}
                             <span>{ACTION_LABEL[event.action] ?? event.action}</span>
                             {event.targetName && (
-                              <> <span className="font-medium text-headline">{event.targetName}</span></>
+                              <> <span className="font-medium text-[#181818]">{event.targetName}</span></>
                             )}
                           </p>
-                          <p className="text-[12px] mt-0.5" style={{ color: "color-mix(in srgb, var(--paragraph) 60%, transparent)" }}>
+                          <p className="text-[12px] mt-0.5 text-[#2e2e2e]/60">
                             {fmtRelative(event.timestamp)}
                           </p>
                         </div>
 
                         {/* Badge */}
-                        <span
-                          className="shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[10px] font-medium uppercase tracking-wide"
-                          style={badge.style}
-                        >
+                        <span className={`shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[10px] font-medium uppercase tracking-wide ${badge.className}`}>
                           {badge.label}
                         </span>
                       </li>
@@ -619,8 +592,7 @@ export default function DashboardPage() {
                   })}
                 </ul>
                 <button
-                  className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold transition-colors hover:bg-highlight/10"
-                  style={{ color: "color-mix(in srgb, var(--paragraph) 70%, transparent)" }}
+                  className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold text-[#2e2e2e]/70 transition-colors hover:bg-[#4fc4cf]/10"
                 >
                   Load more
                 </button>
@@ -638,10 +610,10 @@ export default function DashboardPage() {
               <Link
                 key={label}
                 to={to}
-                className="flex flex-col justify-between h-28 bg-main rounded-3xl border border-stroke/6 p-5 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-54px_var(--stroke)] hover:-translate-y-0.5 hover:bg-highlight/10 hover:border-highlight/20"
+                className="flex flex-col justify-between h-28 bg-[#ffffff] rounded-3xl border border-[#181818]/6 p-5 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-54px_#181818] hover:-translate-y-0.5 hover:bg-[#4fc4cf]/10 hover:border-[#4fc4cf]/20"
               >
-                <Icon size={20} className="text-paragraph/70" />
-                <span className="text-sm font-medium text-headline">{label}</span>
+                <Icon size={20} className="text-[#2e2e2e]/70" />
+                <span className="text-sm font-medium text-[#181818]">{label}</span>
               </Link>
             ))}
           </div>

@@ -156,7 +156,7 @@ export default function InviteUserModal({ open, onClose }: InviteUserModalProps)
           <button
             type="submit"
             disabled={isSubmitting || isAccountsLoading || isAccountsError}
-            className="px-4 py-2 text-sm rounded-lg bg-button hover:brightness-105 text-button-text font-medium disabled:opacity-50 transition-colors"
+            className="px-4 py-2 text-sm rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] font-medium disabled:opacity-50 transition-colors"
           >
             {isSubmitting ? 'Inviting…' : 'Invite user'}
           </button>

@@ -23,13 +23,12 @@ export default function AppShell() {
   }, [setCommandPaletteOpen]);
 
   return (
-    <div className="flex h-screen bg-bg overflow-hidden">
+    <div className="flex h-screen bg-[#ffffff] overflow-hidden">
       <Sidebar />
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-20 md:hidden"
-          style={{ background: "color-mix(in srgb, var(--stroke) 40%, transparent)", backdropFilter: "blur(4px)" }}
+          className="fixed inset-0 z-20 bg-[#181818]/40 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}

@@ -37,41 +37,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#ffffff] px-4">
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-highlight mb-4">
-            <LayoutGrid size={22} className="text-button-text" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#4fc4cf] mb-4">
+            <LayoutGrid size={22} className="text-[#181818]" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-headline">Adminix</h1>
-          <p className="mt-1 text-[13px]" style={{ color: "color-mix(in srgb, var(--paragraph) 70%, transparent)" }}>
+          <h1 className="text-2xl font-semibold tracking-tight text-[#181818]">Adminix</h1>
+          <p className="mt-1 text-[13px] text-[#2e2e2e]/70">
             Sign in to your account
           </p>
         </div>
 
         {/* Card */}
-        <div
-          className="bg-main rounded-xl border border-stroke/8 p-8"
-          style={{ boxShadow: "0 8px 24px -8px color-mix(in srgb, var(--stroke) 12%, transparent)" }}
-        >
+        <div className="bg-[#ffffff] rounded-xl border border-[#181818]/8 p-8 shadow-[0_8px_24px_-8px_rgba(24,24,24,0.12)]">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
             {serverError && (
-              <div
-                className="rounded-md px-4 py-3 text-sm"
-                style={{
-                  background: "color-mix(in srgb, var(--secondary) 10%, transparent)",
-                  border: "1px solid color-mix(in srgb, var(--secondary) 25%, transparent)",
-                  color: "var(--secondary)",
-                }}
-              >
+              <div className="rounded-md border border-[#994ff3]/25 bg-[#994ff3]/10 px-4 py-3 text-sm text-[#994ff3]">
                 {serverError}
               </div>
             )}
 
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-[13px] font-medium text-headline">
+              <label htmlFor="email" className="block text-[13px] font-medium text-[#181818]">
                 Email address
               </label>
               <input
@@ -82,21 +72,21 @@ export default function LoginPage() {
                 {...register("email")}
                 placeholder="you@example.com"
                 className={cn(
-                  "w-full h-9 rounded-md border px-3 text-sm text-headline bg-main placeholder:text-paragraph/50 transition-colors",
-                  "focus:outline-none focus:ring-[3px] focus:ring-highlight/25",
+                  "w-full h-9 rounded-md border px-3 text-sm text-[#181818] bg-[#ffffff] placeholder:text-[#2e2e2e]/50 transition-colors",
+                  "focus:outline-none focus:ring-[3px] focus:ring-[#4fc4cf]/25",
                   errors.email
-                    ? "border-secondary ring-[3px] ring-secondary/18"
-                    : "border-stroke/15 hover:border-stroke/30 focus:border-stroke/60"
+                    ? "border-[#994ff3] ring-[3px] ring-[#994ff3]/18"
+                    : "border-[#181818]/15 hover:border-[#181818]/30 focus:border-[#181818]/60"
                 )}
               />
               {errors.email && (
-                <p className="text-[12px] text-secondary">{errors.email.message}</p>
+                <p className="text-[12px] text-[#994ff3]">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-[13px] font-medium text-headline">
+              <label htmlFor="password" className="block text-[13px] font-medium text-[#181818]">
                 Password
               </label>
               <div className="relative">
@@ -107,24 +97,24 @@ export default function LoginPage() {
                   {...register("password")}
                   placeholder="••••••••"
                   className={cn(
-                    "w-full h-9 rounded-md border px-3 pr-10 text-sm text-headline bg-main placeholder:text-paragraph/50 transition-colors",
-                    "focus:outline-none focus:ring-[3px] focus:ring-highlight/25",
+                    "w-full h-9 rounded-md border px-3 pr-10 text-sm text-[#181818] bg-[#ffffff] placeholder:text-[#2e2e2e]/50 transition-colors",
+                    "focus:outline-none focus:ring-[3px] focus:ring-[#4fc4cf]/25",
                     errors.password
-                      ? "border-secondary ring-[3px] ring-secondary/18"
-                      : "border-stroke/15 hover:border-stroke/30 focus:border-stroke/60"
+                      ? "border-[#994ff3] ring-[3px] ring-[#994ff3]/18"
+                      : "border-[#181818]/15 hover:border-[#181818]/30 focus:border-[#181818]/60"
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-paragraph/50 hover:text-paragraph transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2e2e2e]/50 hover:text-[#2e2e2e] transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-[12px] text-secondary">{errors.password.message}</p>
+                <p className="text-[12px] text-[#994ff3]">{errors.password.message}</p>
               )}
             </div>
 
@@ -134,9 +124,9 @@ export default function LoginPage() {
                 id="rememberMe"
                 type="checkbox"
                 {...register("rememberMe")}
-                className="h-4 w-4 rounded border-stroke/30 accent-highlight"
+                className="h-4 w-4 rounded border-[#181818]/30 accent-[#4fc4cf]"
               />
-              <label htmlFor="rememberMe" className="text-[13px] text-paragraph/70">
+              <label htmlFor="rememberMe" className="text-[13px] text-[#2e2e2e]/70">
                 Remember me
               </label>
             </div>
@@ -145,7 +135,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 h-9 rounded-md bg-button text-button-text text-sm font-medium transition-colors hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-highlight/25"
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-md bg-[#4fc4cf] text-[#181818] text-sm font-medium transition-colors hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#4fc4cf]/25"
             >
               {isSubmitting && <Loader2 size={15} className="animate-spin" />}
               {isSubmitting ? "Signing in…" : "Sign in"}
@@ -153,9 +143,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-[12px]" style={{ color: "color-mix(in srgb, var(--paragraph) 50%, transparent)" }}>
+        <p className="mt-6 text-center text-[12px] text-[#2e2e2e]/50">
           Demo: any email · password:{" "}
-          <span className="font-mono font-medium text-paragraph/60">password</span>
+          <span className="font-mono font-medium text-[#2e2e2e]/60">password</span>
         </p>
       </div>
     </div>
