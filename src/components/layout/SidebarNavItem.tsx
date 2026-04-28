@@ -29,8 +29,8 @@ export default function SidebarNavItem({
             ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
             : "gap-[0.6rem] px-4",
           isActive
-            ? "bg-[#eef2ff] text-[#0f172a] font-[400] text-[0.7rem]"
-            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] font-[300] text-[0.7rem]",
+            ? "bg-[#eef2ff] text-[#0f172a] font-[400] text-[0.7rem] dark:bg-[#312e81]/40 dark:text-white"
+            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] font-[300] text-[0.7rem] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white",
         )
       }
     >

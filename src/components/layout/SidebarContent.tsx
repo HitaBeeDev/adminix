@@ -60,7 +60,7 @@ export default function SidebarContent({
                 <Blocks className="text-white" strokeWidth={1.45} />
               </div>
 
-              <span className="text-xl font-bold tracking-wider text-[#0f172a] truncate">
+              <span className="text-xl font-bold tracking-wider text-[#0f172a] truncate dark:text-white">
                 Adminix
               </span>
             </div>
@@ -68,7 +68,7 @@ export default function SidebarContent({
               <button
                 onClick={onCollapseToggle}
                 aria-label="Collapse sidebar"
-                className="w-9 h-9 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors shrink-0"
+                className="w-9 h-9 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors shrink-0 dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -81,7 +81,7 @@ export default function SidebarContent({
         <button
           onClick={onCollapseToggle}
           aria-label="Expand sidebar"
-          className="w-9 h-9 mx-auto mb-2 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+          className="w-9 h-9 mx-auto mb-2 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
         >
           <ChevronRight size={16} />
         </button>
@@ -126,7 +126,7 @@ export default function SidebarContent({
             onClick={onLogout}
             title={collapsed ? "Logout" : undefined}
             className={cn(
-              "group w-full flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 text-[#64748b] hover:bg-[#fff1f2] hover:text-[#f43f5e] font-[300] text-[0.7rem]",
+              "group w-full flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 text-[#64748b] hover:bg-[#fff1f2] hover:text-[#f43f5e] font-[300] text-[0.7rem] dark:text-[#94a3b8] dark:hover:bg-[#7f1d1d]/25 dark:hover:text-[#fb7185]",
               collapsed
                 ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
                 : "gap-[0.6rem] px-4",
@@ -135,7 +135,7 @@ export default function SidebarContent({
             <LogOut
               strokeWidth={1.35}
               size={18}
-              className="shrink-0 text-[#94a3b8] group-hover:text-[#f43f5e]"
+              className="shrink-0 text-[#94a3b8] group-hover:text-[#f43f5e] dark:group-hover:text-[#fb7185]"
             />
             {!collapsed && <span className="text-[0.85rem]">Logout</span>}
           </button>

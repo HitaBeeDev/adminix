@@ -93,7 +93,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
   const momPct  = prev > 0 ? (((latest - prev) / prev) * 100).toFixed(1) : null;
 
   return (
-    <div className="xl:col-span-2 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-5 px-6 pb-5 flex flex-col transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]">
+    <div className="xl:col-span-2 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-5 px-6 pb-5 flex flex-col transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-5">
@@ -101,7 +101,7 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
           <div>
             <p className="text-[0.7rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-2">Total Users</p>
             <div className="flex items-end gap-2">
-              <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a]">
+              <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a] dark:text-white">
                 {(data?.kpis.totalUsers ?? 8_234).toLocaleString()}
               </span>
               <span className="inline-flex items-center h-[1.375rem] px-2 rounded-full bg-[#ecfdf5] text-[0.6rem] font-bold text-[#059669] mb-0.5 tracking-wide">
@@ -110,14 +110,14 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
             </div>
           </div>
 
-          <div className="w-px self-stretch bg-[#e2e8f0] mx-1" />
+          <div className="w-px self-stretch bg-[#e2e8f0] mx-1 dark:bg-[#1e293b]" />
 
           <div>
             <p className="text-[0.7rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-2">
               {meta.secondKpi}
             </p>
             <div className="flex items-end gap-2">
-              <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a]">
+              <span className="text-[2rem] leading-none font-[700] tracking-tight text-[#0f172a] dark:text-white">
                 {latest.toLocaleString()}
               </span>
               {momPct && (
@@ -140,19 +140,19 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
       <div className="flex items-center gap-5 mb-3">
         <div className="flex items-center gap-2">
           <span className="w-6 h-[2px] rounded-full bg-[#6366f1] inline-block" />
-          <span className="text-[0.7rem] text-[#64748b] font-medium">Current period</span>
+          <span className="text-[0.7rem] text-[#64748b] font-medium dark:text-[#cbd5e1]">Current period</span>
         </div>
         <div className="flex items-center gap-2">
           <svg width="22" height="2" viewBox="0 0 22 2" fill="none">
             <line x1="0" y1="1" x2="22" y2="1" stroke="#c7d2fe" strokeWidth="2" strokeDasharray="5 3" />
           </svg>
-          <span className="text-[0.7rem] text-[#94a3b8] font-medium">Previous period</span>
+          <span className="text-[0.7rem] text-[#94a3b8] font-medium dark:text-[#64748b]">Previous period</span>
         </div>
       </div>
 
       {/* Chart */}
       {isLoading ? (
-        <div className="h-[220px] rounded-[1.2rem] animate-pulse bg-[#f1f5f9]" />
+        <div className="h-[220px] rounded-[1.2rem] animate-pulse bg-[#f1f5f9] dark:bg-[#1e293b]" />
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={chartData} margin={{ top: 6, right: 2, left: -14, bottom: 0 }}>
@@ -229,18 +229,18 @@ export default function UserGrowthChart({ data, isLoading, period, onPeriodChang
 
       {/* Footer stats */}
       {!isLoading && (
-        <div className="flex items-center gap-8 mt-4 pt-4 border-t border-[#f1f5f9]">
+        <div className="flex items-center gap-8 mt-4 pt-4 border-t border-[#f1f5f9] dark:border-[#1e293b]">
           <div>
             <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">Peak</p>
-            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{peak.toLocaleString()}</p>
+            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums dark:text-white">{peak.toLocaleString()}</p>
           </div>
           <div>
             <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">{meta.footerAvgLabel}</p>
-            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{avg.toLocaleString()}</p>
+            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums dark:text-white">{avg.toLocaleString()}</p>
           </div>
           <div>
             <p className="text-[0.625rem] font-semibold text-[#94a3b8] uppercase tracking-widest mb-0.5">Latest</p>
-            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums">{latest.toLocaleString()}</p>
+            <p className="text-[0.875rem] font-[700] text-[#0f172a] tabular-nums dark:text-white">{latest.toLocaleString()}</p>
           </div>
           <p className="ml-auto text-[0.7rem] text-[#c8d3df]">{meta.rangeLabel}</p>
         </div>

@@ -121,7 +121,7 @@ export default function Topbar() {
       {/* Left: mobile menu + breadcrumbs */}
       <div className="flex items-center gap-3">
         <button
-          className="md:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-[#ffffff] text-[#64748b] shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+          className="md:hidden w-11 h-11 flex items-center justify-center rounded-2xl bg-[#ffffff] text-[#64748b] shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation"
         >
@@ -131,11 +131,11 @@ export default function Topbar() {
         <nav
           aria-label="Breadcrumb"
           className="hidden md:flex items-center gap-1 text-sm rounded-[1.5rem] bg-[#ffffff] 
-        px-[1.3rem] py-[0.55rem] border border-[#e2e8f0] mt-[0.4rem]"
+        px-[1.3rem] py-[0.55rem] border border-[#e2e8f0] mt-[0.4rem] dark:border-[#1e293b] dark:bg-[#0f172a]"
         >
           <Link
             to="/dashboard"
-            className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a]"
+            className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-white"
           >
             Workspace
           </Link>
@@ -147,13 +147,13 @@ export default function Topbar() {
                   /
                 </span>
                 {isLast ? (
-                  <span className="text-[0.85rem] font-[400] text-[#0f172a]">
+                  <span className="text-[0.85rem] font-[400] text-[#0f172a] dark:text-white">
                     {crumb.label}
                   </span>
                 ) : (
                   <Link
                     to={crumb.path}
-                    className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a]"
+                    className="text-[0.85rem] font-[300] text-[#64748b] transition-colors hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-white"
                   >
                     {crumb.label}
                   </Link>
@@ -172,7 +172,7 @@ export default function Topbar() {
           aria-label="Open search"
           className="hidden h-[2.8rem] w-[min(460px,42vw)] items-center gap-3 rounded-full border
            border-[#e2e8f0] bg-[#ffffff] px-5 text-sm shadow-[0_18px_48px_-38px_rgba(15,23,42,0.12)] 
-           transition-colors hover:border-[#6366f1]/30 sm:flex"
+           transition-colors hover:border-[#6366f1]/30 sm:flex dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none"
         >
           <Search size={18} className="shrink-0 text-[#94a3b8]" />
 
@@ -190,19 +190,19 @@ export default function Topbar() {
             }}
             aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ""}`}
             aria-expanded={notifOpen}
-            className="relative w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+            className="relative w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
           >
             <Bell strokeWidth={1.35} size={18} />
 
             {unread > 0 && (
-              <span className="absolute top-[0.65rem] right-[0.65rem] w-[0.4rem] h-[0.4rem] rounded-full bg-[#f43f5e] ring-2 ring-[#ffffff]" />
+              <span className="absolute top-[0.65rem] right-[0.65rem] w-[0.4rem] h-[0.4rem] rounded-full bg-[#f43f5e] ring-2 ring-[#ffffff] dark:ring-[#0f172a]" />
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-14 w-80 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e8f0]">
-                <span className="text-[0.85rem] font-[500] text-[#0f172a]">
+            <div className="absolute right-0 top-14 w-80 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-2xl">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#e2e8f0] dark:border-[#1e293b]">
+                <span className="text-[0.85rem] font-[500] text-[#0f172a] dark:text-white">
                   Notifications
                 </span>
                 {unread > 0 && (
@@ -218,7 +218,7 @@ export default function Topbar() {
                   </button>
                 )}
               </div>
-              <ul className="max-h-72 overflow-y-auto divide-y divide-[#e2e8f0]">
+              <ul className="max-h-72 overflow-y-auto divide-y divide-[#e2e8f0] dark:divide-[#1e293b]">
                 {notifications.map((n) => (
                   <li key={n.id}>
                     <button
@@ -229,7 +229,7 @@ export default function Topbar() {
                           ),
                         )
                       }
-                      className="w-full flex gap-3 px-4 py-3 text-left hover:bg-[#f8fafc] transition-colors"
+                      className="w-full flex gap-3 px-4 py-3 text-left hover:bg-[#f8fafc] transition-colors dark:hover:bg-[#1e293b]"
                     >
                       <div className="mt-2 shrink-0">
                         <span
@@ -238,7 +238,7 @@ export default function Topbar() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p
-                          className={`text-[0.85rem] ${n.read ? "text-[#64748b] font-[400]" : "text-[#0f172a] font-[500]"}`}
+                          className={`text-[0.85rem] ${n.read ? "text-[#64748b] dark:text-[#94a3b8] font-[400]" : "text-[#0f172a] dark:text-white font-[500]"}`}
                         >
                           {n.title}
                         </p>
@@ -253,7 +253,7 @@ export default function Topbar() {
                   </li>
                 ))}
               </ul>
-              <div className="px-4 py-2.5 border-t border-[#e2e8f0]">
+              <div className="px-4 py-2.5 border-t border-[#e2e8f0] dark:border-[#1e293b]">
                 <Link
                   to="/activity"
                   onClick={() => setNotifOpen(false)}
@@ -270,7 +270,7 @@ export default function Topbar() {
         <button
           onClick={toggleTheme}
           aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          className="w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+          className="w-[2.4rem] h-[2.4rem] flex items-center justify-center rounded-full bg-[#ffffff] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white dark:shadow-none"
         >
           {isDark ? (
             <Sun strokeWidth={1.35} size={18} />
@@ -289,7 +289,7 @@ export default function Topbar() {
             aria-label="User menu"
             aria-expanded={userMenuOpen}
             className="flex items-center gap-3 pl-[0.4rem] pr-[1.5rem] h-[3.1rem] rounded-full bg-[#ffffff] 
-            hover:bg-[#f1f5f9] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)]"
+            hover:bg-[#f1f5f9] transition-colors focus-visible:outline-none shadow-[0_16px_34px_-28px_rgba(15,23,42,0.12)] dark:bg-[#0f172a] dark:hover:bg-[#1e293b] dark:shadow-none"
           >
             <img
               src="/p1.jpg"
@@ -297,7 +297,7 @@ export default function Topbar() {
               className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
             />
             <div className="hidden sm:block text-left leading-tight">
-              <p className="text-[0.85rem] font-[400] text-[#0f172a]">
+              <p className="text-[0.85rem] font-[400] text-[#0f172a] dark:text-white">
                 {userName}
               </p>
 
@@ -308,15 +308,15 @@ export default function Topbar() {
           </button>
 
           {userMenuOpen && (
-            <div className="absolute right-0 top-14 w-60 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden p-2 shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)]">
-              <div className="flex items-center gap-3 px-3 py-2.5 border-b border-[#e2e8f0] mb-1">
+            <div className="absolute right-0 top-14 w-60 bg-[#ffffff] rounded-3xl border border-[#e2e8f0] z-50 overflow-hidden p-2 shadow-[0_24px_70px_-45px_rgba(15,23,42,0.18)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-2xl">
+              <div className="flex items-center gap-3 px-3 py-2.5 border-b border-[#e2e8f0] mb-1 dark:border-[#1e293b]">
                 <img
                   src="/p1.jpg"
                   alt={userName}
                   className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-[#6366f1]/20"
                 />
                 <div className="min-w-0">
-                  <p className="text-[0.85rem] font-[500] text-[#0f172a] truncate">
+                  <p className="text-[0.85rem] font-[500] text-[#0f172a] truncate dark:text-white">
                     {userName}
                   </p>
                   <p className="text-[0.85rem] font-[400] truncate capitalize text-[#64748b]">
@@ -327,21 +327,21 @@ export default function Topbar() {
               <Link
                 to="/settings"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
               >
                 Profile
               </Link>
               <Link
                 to="/settings"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
               >
                 Settings
               </Link>
-              <div className="my-1 h-px bg-[#e2e8f0]" />
+              <div className="my-1 h-px bg-[#e2e8f0] dark:bg-[#1e293b]" />
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#f43f5e] hover:bg-[#fff1f2] transition-colors"
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-2xl text-[0.85rem] font-[400] text-[#f43f5e] hover:bg-[#fff1f2] transition-colors dark:text-[#fb7185] dark:hover:bg-[#7f1d1d]/25"
               >
                 Logout
               </button>

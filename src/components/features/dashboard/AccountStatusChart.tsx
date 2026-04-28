@@ -28,16 +28,16 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
   const dominant = statusData[0];
 
   return (
-    <div className="bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]">
+    <div className="bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[1.05rem] font-[600] tracking-tight text-[#0f172a]">Account Status</h3>
-        <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#64748b] transition-colors">
+        <h3 className="text-[1.05rem] font-[600] tracking-tight text-[#0f172a] dark:text-white">Account Status</h3>
+        <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#64748b] transition-colors dark:hover:bg-[#1e293b] dark:hover:text-white">
           <MoreHorizontal size={16} />
         </button>
       </div>
 
       {isLoading ? (
-        <div className="h-[320px] rounded-[1.2rem] animate-pulse bg-[#f1f5f9]" />
+        <div className="h-[320px] rounded-[1.2rem] animate-pulse bg-[#f1f5f9] dark:bg-[#1e293b]" />
       ) : (
         <div className="flex flex-col items-center">
           <div className="relative w-full">
@@ -68,12 +68,12 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
                     padding: "8px 12px",
                   }}
                   itemStyle={{ color: "#cbd5e1" }}
-                  formatter={(value: number) => [value.toLocaleString(), ""]}
+                  formatter={(value) => [Number(value ?? 0).toLocaleString(), ""]}
                 />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[1.6rem] font-[700] leading-none tracking-tight text-[#0f172a]">
+              <span className="text-[1.6rem] font-[700] leading-none tracking-tight text-[#0f172a] dark:text-white">
                 {total.toLocaleString()}
               </span>
               <span className="text-[0.7rem] text-[#94a3b8] mt-1 font-medium">Total Users</span>
@@ -89,8 +89,8 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }}
                   />
-                  <span className="text-[0.75rem] text-[#64748b] flex-1 min-w-0 truncate">{d.name}</span>
-                  <div className="flex-1 h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden max-w-[80px]">
+                  <span className="text-[0.75rem] text-[#64748b] flex-1 min-w-0 truncate dark:text-[#94a3b8]">{d.name}</span>
+                  <div className="flex-1 h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden max-w-[80px] dark:bg-[#1e293b]">
                     <div
                       className="h-full rounded-full"
                       style={{
@@ -100,7 +100,7 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
                       }}
                     />
                   </div>
-                  <span className="text-[0.75rem] font-semibold text-[#0f172a] w-12 text-right tabular-nums">
+                  <span className="text-[0.75rem] font-semibold text-[#0f172a] w-12 text-right tabular-nums dark:text-white">
                     {pct}%
                   </span>
                 </div>

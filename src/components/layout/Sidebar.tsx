@@ -34,7 +34,7 @@ export default function Sidebar() {
     <div>
       <aside
         className={cn(
-          "my-5 ml-5 mr-0.5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
+          "my-5 ml-5 mr-0.5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none",
           collapsed ? "w-[84px]" : "w-[270px]",
         )}
       >
@@ -52,20 +52,20 @@ export default function Sidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <aside className="flex flex-col bg-[#ffffff] border-r border-[#e2e8f0] w-72 h-full">
-          <div className="flex items-center justify-between h-[72px] px-5 border-b border-[#e2e8f0] shrink-0">
+        <aside className="flex flex-col bg-[#ffffff] border-r border-[#e2e8f0] w-72 h-full dark:border-[#1e293b] dark:bg-[#0f172a]">
+          <div className="flex items-center justify-between h-[72px] px-5 border-b border-[#e2e8f0] shrink-0 dark:border-[#1e293b]">
             <div className="flex items-center gap-2.5">
               <div className="w-10 h-10 rounded-2xl bg-[#6366f1] flex items-center justify-center">
                 <Blocks size={16} className="text-white" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#0f172a]">
+              <span className="text-xl font-bold tracking-tight text-[#0f172a] dark:text-white">
                 Adminix
               </span>
             </div>
             <button
               onClick={() => setMobileOpen(false)}
               aria-label="Close navigation"
-              className="w-9 h-9 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors"
+              className="w-9 h-9 rounded-2xl flex items-center justify-center text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] transition-colors dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
             >
               <ChevronLeft size={14} />
             </button>

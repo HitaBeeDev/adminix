@@ -15,10 +15,10 @@ export default function QuickActions() {
         <Link
           key={label}
           to={to}
-          className="flex flex-col justify-between h-24 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:bg-[#fafbff] hover:border-[#6366f1]/25 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)]"
+          className="flex flex-col justify-between h-24 bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 cursor-pointer transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:bg-[#fafbff] hover:border-[#6366f1]/25 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none dark:hover:border-[#6366f1]/50 dark:hover:bg-[#111827]"
         >
           <Icon size={18} className="text-[#94a3b8]" />
-          <span className="text-[0.78rem] font-[500] text-[#0f172a]">{label}</span>
+          <span className="text-[0.78rem] font-[500] text-[#0f172a] dark:text-white">{label}</span>
         </Link>
       ))}
     </div>

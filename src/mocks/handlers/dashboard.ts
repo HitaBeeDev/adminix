@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { mockUsers, mockAccounts, mockActivity } from '@/mocks/seeds';
+import { mockAccounts, mockActivity } from '@/mocks/seeds';
 
 // Synthetic totals consistent with the 12-month registration series (sum = 7,078)
 const SYNTHETIC = {
