@@ -19,16 +19,14 @@ import { cn } from "@/lib/utils";
 
 const PRIMARY_NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { to: "/users",     label: "Users",     icon: Users },
-  { to: "/accounts",  label: "Accounts",  icon: Building2 },
-  { to: "/roles",     label: "Roles",     icon: Shield },
-  { to: "/activity",  label: "Activity",  icon: Activity },
-  { to: "/reports",   label: "Reports",   icon: FileText },
+  { to: "/users", label: "Users", icon: Users },
+  { to: "/accounts", label: "Accounts", icon: Building2 },
+  { to: "/roles", label: "Roles", icon: Shield },
+  { to: "/activity", label: "Activity", icon: Activity },
+  { to: "/reports", label: "Reports", icon: FileText },
 ];
 
-const OTHER_NAV = [
-  { to: "/settings",  label: "Settings",  icon: Settings },
-];
+const OTHER_NAV = [{ to: "/settings", label: "Settings", icon: Settings }];
 
 interface NavItemProps {
   to: string;
@@ -38,7 +36,13 @@ interface NavItemProps {
   onNavigate?: () => void;
 }
 
-function NavItem({ to, label, icon: Icon, collapsed, onNavigate }: NavItemProps) {
+function NavItem({
+  to,
+  label,
+  icon: Icon,
+  collapsed,
+  onNavigate,
+}: NavItemProps) {
   return (
     <NavLink
       to={to}
@@ -46,21 +50,29 @@ function NavItem({ to, label, icon: Icon, collapsed, onNavigate }: NavItemProps)
       title={collapsed ? label : undefined}
       className={({ isActive }) =>
         cn(
-          "group relative flex items-center h-11 rounded-2xl transition-colors duration-150 select-none",
-          collapsed ? "justify-center w-11 mx-auto" : "gap-3 px-4",
+          "group relative flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 select-none text-[0.7rem]",
+          collapsed
+            ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
+            : "gap-[0.6rem] px-4",
           isActive
-            ? "bg-[#eef2ff] text-[#0f172a] font-semibold"
-            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+            ? "bg-[#eef2ff] text-[#0f172a] font-[400] text-[0.7rem]"
+            : "text-[#64748b] hover:bg-[#f1f5f9] hover:text-[#0f172a] font-[300] text-[0.7rem]",
         )
       }
     >
       {({ isActive }) => (
         <>
-          {isActive && !collapsed && (
-            <span className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#6366f1] rounded-full" />
-          )}
-          <Icon size={19} className={cn("shrink-0", isActive ? "text-[#6366f1]" : "text-[#94a3b8] group-hover:text-[#6366f1]")} />
-          {!collapsed && <span className="text-[15px]">{label}</span>}
+          <Icon
+            strokeWidth={1.35}
+            size={collapsed ? 18 : 18}
+            className={cn(
+              "shrink-0",
+              isActive
+                ? "text-[#6366f1]"
+                : "text-[#94a3b8] group-hover:text-[#6366f1]",
+            )}
+          />
+          {!collapsed && <span className="text-[0.85rem]">{label}</span>}
         </>
       )}
     </NavLink>
@@ -74,22 +86,38 @@ interface SidebarContentProps {
   onNavigate?: () => void;
 }
 
-function SidebarContent({ collapsed, onLogout, onCollapseToggle, onNavigate }: SidebarContentProps) {
+function SidebarContent({
+  collapsed,
+  onLogout,
+  onCollapseToggle,
+  onNavigate,
+}: SidebarContentProps) {
   return (
     <>
       {/* Brand */}
-      <div className={cn("flex items-center h-20 shrink-0 px-5", collapsed && "justify-center px-2")}>
+      <div
+        className={cn(
+          "flex items-center h-20 shrink-0 px-5",
+          collapsed && "justify-center px-2",
+        )}
+      >
         {collapsed ? (
-          <div className="w-10 h-10 rounded-2xl bg-[#6366f1] flex items-center justify-center shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]">
-            <Blocks size={17} className="text-white" />
+          <div className="w-8 h-8 p-[0.45rem] rounded-[0.45rem] bg-[#6366f1] flex items-center justify-center shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]">
+            <Blocks className="text-white" strokeWidth={1.45} />
           </div>
         ) : (
           <>
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-[#6366f1] flex items-center justify-center shrink-0 shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]">
-                <Blocks size={18} className="text-white" />
+              <div
+                className="w-8 h-8 p-[0.45rem] rounded-[0.45rem] bg-[#6366f1] flex items-center justify-center shrink-0 
+              shadow-[0_12px_24px_-16px_rgba(99,102,241,0.5)]"
+              >
+                <Blocks className="text-white" strokeWidth={1.45} />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#0f172a] truncate">Adminix</span>
+
+              <span className="text-xl font-bold tracking-wider text-[#0f172a] truncate">
+                Adminix
+              </span>
             </div>
             {onCollapseToggle && (
               <button
@@ -118,43 +146,59 @@ function SidebarContent({ collapsed, onLogout, onCollapseToggle, onNavigate }: S
       {/* Primary nav */}
       <div className={cn("mt-1", collapsed ? "px-2" : "px-4")}>
         {!collapsed && (
-          <p className="px-2 pb-2 text-[13px] font-medium text-[#94a3b8] select-none uppercase tracking-widest">
+          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
             Main
           </p>
         )}
         <nav className="space-y-1.5" aria-label="Primary navigation">
           {PRIMARY_NAV.map((link) => (
-            <NavItem key={link.to} {...link} collapsed={collapsed} onNavigate={onNavigate} />
+            <NavItem
+              key={link.to}
+              {...link}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
           ))}
         </nav>
       </div>
 
+      <div className="mt-auto" />
+
       {/* Other nav */}
-      <div className={cn("mt-7", collapsed ? "px-2" : "px-4")}>
+      <div className={cn("mt-7 pb-6", collapsed ? "px-2" : "px-4")}>
         {!collapsed && (
-          <p className="px-2 pb-2 text-[13px] font-medium text-[#94a3b8] select-none uppercase tracking-widest">
+          <p className="px-2 pb-2 text-[0.75rem] font-[300] text-[#94a3b8] select-none">
             Other
           </p>
         )}
-        <nav className="space-y-1.5" aria-label="Secondary navigation">
+        <nav className="" aria-label="Secondary navigation">
           {OTHER_NAV.map((link) => (
-            <NavItem key={link.to} {...link} collapsed={collapsed} onNavigate={onNavigate} />
+            <NavItem
+              key={link.to}
+              {...link}
+              collapsed={collapsed}
+              onNavigate={onNavigate}
+            />
           ))}
           <button
             onClick={onLogout}
             title={collapsed ? "Logout" : undefined}
             className={cn(
-              "group w-full flex items-center h-11 rounded-2xl transition-colors duration-150 text-[#64748b] hover:bg-[#fff1f2] hover:text-[#f43f5e]",
-              collapsed ? "justify-center w-11 mx-auto" : "gap-3 px-4"
+              "group w-full flex items-center h-10 rounded-[0.45rem] transition-colors duration-150 text-[#64748b] hover:bg-[#fff1f2] hover:text-[#f43f5e] font-[300] text-[0.7rem]",
+              collapsed
+                ? "justify-center w-8 h-8 p-[0.3rem] mx-auto"
+                : "gap-[0.6rem] px-4",
             )}
           >
-            <LogOut size={19} className="shrink-0 text-[#94a3b8] group-hover:text-[#f43f5e]" />
-            {!collapsed && <span className="text-[15px]">Logout</span>}
+            <LogOut
+              strokeWidth={1.35}
+              size={collapsed ? 18 : 18}
+              className="shrink-0 text-[#94a3b8] group-hover:text-[#f43f5e]"
+            />
+            {!collapsed && <span className="text-[0.85rem]">Logout</span>}
           </button>
         </nav>
       </div>
-
-      <div className="mt-auto" />
     </>
   );
 }
@@ -188,7 +232,7 @@ export default function Sidebar() {
       {/* Desktop floating sidebar */}
       <aside
         className={cn(
-          "m-5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[2rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
+          "m-5 hidden h-[calc(100vh_-_40px)] shrink-0 flex-col overflow-hidden rounded-[1.5rem] border border-[#e2e8f0] bg-[#ffffff] shadow-[0_24px_70px_-52px_rgba(15,23,42,0.12)] transition-[width] duration-200 ease-out md:flex",
           collapsed ? "w-[84px]" : "w-[270px]",
         )}
       >
@@ -203,7 +247,7 @@ export default function Sidebar() {
       <div
         className={cn(
           "fixed top-0 left-0 h-screen z-30 md:hidden transition-transform duration-200",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <aside className="flex flex-col bg-[#ffffff] border-r border-[#e2e8f0] w-72 h-full">
@@ -212,7 +256,9 @@ export default function Sidebar() {
               <div className="w-10 h-10 rounded-2xl bg-[#6366f1] flex items-center justify-center">
                 <Blocks size={16} className="text-white" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-[#0f172a]">Adminix</span>
+              <span className="text-xl font-bold tracking-tight text-[#0f172a]">
+                Adminix
+              </span>
             </div>
             <button
               onClick={() => setMobileOpen(false)}
@@ -223,7 +269,11 @@ export default function Sidebar() {
             </button>
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto">
-            <SidebarContent {...contentProps} collapsed={false} onNavigate={() => setMobileOpen(false)} />
+            <SidebarContent
+              {...contentProps}
+              collapsed={false}
+              onNavigate={() => setMobileOpen(false)}
+            />
           </div>
         </aside>
       </div>
