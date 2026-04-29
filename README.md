@@ -1,6 +1,6 @@
 # Adminix
 
-An internal admin dashboard for a fictional SaaS platform — the kind of tool an ops or support team would use to manage customer accounts, users, roles, and activity logs.
+An internal admin dashboard — the kind of tool an ops or support team would use to manage customer accounts, users, roles, and activity logs.
 
 ---
 
