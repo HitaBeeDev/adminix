@@ -14,14 +14,14 @@ interface AccountMembersTableProps {
 
 export function AccountMembersTable({ account, isLoading, members }: AccountMembersTableProps) {
   return (
-    <div className="xl:col-span-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800">
         <div>
           <h2 className="text-sm font-semibold text-gray-900 dark:text-[#181818]">Members</h2>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{account.membersCount} total</p>
         </div>
-        <Link to={`/users?accountId=${account.id}`} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
-          View all →
+        <Link to={`/users?accountId=${account.id}`} className="text-xs font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+          View all
         </Link>
       </div>
 
@@ -44,14 +44,14 @@ export function AccountMembersTable({ account, isLoading, members }: AccountMemb
           <p className="text-sm text-gray-500 dark:text-gray-400">No members found</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="min-w-0">
+          <table className="w-full table-fixed text-sm">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40">
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Member</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 hidden sm:table-cell">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 hidden md:table-cell">Last active</th>
+                <th className="w-[48%] px-5 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Member</th>
+                <th className="hidden w-[18%] px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 sm:table-cell">Role</th>
+                <th className="w-[24%] px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-[16%]">Status</th>
+                <th className="hidden w-[18%] px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 md:table-cell">Last active</th>
               </tr>
             </thead>
             <tbody>

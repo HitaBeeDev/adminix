@@ -1,6 +1,6 @@
 export function AccountDetailSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="mt-4 space-y-5 animate-pulse">
       <div className="h-4 w-44 rounded bg-gray-100 dark:bg-gray-800" />
       <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4">
         <div className="flex gap-4">

@@ -15,7 +15,7 @@ export function AccountDangerZone({
   onConfirmSuspend,
 }: AccountDangerZoneProps) {
   return (
-    <div className="rounded-2xl border border-rose-200 dark:border-rose-800/50 bg-white dark:bg-gray-900 p-6">
+    <div className="rounded-2xl border border-rose-200 bg-white p-6 shadow-sm dark:border-rose-800/50 dark:bg-gray-900">
       <div className="flex items-center gap-2 mb-4">
         <AlertTriangle size={16} className="text-rose-500" />
         <h2 className="text-sm font-semibold text-rose-600 dark:text-rose-400">Danger Zone</h2>

@@ -111,7 +111,7 @@ export function AccountDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mt-4 space-y-5">
       <AccountDetailBreadcrumb accountName={currentAccount.name} />
       <AccountOverviewCard
         account={currentAccount}
@@ -124,7 +124,7 @@ export function AccountDetailPage() {
         register={register}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(340px,0.82fr)]">
         <AccountMembersTable account={currentAccount} isLoading={membersLoading} members={members} />
         <AccountActivityChart weeklyData={weeklyData} />
       </div>
