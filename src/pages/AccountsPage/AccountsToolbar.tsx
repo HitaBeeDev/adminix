@@ -4,6 +4,7 @@ import type { AccountPlan, AccountStatus } from "@/types/account";
 
 interface AccountsToolbarProps {
   onFilterChange: (key: "plan" | "status", value: string) => void;
+  onCreateAccount: () => void;
   onSearchChange: (value: string | null) => void;
   plan: AccountPlan | "";
   searchInput: string;
@@ -12,6 +13,7 @@ interface AccountsToolbarProps {
 
 export function AccountsToolbar({
   onFilterChange,
+  onCreateAccount,
   onSearchChange,
   plan,
   searchInput,
@@ -53,6 +55,13 @@ export function AccountsToolbar({
           </option>
         ))}
       </select>
+
+      <button
+        onClick={onCreateAccount}
+        className="ml-auto flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+      >
+        + New account
+      </button>
     </div>
   );
 }

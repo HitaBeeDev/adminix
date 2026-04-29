@@ -29,3 +29,9 @@ export const STATUS_STYLES: Record<AccountStatus, string> = {
 };
 
 export const ACCOUNT_TABLE_HEADINGS = ["Name", "Plan", "Owner", "Members", "Status", "Created"];
+
+export const ACCOUNT_GRID_COLUMNS =
+  "minmax(150px, 1.25fr) minmax(92px, 0.6fr) minmax(170px, 1.35fr) minmax(78px, 0.45fr) minmax(88px, 0.55fr) minmax(104px, 0.65fr) 48px";
+
+export const ACCOUNT_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+export const DEFAULT_ACCOUNT_PAGE_SIZE = 10;

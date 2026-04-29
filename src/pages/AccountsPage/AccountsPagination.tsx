@@ -1,55 +1,87 @@
-import { cn } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import type { PaginatedAccounts } from "@/types/account";
-import { getPaginationItems } from "./accounts.utils";
+import { ACCOUNT_PAGE_SIZE_OPTIONS } from "./accounts.constants";
 
 interface AccountsPaginationProps {
   data: PaginatedAccounts | undefined;
   onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  pageSize: number;
 }
 
-export function AccountsPagination({ data, onPageChange }: AccountsPaginationProps) {
-  if (!data || data.totalPages <= 1) return null;
+export function AccountsPagination({ data, onPageChange, onPageSizeChange, pageSize }: AccountsPaginationProps) {
+  if (!data) return null;
+
+  const start = data.total === 0 ? 0 : (data.page - 1) * data.pageSize + 1;
+  const end = Math.min(data.page * data.pageSize, data.total);
+  const buttonClass =
+    "inline-flex h-9 w-9 items-center justify-center border-l border-gray-200 text-gray-500 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-35 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800";
 
   return (
-    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-      <span>
-        Showing {(data.page - 1) * data.pageSize + 1}-{Math.min(data.page * data.pageSize, data.total)} of {data.total}
-      </span>
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => onPageChange(data.page - 1)}
-          disabled={data.page <= 1}
-          className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Previous
-        </button>
-        {getPaginationItems(data.page, data.totalPages).map((item, index) =>
-          item === "..." ? (
-            <span key={`ellipsis-${index}`} className="px-2 py-1.5 text-gray-400">
-              ...
-            </span>
-          ) : (
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
+        Showing {start.toLocaleString()}-{end.toLocaleString()} of {data.total.toLocaleString()} accounts
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <label className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          Rows
+          <select
+            value={pageSize}
+            onChange={(event) => onPageSizeChange(Number(event.target.value))}
+            className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-700 outline-none transition focus:ring-2 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          >
+            {ACCOUNT_PAGE_SIZE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {data.totalPages > 1 && (
+          <div className="inline-flex items-center overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <button
-              key={item}
-              onClick={() => onPageChange(item)}
-              className={cn(
-                "w-9 py-1.5 rounded-lg border transition-colors",
-                item === data.page
-                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium"
-                  : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800",
-              )}
+              type="button"
+              aria-label="First page"
+              onClick={() => onPageChange(1)}
+              disabled={data.page <= 1}
+              className="inline-flex h-9 w-9 items-center justify-center text-gray-500 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-35 dark:text-gray-400 dark:hover:bg-gray-800"
             >
-              {item}
+              <ChevronsLeft size={16} />
             </button>
-          ),
+            <button
+              type="button"
+              aria-label="Previous page"
+              onClick={() => onPageChange(data.page - 1)}
+              disabled={data.page <= 1}
+              className={buttonClass}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="border-l border-gray-200 px-4 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-300">
+              Page {data.page.toLocaleString()} of {data.totalPages.toLocaleString()}
+            </span>
+            <button
+              type="button"
+              aria-label="Next page"
+              onClick={() => onPageChange(data.page + 1)}
+              disabled={data.page >= data.totalPages}
+              className={buttonClass}
+            >
+              <ChevronRight size={16} />
+            </button>
+            <button
+              type="button"
+              aria-label="Last page"
+              onClick={() => onPageChange(data.totalPages)}
+              disabled={data.page >= data.totalPages}
+              className={buttonClass}
+            >
+              <ChevronsRight size={16} />
+            </button>
+          </div>
         )}
-        <button
-          onClick={() => onPageChange(data.page + 1)}
-          disabled={data.page >= data.totalPages}
-          className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          Next
-        </button>
       </div>
     </div>
   );
