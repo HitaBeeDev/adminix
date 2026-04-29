@@ -11,11 +11,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary:     "bg-[#4fc4cf] text-[#181818] shadow-[0_12px_28px_-18px_#4fc4cf] hover:bg-[#43b6c0] active:brightness-95",
-  secondary:   "bg-[#994ff3] text-[#ffffff] hover:bg-[#873de1] active:brightness-95",
-  ghost:       "text-[#2e2e2e] hover:bg-[#f2eef5] active:brightness-95",
-  destructive: "bg-[#994ff3] text-[#ffffff] hover:bg-[#873de1] active:brightness-95",
-  link:        "text-[#4fc4cf] underline-offset-4 hover:underline",
+  primary:     "bg-indigo-600 text-white shadow-[0_12px_28px_-18px_#4f46e5] hover:bg-indigo-700 active:brightness-95",
+  secondary:   "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 active:brightness-95",
+  ghost:       "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 active:brightness-95",
+  destructive: "bg-rose-600 text-white hover:bg-rose-700 active:brightness-95",
+  link:        "text-indigo-600 dark:text-indigo-400 underline-offset-4 hover:underline",
 };
 
 const sizes: Record<Size, string> = {
@@ -35,7 +35,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       aria-busy={loading}
       className={cn(
         "inline-flex items-center justify-center font-semibold rounded-2xl transition-colors duration-150",
-        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#4fc4cf]/25",
+        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-indigo-500/25",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         variants[variant],
         sizes[size],

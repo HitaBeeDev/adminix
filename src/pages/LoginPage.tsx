@@ -41,8 +41,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#4fc4cf] mb-4">
-            <LayoutGrid size={22} className="text-[#181818]" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-4">
+            <LayoutGrid size={22} className="text-white" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#181818]">Adminix</h1>
           <p className="mt-1 text-[0.8125rem] text-[#2e2e2e]/70">
@@ -73,7 +73,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 className={cn(
                   "w-full h-9 rounded-md border px-3 text-sm text-[#181818] bg-[#ffffff] placeholder:text-[#2e2e2e]/50 transition-colors",
-                  "focus:outline-none focus:ring-[3px] focus:ring-[#4fc4cf]/25",
+                  "focus:outline-none focus:ring-[3px] focus:ring-indigo-500/25",
                   errors.email
                     ? "border-[#994ff3] ring-[3px] ring-[#994ff3]/18"
                     : "border-[#181818]/15 hover:border-[#181818]/30 focus:border-[#181818]/60"
@@ -98,7 +98,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className={cn(
                     "w-full h-9 rounded-md border px-3 pr-10 text-sm text-[#181818] bg-[#ffffff] placeholder:text-[#2e2e2e]/50 transition-colors",
-                    "focus:outline-none focus:ring-[3px] focus:ring-[#4fc4cf]/25",
+                    "focus:outline-none focus:ring-[3px] focus:ring-indigo-500/25",
                     errors.password
                       ? "border-[#994ff3] ring-[3px] ring-[#994ff3]/18"
                       : "border-[#181818]/15 hover:border-[#181818]/30 focus:border-[#181818]/60"
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 id="rememberMe"
                 type="checkbox"
                 {...register("rememberMe")}
-                className="h-4 w-4 rounded border-[#181818]/30 accent-[#4fc4cf]"
+                className="h-4 w-4 rounded border-[#181818]/30 accent-indigo-600"
               />
               <label htmlFor="rememberMe" className="text-[0.8125rem] text-[#2e2e2e]/70">
                 Remember me
@@ -135,7 +135,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 h-9 rounded-md bg-[#4fc4cf] text-[#181818] text-sm font-medium transition-colors hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#4fc4cf]/25"
+              className="w-full flex items-center justify-center gap-2 h-9 rounded-md bg-indigo-600 text-white text-sm font-medium transition-colors hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-indigo-500/25"
             >
               {isSubmitting && <Loader2 size={15} className="animate-spin" />}
               {isSubmitting ? "Signing in…" : "Sign in"}

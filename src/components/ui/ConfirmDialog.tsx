@@ -24,14 +24,12 @@ const intentConfig: Record<
   destructive: {
     icon: <AlertTriangle size={16} className="text-rose-600 dark:text-rose-400" />,
     iconWrap: 'bg-rose-100 dark:bg-rose-900/30',
-    confirmBtn:
-      'bg-[#994ff3] text-main hover:brightness-105',
+    confirmBtn: 'bg-rose-600 text-white hover:bg-rose-700',
   },
   default: {
     icon: <Info size={16} className="text-indigo-600 dark:text-indigo-400" />,
     iconWrap: 'bg-indigo-100 dark:bg-indigo-900/30',
-    confirmBtn:
-      'bg-[#4fc4cf] text-[#181818] hover:brightness-105',
+    confirmBtn: 'bg-indigo-600 text-white hover:bg-indigo-700',
   },
 };
 
