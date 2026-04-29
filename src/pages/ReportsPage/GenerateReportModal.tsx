@@ -109,7 +109,7 @@ export function GenerateReportModal({ onClose, onGenerate, open }: GenerateRepor
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">From</label>
               <input
@@ -133,7 +133,7 @@ export function GenerateReportModal({ onClose, onGenerate, open }: GenerateRepor
 
         <div>
           <label className={reportLabelClass}>Format</label>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             {(["CSV", "JSON"] as ReportFormat[]).map((option) => (
               <label
                 key={option}
@@ -151,7 +151,7 @@ export function GenerateReportModal({ onClose, onGenerate, open }: GenerateRepor
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={handleClose}

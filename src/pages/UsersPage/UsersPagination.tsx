@@ -33,7 +33,7 @@ export function UsersPagination({ data, onPageChange, onPageSizeChange, pageSize
       </label>
 
       {data.totalPages > 1 && (
-        <div className="inline-flex items-center overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <div className="inline-flex max-w-full items-center overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
           <button
             type="button"
             aria-label="First page"
@@ -52,7 +52,7 @@ export function UsersPagination({ data, onPageChange, onPageSizeChange, pageSize
           >
             <ChevronLeft size={16} />
           </button>
-          <span className="border-l border-gray-200 px-4 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-300">
+          <span className="shrink-0 border-l border-gray-200 px-3 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-300 sm:px-4">
             Page {data.page.toLocaleString()} of {data.totalPages.toLocaleString()}
           </span>
           <button

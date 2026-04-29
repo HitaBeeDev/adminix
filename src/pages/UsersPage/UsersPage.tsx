@@ -180,7 +180,7 @@ export function UsersPage() {
   return (
     <div className="space-y-6 mt-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-[#181818]">Users</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Users</h1>
       </div>
 
       <InviteUserModal open={inviteOpen} onClose={() => setInviteOpen(false)} />

@@ -57,9 +57,149 @@ export function UsersTable({
   status,
   users,
 }: UsersTableProps) {
+  const emptyState = (
+    <div className="px-4 py-20 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <Search size={20} className="text-gray-400 dark:text-gray-500" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No users found</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+            {debouncedSearch || role || status
+              ? "Try adjusting your filters or search term"
+              : "Invite your first user to get started"}
+          </p>
+        </div>
+        {(debouncedSearch || role || status) && (
+          <button onClick={onClearFilters} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+            Clear all filters
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-      <div className="w-full min-w-0">
+      <div className="md:hidden">
+        {isLoading ? (
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="space-y-3 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                    <div className="h-3 w-1/2 rounded bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                  </div>
+                </div>
+                <div className="h-8 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        ) : isError ? (
+          <ErrorState error={error} onRetry={onRetry} />
+        ) : users.length === 0 ? (
+          emptyState
+        ) : (
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            {users.map((user) => {
+              const isExpanded = expanded.has(user.id);
+
+              return (
+                <article
+                  key={user.id}
+                  className={cn(
+                    "p-4 transition-colors",
+                    selected.has(user.id) && "bg-indigo-50/50 dark:bg-indigo-900/10",
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(user.id)}
+                      onChange={() => onToggleOne(user.id)}
+                      className="mt-2 h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600"
+                    />
+                    <Link to={`/users/${user.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 group">
+                      <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
+                        {getUserInitials(user.name)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-gray-800 group-hover:text-indigo-600 dark:text-gray-100 dark:group-hover:text-indigo-400">
+                          {user.name}
+                        </p>
+                        <p className="truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
+                      </div>
+                    </Link>
+                    <UserRowActionMenu
+                      user={user}
+                      onUpdate={(args) => onUpdateUser(args, user)}
+                      onDelete={(id) => onDeleteUser(id, user)}
+                    />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <p className="font-medium text-gray-400 dark:text-gray-500">Role</p>
+                      <p className="mt-1 truncate text-gray-700 dark:text-gray-300">{ROLE_LABELS[user.role]}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-400 dark:text-gray-500">Status</p>
+                      <span className={cn("mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize", STATUS_STYLES[user.status])}>
+                        {user.status}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-400 dark:text-gray-500">Joined</p>
+                      <p className="mt-1 truncate text-gray-700 dark:text-gray-300">{formatUserDate(user.dateJoined)}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-400 dark:text-gray-500">Last active</p>
+                      <p className="mt-1 truncate text-gray-700 dark:text-gray-300">{formatUserDate(user.lastActive)}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onToggleExpanded(user.id)}
+                    aria-expanded={isExpanded}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                  >
+                    <ChevronDown size={14} className={cn("transition-transform", isExpanded && "rotate-180")} />
+                    Details
+                  </button>
+
+                  {isExpanded && (
+                    <div className="mt-3 rounded-xl bg-gray-50 p-3 text-xs dark:bg-gray-950/30">
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-500 dark:text-gray-400">User ID</p>
+                          <p className="mt-1 truncate font-mono text-gray-800 dark:text-gray-100">{user.id}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-500 dark:text-gray-400">Account</p>
+                          <p className="mt-1 truncate font-mono text-gray-800 dark:text-gray-100">{user.accountId ?? "Unassigned"}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-500 dark:text-gray-400">Security</p>
+                          <p className="mt-1 truncate text-gray-800 dark:text-gray-100">
+                            {user.twoFactorEnabled ? "2FA enabled" : "2FA disabled"}
+                            {user.lastIp ? ` - ${user.lastIp}` : ""}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="hidden w-full min-w-0 overflow-x-auto md:block">
         <div className="w-full min-w-0 text-sm">
           <div
             className="sticky top-0 z-10 grid border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50"
@@ -99,26 +239,7 @@ export function UsersTable({
           ) : isError ? (
             <ErrorState error={error} onRetry={onRetry} />
           ) : users.length === 0 ? (
-            <div className="px-4 py-20 text-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                  <Search size={20} className="text-gray-400 dark:text-gray-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">No users found</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                    {debouncedSearch || role || status
-                      ? "Try adjusting your filters or search term"
-                      : "Invite your first user to get started"}
-                  </p>
-                </div>
-                {(debouncedSearch || role || status) && (
-                  <button onClick={onClearFilters} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
-                    Clear all filters
-                  </button>
-                )}
-              </div>
-            </div>
+            emptyState
           ) : (
             <div>
               {users.map((user) => {
