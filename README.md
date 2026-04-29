@@ -10,10 +10,10 @@ An internal admin dashboard — the kind of tool an ops or support team would us
 
 | Metric | Score |
 |---|---|
-| Performance | 91 |
-| Accessibility | 96 |
+| Performance | 98 |
+| Accessibility | 92 |
 | Best Practices | 100 |
-| SEO | 100 |
+| SEO | 90 |
 
 ---
 
