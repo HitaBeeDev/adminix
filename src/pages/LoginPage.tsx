@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2, LayoutGrid } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLogin } from "@/hooks/useAuth";
 
@@ -41,9 +41,6 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 mb-4">
-            <LayoutGrid size={22} className="text-white" />
-          </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#181818]">Adminix</h1>
           <p className="mt-1 text-[0.8125rem] text-[#2e2e2e]/70">
             Sign in to your account

@@ -7,7 +7,7 @@ import App from "./App.tsx";
 import { applyThemePreference } from "@/lib/theme";
 
 async function prepare() {
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_MOCKS !== 'false') {
     const { worker } = await import('./mocks/browser');
     return worker.start({ onUnhandledRequest: 'bypass' });
   }
