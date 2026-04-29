@@ -2,10 +2,21 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { ArrowRight, ScrollText } from "lucide-react";
 import type { DashboardStats } from "@/api/dashboard";
+import type { ActivityEvent } from "@/types/activity";
 import { fmtRelative, ACTION_LABEL, activityBadge, activityIcon } from "@/lib/dashboardUtils";
 
 const INITIAL_VISIBLE = 6;
 const LOAD_STEP = 4;
+
+function getAvatarStyle(action: ActivityEvent["action"]) {
+  if (action.includes("delete") || action.includes("suspend"))
+    return { bg: "bg-[#fff1f2]", text: "text-[#f43f5e]" };
+  if (action.includes("role"))
+    return { bg: "bg-[#fffbeb]", text: "text-[#d97706]" };
+  if (action.includes("created") || action.includes("invited"))
+    return { bg: "bg-[#eef2ff]", text: "text-[#6366f1]" };
+  return { bg: "bg-[#f1f5f9]", text: "text-[#64748b]" };
+}
 
 interface Props {
   data: DashboardStats | undefined;
@@ -23,23 +34,30 @@ export default function ActivityFeed({ data, isLoading }: Props) {
   }, [activities.length]);
 
   return (
-    <div className="bg-[#ffffff] rounded-[1.2rem] border border-[#e2e8f0] pt-3 pl-5 pr-5 pb-3 flex flex-col transition-all duration-200 shadow-[0_22px_60px_-50px_rgba(15,23,42,0.10)] hover:-translate-y-0.5 hover:shadow-[0_28px_70px_-52px_rgba(15,23,42,0.14)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
-      <div className="flex items-center justify-between mb-0">
-        <h3 className="text-[1.05rem] font-[600] tracking-tight text-[#0f172a] dark:text-white">Recent Activity</h3>
+    <div className="bg-white rounded-[1.25rem] border border-[#e2e8f0] p-5 flex flex-col transition-all duration-200 shadow-[0_4px_24px_-8px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(15,23,42,0.13)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
+
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h3 className="text-[0.9375rem] font-semibold tracking-tight text-[#0f172a] dark:text-white leading-snug">
+            Recent Activity
+          </h3>
+          <p className="text-[0.75rem] text-[#94a3b8] mt-0.5">Latest actions across your workspace</p>
+        </div>
         <Link
           to="/activity"
-          className="flex items-center gap-1 text-[0.75rem] font-medium text-[#6366f1] hover:underline underline-offset-4 transition-colors"
+          className="flex items-center gap-1 text-[0.73rem] font-medium text-[#6366f1] hover:underline underline-offset-4 transition-colors shrink-0 mt-0.5"
         >
-          View all <ArrowRight size={14} />
+          View all <ArrowRight size={13} />
         </Link>
       </div>
 
       {isLoading ? (
-        <div className="flex-1 space-y-3 mt-4">
+        <div className="mt-4 space-y-1">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex gap-3 items-start py-3 border-t border-[#e2e8f0] dark:border-[#1e293b]">
-              <div className="w-8 h-8 rounded-full bg-[#f1f5f9] animate-pulse shrink-0 dark:bg-[#1e293b]" />
-              <div className="flex-1 space-y-1.5">
+            <div key={i} className="flex gap-3 items-start py-3">
+              <div className="w-9 h-9 rounded-full bg-[#f1f5f9] animate-pulse shrink-0 dark:bg-[#1e293b]" />
+              <div className="flex-1 space-y-2 pt-1">
                 <div className="h-3.5 w-48 rounded bg-[#f1f5f9] animate-pulse dark:bg-[#1e293b]" />
                 <div className="h-3 w-28 rounded bg-[#f1f5f9] animate-pulse dark:bg-[#1e293b]" />
               </div>
@@ -48,56 +66,84 @@ export default function ActivityFeed({ data, isLoading }: Props) {
           ))}
         </div>
       ) : !activities.length ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
-          <ScrollText size={24} className="text-[#94a3b8]" />
-          <p className="text-sm text-[#64748b] dark:text-[#94a3b8]">
-            Nothing's happened yet. Activity will show up here as your team uses the app.
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12 text-center">
+          <div className="w-11 h-11 rounded-full bg-[#f1f5f9] dark:bg-[#1e293b] flex items-center justify-center">
+            <ScrollText size={20} className="text-[#94a3b8]" />
+          </div>
+          <p className="text-[0.8125rem] text-[#64748b] dark:text-[#94a3b8] max-w-[22ch] leading-relaxed">
+            Nothing yet. Activity will appear here as your team works.
           </p>
         </div>
       ) : (
         <>
-          <ul className="flex-1">
+          {/* ── Timeline ── */}
+          <ul className="flex-1 mt-3 relative">
+            {/* Vertical connector line threading through avatars */}
+            <div
+              className="absolute left-[1.0625rem] top-5 bottom-5 w-px bg-[#f1f5f9] dark:bg-[#1e293b]"
+              aria-hidden="true"
+            />
+
             {visibleActivities.map((event) => {
               const badge = activityBadge(event.action);
               const IconComp = activityIcon(event.action);
+              const avatarStyle = getAvatarStyle(event.action);
+
               return (
-                <li key={event.id} className="flex items-start gap-3 py-4 border-t border-[#e2e8f0] dark:border-[#1e293b]">
-                  {IconComp ? (
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[#fffbeb]">
-                      <IconComp size={16} className="text-[#d97706]" />
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#eef2ff] text-[#6366f1] flex items-center justify-center text-[0.7rem] font-bold shrink-0">
-                      {event.actorName?.charAt(0)?.toUpperCase() ?? "?"}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#64748b] leading-snug dark:text-[#94a3b8]">
-                      <span className="font-medium text-[#0f172a] dark:text-white">{event.actorName}</span>
+                <li
+                  key={event.id}
+                  className="relative flex gap-3 py-2.5 -mx-5 px-5 hover:bg-[#f8fafc] dark:hover:bg-[#0a0f1e] transition-colors cursor-default group"
+                >
+                  {/* Avatar — z-10 so it sits on top of the connector line */}
+                  <div
+                    className={`relative z-10 w-[2.125rem] h-[2.125rem] rounded-full flex items-center justify-center text-[0.7rem] font-bold shrink-0 ring-2 ring-white dark:ring-[#0f172a] group-hover:ring-[#f8fafc] dark:group-hover:ring-[#0a0f1e] transition-[box-shadow] ${avatarStyle.bg} ${avatarStyle.text}`}
+                  >
+                    {IconComp
+                      ? <IconComp size={15} />
+                      : (event.actorName?.charAt(0)?.toUpperCase() ?? "?")}
+                  </div>
+
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <p className="text-[0.8125rem] leading-snug text-[#64748b] dark:text-[#94a3b8]">
+                      <span className="font-semibold text-[#0f172a] dark:text-white">
+                        {event.actorName}
+                      </span>
                       {" "}
                       <span>{ACTION_LABEL[event.action] ?? event.action}</span>
                       {event.targetName && (
-                        <> <span className="font-medium text-[#0f172a] dark:text-white">{event.targetName}</span></>
+                        <>
+                          {" "}
+                          <span className="font-semibold text-[#0f172a] dark:text-white">
+                            {event.targetName}
+                          </span>
+                        </>
                       )}
                     </p>
-                    <p className="text-[0.75rem] mt-0.5 text-[#94a3b8]">
+                    <p className="text-[0.7rem] mt-0.5 text-[#94a3b8]">
                       {fmtRelative(event.timestamp)}
                     </p>
                   </div>
-                  <span className={`shrink-0 inline-flex items-center h-5 px-2 rounded-full text-[0.625rem] font-medium uppercase tracking-wide ${badge.className}`}>
+
+                  <span
+                    className={`shrink-0 self-start mt-0.5 inline-flex items-center h-5 px-2 rounded-full text-[0.6rem] font-semibold uppercase tracking-wide ${badge.className}`}
+                  >
                     {badge.label}
                   </span>
                 </li>
               );
             })}
           </ul>
+
+          {/* ── Load more ── */}
           <button
             type="button"
             onClick={() => setVisibleCount((count) => Math.min(count + LOAD_STEP, activities.length))}
             disabled={!hasMore}
-            className="mt-4 w-full h-11 rounded-2xl text-sm font-semibold text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a] disabled:cursor-not-allowed disabled:opacity-45 dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
+            className="mt-3 w-full h-10 rounded-xl text-[0.78rem] font-semibold border border-[#e2e8f0] text-[#64748b] transition-all hover:bg-[#f8fafc] hover:text-[#0f172a] hover:border-[#cbd5e1] disabled:cursor-not-allowed disabled:opacity-40 dark:border-[#1e293b] dark:text-[#94a3b8] dark:hover:bg-[#111827] dark:hover:text-white dark:hover:border-[#334155]"
           >
-            {hasMore ? `Load more (${activities.length - visibleActivities.length})` : "All activity loaded"}
+            {hasMore
+              ? `Load more (${activities.length - visibleActivities.length})`
+              : "All activity loaded"}
           </button>
         </>
       )}
