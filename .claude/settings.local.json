@@ -5,7 +5,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run *)",
       "Bash(curl -s http://localhost:5173)",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "Bash(npm test *)"
     ]
   }
 }
