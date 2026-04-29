@@ -39,9 +39,9 @@ const FALLBACK_STATUS = [
 ];
 
 const RADIAL_RINGS = [
-  { radius: 67, width: 13, stroke: "#2f2bbf", track: "#eef1ff", rotate: 132 },
-  { radius: 50, width: 12, stroke: "#5957e8", track: "#eef1ff", rotate: 268 },
-  { radius: 34, width: 11, stroke: "#817eff", track: "#f2f3ff", rotate: 108 },
+  { radius: 79, width: 14, track: "#eef2f7", rotate: 132 },
+  { radius: 58, width: 13, track: "#eef2f7", rotate: 268 },
+  { radius: 39, width: 12, track: "#f3f6fa", rotate: 108 },
 ];
 
 function getColor(name: string) {
@@ -63,24 +63,26 @@ function AccountStatusRadialChart({
 
   return (
     <div
-      className="relative grid h-[178px] w-[178px] place-items-center"
+      className="relative grid h-[214px] w-[214px] place-items-center"
       aria-label={`Total account status ${totalLabel}`}
     >
-      <div className="absolute inset-[12px] rounded-full bg-[#f6f7ff] opacity-80 blur-[1px] dark:bg-[#1e1b4b]" />
-      <svg className="relative h-[154px] w-[154px] overflow-visible" viewBox="0 0 154 154" role="img">
+      <div className="absolute inset-[14px] rounded-full bg-[#f8fafc] opacity-70 blur-[1px] dark:bg-[#1e293b]" />
+      <svg className="relative h-[184px] w-[184px] overflow-visible" viewBox="0 0 184 184" role="img">
         <title>Account status radial distribution</title>
         {RADIAL_RINGS.map((ring, index) => {
-          const value = rings[index]?.value ?? 0;
+          const status = rings[index];
+          const value = status?.value ?? 0;
           const circumference = 2 * Math.PI * ring.radius;
           const ratio = Math.max(0.22, Math.min(0.92, value / maxRingValue));
           const dash = circumference * ratio;
           const gap = circumference - dash;
+          const stroke = getColor(status?.name ?? "").bar;
 
           return (
-            <g key={ring.radius} transform={`rotate(${ring.rotate} 77 77)`}>
+            <g key={ring.radius} transform={`rotate(${ring.rotate} 92 92)`}>
               <circle
-                cx="77"
-                cy="77"
+                cx="92"
+                cy="92"
                 r={ring.radius}
                 fill="none"
                 stroke={ring.track}
@@ -88,26 +90,26 @@ function AccountStatusRadialChart({
                 strokeLinecap="round"
               />
               <circle
-                cx="77"
-                cy="77"
+                cx="92"
+                cy="92"
                 r={ring.radius}
                 fill="none"
-                stroke={ring.stroke}
+                stroke={stroke}
                 strokeWidth={ring.width}
                 strokeLinecap="round"
                 strokeDasharray={`${dash} ${gap}`}
-                className="drop-shadow-[0_2px_3px_rgba(47,43,191,0.22)]"
+                className="drop-shadow-[0_2px_3px_rgba(15,23,42,0.14)]"
               />
             </g>
           );
         })}
-        <circle cx="77" cy="77" r="25" fill="white" className="dark:fill-[#0f172a]" />
+        <circle cx="92" cy="92" r="28" fill="white" className="dark:fill-[#0f172a]" />
         <text
-          x="77"
-          y="78"
+          x="92"
+          y="93"
           textAnchor="middle"
           dominantBaseline="central"
-          className="fill-[#0f172a] text-[1.08rem] font-[800] tabular-nums dark:fill-white"
+          className="fill-[#0f172a] text-[1.18rem] font-[800] tabular-nums dark:fill-white"
         >
           {totalLabel}
         </text>
