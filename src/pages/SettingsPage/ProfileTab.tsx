@@ -40,19 +40,27 @@ export function ProfileTab() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Avatar</h3>
-        <div className="flex flex-col gap-5">
-          <div className="relative group">
-            <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white select-none">
-              {user ? initials(user.name) : "AU"}
-            </div>
-            <button className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-5">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full group">
+            {user?.avatarUrl ? (
+              <img
+                src="/p1.jpg"
+                alt={user.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-indigo-600 text-xl font-bold text-white select-none">
+                {user ? initials(user.name) : "AU"}
+              </div>
+            )}
+            <button className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
               <Camera size={18} className="text-white" />
             </button>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{user?.name}</p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{user?.email}</p>
             <button className="mt-2 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
