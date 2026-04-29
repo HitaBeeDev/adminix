@@ -12,10 +12,11 @@ dist
 dist-ssr
 *.local
 
-# Claude Code instructions (local only)
+# Claude Code instructions and memory (local only)
 CLAUDE.md
 PROJECT_OVERVIEW.md
 PROJECT_CHECKLIST.md
+.claude
 
 # Editor directories and files
 .vscode/*
