@@ -23,7 +23,7 @@ export function RolesSidebar({
   roles,
 }: RolesSidebarProps) {
   return (
-    <div className="w-64 shrink-0 space-y-2">
+    <div className="grid w-full shrink-0 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:w-64 xl:grid-cols-1">
       {isLoading ? (
         Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
