@@ -128,7 +128,7 @@ export default function CreateAccountModal({ open, onClose }: CreateAccountModal
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] font-medium disabled:opacity-50 transition-colors"
+            className="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium disabled:opacity-50 transition-colors"
           >
             {isSubmitting ? 'Creating…' : 'Create account'}
           </button>
