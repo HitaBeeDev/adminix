@@ -13,7 +13,7 @@ function makeWrapper(initialUrl = '/') {
 describe('useSearchParamState()', () => {
   it('returns the default value when the param is absent', () => {
     const { result } = renderHook(
-      () => useSearchParamState('tab', 'all'),
+      () => useSearchParamState<'all' | 'active'>('tab', 'all'),
       { wrapper: makeWrapper() },
     );
     expect(result.current[0]).toBe('all');
@@ -21,7 +21,7 @@ describe('useSearchParamState()', () => {
 
   it('reads an existing param from the URL', () => {
     const { result } = renderHook(
-      () => useSearchParamState('tab', 'all'),
+      () => useSearchParamState<'all' | 'active'>('tab', 'all'),
       { wrapper: makeWrapper('/?tab=active') },
     );
     expect(result.current[0]).toBe('active');
@@ -29,7 +29,7 @@ describe('useSearchParamState()', () => {
 
   it('updates the value when the setter is called', () => {
     const { result } = renderHook(
-      () => useSearchParamState('tab', 'all'),
+      () => useSearchParamState<'all' | 'active'>('tab', 'all'),
       { wrapper: makeWrapper() },
     );
     act(() => {
@@ -40,7 +40,7 @@ describe('useSearchParamState()', () => {
 
   it('removes the param from the URL when set to the default value', () => {
     const { result } = renderHook(
-      () => useSearchParamState('tab', 'all'),
+      () => useSearchParamState<'all' | 'active'>('tab', 'all'),
       { wrapper: makeWrapper('/?tab=active') },
     );
     expect(result.current[0]).toBe('active');
@@ -53,8 +53,8 @@ describe('useSearchParamState()', () => {
   it('works with different keys independently', () => {
     const { result } = renderHook(
       () => ({
-        tab: useSearchParamState('tab', 'all'),
-        status: useSearchParamState('status', 'any'),
+        tab: useSearchParamState<'all' | 'active'>('tab', 'all'),
+        status: useSearchParamState<'any' | 'pending'>('status', 'any'),
       }),
       { wrapper: makeWrapper('/?tab=active&status=pending') },
     );
@@ -65,8 +65,8 @@ describe('useSearchParamState()', () => {
   it('setting one param does not clobber other params', () => {
     const { result } = renderHook(
       () => ({
-        tab: useSearchParamState('tab', 'all'),
-        status: useSearchParamState('status', 'any'),
+        tab: useSearchParamState<'all' | 'active'>('tab', 'all'),
+        status: useSearchParamState<'any' | 'pending'>('status', 'any'),
       }),
       { wrapper: makeWrapper('/?tab=active&status=pending') },
     );

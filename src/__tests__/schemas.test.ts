@@ -4,7 +4,9 @@ import { generateReportSchema } from '@/pages/ReportsPage/reports.schema';
 import { editUserSchema } from '@/pages/UserDetailPage/userDetail.schema';
 import { editAccountSchema } from '@/pages/AccountDetailPage/accountDetail.schema';
 
-function firstError(result: ReturnType<typeof addRoleSchema.safeParse>): string {
+type ParseResult = { success: true } | { success: false; error: { issues: Array<{ message: string }> } };
+
+function firstError(result: ParseResult): string {
   if (result.success) return '';
   return result.error.issues[0]?.message ?? '';
 }
@@ -97,7 +99,7 @@ describe('editUserSchema', () => {
   it('rejects name shorter than 2 characters', () => {
     const result = editUserSchema.safeParse({ ...valid, name: 'J' });
     expect(result.success).toBe(false);
-    expect(firstError(result as ReturnType<typeof addRoleSchema.safeParse>)).toMatch(/at least 2/i);
+    expect(firstError(result)).toMatch(/at least 2/i);
   });
 
   it('rejects an invalid email', () => {
@@ -132,6 +134,6 @@ describe('editAccountSchema', () => {
   it('rejects an empty name', () => {
     const result = editAccountSchema.safeParse({ name: '' });
     expect(result.success).toBe(false);
-    expect(firstError(result as ReturnType<typeof addRoleSchema.safeParse>)).toMatch(/required/i);
+    expect(firstError(result)).toMatch(/required/i);
   });
 });
