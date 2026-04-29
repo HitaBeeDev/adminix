@@ -43,7 +43,7 @@ export function ProfileTab() {
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Avatar</h3>
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full group">
             {user?.avatarUrl ? (
               <img
@@ -66,7 +66,9 @@ export function ProfileTab() {
             <button className="mt-2 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
               Upload photo
             </button>
-            <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">(JPG, PNG - max 2 MB)</span>
+            <span className="mt-1 block text-xs text-gray-400 dark:text-gray-500 sm:mt-0 sm:ml-2 sm:inline">
+              (JPG, PNG - max 2 MB)
+            </span>
           </div>
         </div>
       </div>
@@ -104,7 +106,7 @@ export function ProfileTab() {
             <button
               type="submit"
               disabled={!isDirty || saving}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 sm:w-auto dark:focus-visible:ring-offset-gray-950"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

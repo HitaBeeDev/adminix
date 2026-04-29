@@ -95,14 +95,14 @@ export function SecurityTab() {
       </div>
 
       <div className={cn(settingsSectionClass, "flex flex-col")}>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Two-Factor Authentication</h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               Add an extra layer of security using an authenticator app
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
             <span
               className={cn(
                 "text-xs font-medium px-2 py-0.5 rounded-full",
@@ -119,7 +119,7 @@ export function SecurityTab() {
 
         {showQr && (
           <div className="mt-5 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               <div className="w-24 h-24 shrink-0 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                 <svg viewBox="0 0 80 80" width="72" height="72" className="text-gray-900 dark:text-gray-100">
                   <rect x="4" y="4" width="30" height="30" rx="3" fill="none" stroke="currentColor" strokeWidth="5" />
@@ -142,10 +142,10 @@ export function SecurityTab() {
                 <code className="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-700 dark:text-gray-300 select-all">
                   JBSWY3DPEHPK3PXP
                 </code>
-                <div className="mt-3 flex gap-2">
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                   <button
                     onClick={confirmEnable}
-                    className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+                    className="flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                   >
                     <CheckCircle2 size={12} /> Confirm & Enable
                   </button>
@@ -177,7 +177,7 @@ export function SecurityTab() {
       </div>
 
       <div className={cn(settingsSectionClass, "xl:col-span-2")}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Active Sessions</h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
@@ -189,7 +189,7 @@ export function SecurityTab() {
               setSessions((current) => current.filter((session) => session.current));
               toast.success("All other sessions revoked.");
             }}
-            className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition flex items-center gap-1"
+            className="flex items-center gap-1 text-xs font-medium text-rose-500 transition hover:text-rose-600 sm:justify-end dark:text-rose-400 dark:hover:text-rose-300"
           >
             <LogOut size={12} />
             Revoke all others
@@ -204,7 +204,7 @@ export function SecurityTab() {
         ) : (
           <div className="space-y-0 divide-y divide-gray-100 dark:divide-gray-800">
             {sessions.map((session) => (
-              <div key={session.id} className="flex items-center gap-4 py-3.5">
+              <div key={session.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center sm:gap-4">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
                   <SessionIcon type={session.icon} />
                 </div>
@@ -225,7 +225,7 @@ export function SecurityTab() {
                   <button
                     onClick={() => void revokeSession(session.id)}
                     disabled={revokingId === session.id}
-                    className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition disabled:opacity-50 shrink-0"
+                    className="self-start text-xs font-medium text-rose-500 transition hover:text-rose-600 disabled:opacity-50 sm:self-center dark:text-rose-400 dark:hover:text-rose-300"
                   >
                     {revokingId === session.id ? "Revoking..." : "Revoke"}
                   </button>

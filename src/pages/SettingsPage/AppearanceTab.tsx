@@ -21,7 +21,7 @@ export function AppearanceTab() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Theme</h3>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">Choose how Adminix looks to you</p>
