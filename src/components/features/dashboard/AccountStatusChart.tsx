@@ -1,27 +1,26 @@
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, MoreHorizontal, ShieldCheck } from "lucide-react";
 import type { DashboardStats } from "@/api/dashboard";
-import { ROLE_COLORS } from "./roleDistribution.constants";
 
 const STATUS_COLORS: Record<string, { bar: string; chipBg: string; chipText: string }> = {
   Active: {
-    bar: ROLE_COLORS[3].bar,
-    chipBg: ROLE_COLORS[3].bg,
-    chipText: ROLE_COLORS[3].text,
+    bar: "#4f46e5",
+    chipBg: "#eef2ff",
+    chipText: "#4338ca",
   },
   Pending: {
-    bar: ROLE_COLORS[2].bar,
-    chipBg: ROLE_COLORS[2].bg,
-    chipText: ROLE_COLORS[2].text,
+    bar: "#818cf8",
+    chipBg: "#eef2ff",
+    chipText: "#4338ca",
   },
   Suspended: {
-    bar: ROLE_COLORS[4].bar,
-    chipBg: ROLE_COLORS[4].bg,
-    chipText: ROLE_COLORS[4].text,
+    bar: "#c7d2fe",
+    chipBg: "#eef2ff",
+    chipText: "#3730a3",
   },
   Invited: {
-    bar: ROLE_COLORS[3].bar,
-    chipBg: ROLE_COLORS[3].bg,
-    chipText: ROLE_COLORS[3].text,
+    bar: "#4f46e5",
+    chipBg: "#eef2ff",
+    chipText: "#4338ca",
   },
 };
 const FALLBACK_COLOR = { bar: "#94a3b8", chipBg: "#f8fafc", chipText: "#64748b" };
@@ -39,9 +38,9 @@ const FALLBACK_STATUS = [
 ];
 
 const RADIAL_RINGS = [
-  { radius: 78, width: 10, track: "#e8edf3", ratio: 0.82 },
-  { radius: 64, width: 10, track: "#edf1f6", ratio: 0.72 },
-  { radius: 50, width: 10, track: "#f1f4f8", ratio: 0.58 },
+  { radius: 78, width: 10, track: "#eef2ff", ratio: 0.82 },
+  { radius: 63, width: 10, track: "#eef2ff", ratio: 0.72 },
+  { radius: 48, width: 10, track: "#eef2ff", ratio: 0.58 },
 ];
 
 function getColor(name: string) {
