@@ -42,7 +42,7 @@ export function UserGrowthAreaChart({ avg, chartData, isLoading, meta }: UserGro
           </filter>
         </defs>
 
-        <CartesianGrid vertical={false} stroke="#f1f5f9" strokeOpacity={1} />
+        <CartesianGrid vertical={false} stroke="rgba(148,163,184,0.12)" strokeOpacity={1} />
 
         <XAxis
           dataKey="label"
