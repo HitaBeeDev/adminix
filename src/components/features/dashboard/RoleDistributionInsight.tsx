@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+import { Crown } from "lucide-react";
 import type { RoleDistributionDatum } from "./roleDistribution.types";
 
 interface RoleDistributionInsightProps {
@@ -10,30 +10,42 @@ export function RoleDistributionInsight({ isLoading, topRole }: RoleDistribution
   if (isLoading || !topRole) return null;
 
   return (
-    <div className="flex items-center gap-2 mt-3 bg-[#f8fafc] dark:bg-[#1e293b] rounded-xl px-3.5 py-2.5">
+    <div className="mt-3 grid grid-cols-2 gap-2">
       <div
-        className="w-1 h-8 rounded-full flex-shrink-0"
-        style={{ background: topRole.color.bar }}
-      />
-      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-        <TrendingUp size={12} className="text-[#94a3b8] flex-shrink-0" />
-        <p className="text-[0.6875rem] text-[#64748b] dark:text-[#94a3b8] leading-snug">
-          <span className="font-semibold" style={{ color: topRole.color.bar }}>
-            {topRole.name}
-          </span>{" "}
-          is the largest group at{" "}
-          <span className="font-semibold text-[#334155] dark:text-[#cbd5e1]">
-            {topRole.pct}%
-          </span>{" "}
-          of all users
-        </p>
-      </div>
-      <span
-        className="text-[0.6875rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-        style={{ background: topRole.color.bar + "18", color: topRole.color.bar }}
+        className="rounded-xl px-3 py-2.5"
+        style={{ background: topRole.color.bar + "0f" }}
       >
-        #1
-      </span>
+        <div className="flex items-center gap-1 mb-1.5">
+          <Crown size={9} style={{ color: topRole.color.bar }} />
+          <span className="text-[0.6rem] font-semibold uppercase tracking-widest text-[#94a3b8]">
+            Top Role
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: topRole.color.bar }}
+          />
+          <span className="text-[0.8125rem] font-bold text-[#0f172a] dark:text-white leading-none">
+            {topRole.name}
+          </span>
+        </div>
+      </div>
+
+      <div className="rounded-xl px-3 py-2.5 bg-[#f8fafc] dark:bg-[#1e293b]">
+        <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-[#94a3b8] mb-1.5">
+          Coverage
+        </p>
+        <div className="flex items-baseline gap-1">
+          <span
+            className="text-[0.8125rem] font-bold leading-none"
+            style={{ color: topRole.color.bar }}
+          >
+            {topRole.pct}%
+          </span>
+          <span className="text-[0.625rem] text-[#94a3b8] leading-none">of all users</span>
+        </div>
+      </div>
     </div>
   );
 }

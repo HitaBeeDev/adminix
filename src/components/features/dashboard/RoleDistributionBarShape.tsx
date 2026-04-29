@@ -39,12 +39,11 @@ export function RoleDistributionBarShape({
       />
       <text
         x={x + width / 2}
-        y={y - 8}
+        y={y - 6}
         textAnchor="middle"
-        fontSize={11}
+        fontSize={10}
         fontWeight={700}
-        fill="#475569"
-        className="dark-label"
+        fill="#94a3b8"
       >
         {value.toLocaleString()}
       </text>

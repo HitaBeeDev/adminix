@@ -20,12 +20,12 @@ interface RoleDistributionBarsProps {
 
 export function RoleDistributionBars({ isLoading, roleData }: RoleDistributionBarsProps) {
   if (isLoading) {
-    return <div className="h-[200px] rounded-xl animate-pulse bg-[#f1f5f9] dark:bg-[#1e293b] mt-4" />;
+    return <div className="h-[160px] rounded-xl animate-pulse bg-[#f1f5f9] dark:bg-[#1e293b] mt-4" />;
   }
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={roleData} margin={{ top: 28, right: 6, left: 6, bottom: 0 }} barCategoryGap="30%">
+    <ResponsiveContainer width="100%" height={160}>
+      <BarChart data={roleData} margin={{ top: 20, right: 4, left: 4, bottom: 0 }} barCategoryGap="30%">
         <XAxis
           dataKey="name"
           axisLine={false}
