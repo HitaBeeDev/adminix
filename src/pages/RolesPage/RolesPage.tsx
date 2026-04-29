@@ -55,7 +55,7 @@ export function RolesPage() {
         rolesCount={roles.length}
       />
 
-      <div className="flex gap-6 items-start">
+      <div className="flex gap-3 items-start">
         <RolesSidebar
           error={error}
           isError={isError}
