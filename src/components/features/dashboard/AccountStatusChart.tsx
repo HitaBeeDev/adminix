@@ -39,9 +39,9 @@ const FALLBACK_STATUS = [
 ];
 
 const RADIAL_RINGS = [
-  { radius: 78, width: 14, track: "#eef2f7", ratio: 0.82 },
-  { radius: 58, width: 13, track: "#eef2f7", ratio: 0.72 },
-  { radius: 39, width: 12, track: "#f3f6fa", ratio: 0.58 },
+  { radius: 78, width: 10, track: "#e8edf3", ratio: 0.82 },
+  { radius: 64, width: 10, track: "#edf1f6", ratio: 0.72 },
+  { radius: 50, width: 10, track: "#f1f4f8", ratio: 0.58 },
 ];
 
 function getColor(name: string) {
@@ -95,8 +95,10 @@ function AccountStatusRadialChart({
 
           return (
             <g key={ring.radius}>
-              <path
-                d={arcPath}
+              <circle
+                cx="92"
+                cy="92"
+                r={ring.radius}
                 fill="none"
                 stroke={ring.track}
                 strokeWidth={ring.width}
