@@ -56,11 +56,10 @@ export function ReportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-4">
       <ReportsHeader
         filteredCount={filteredReports.length}
         isLoading={isLoading}
-        onGenerate={() => setGenerateOpen(true)}
         totalCount={reports.length}
       />
       <GenerateReportModal
@@ -78,6 +77,7 @@ export function ReportsPage() {
       />
       <ReportsTypeFilter
         onChange={(type) => setFilterValue("typeFilter", type, { shouldValidate: true })}
+        onGenerate={() => setGenerateOpen(true)}
         typeFilter={typeFilter}
       />
       <ReportsTable

@@ -1,13 +1,15 @@
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { REPORT_FILTER_OPTIONS } from "./reports.constants";
 import type { ReportTypeFilter } from "./reports.types";
 
 interface ReportsTypeFilterProps {
   onChange: (type: ReportTypeFilter) => void;
+  onGenerate: () => void;
   typeFilter: ReportTypeFilter;
 }
 
-export function ReportsTypeFilter({ onChange, typeFilter }: ReportsTypeFilterProps) {
+export function ReportsTypeFilter({ onChange, onGenerate, typeFilter }: ReportsTypeFilterProps) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       {REPORT_FILTER_OPTIONS.map((type) => (
@@ -24,6 +26,12 @@ export function ReportsTypeFilter({ onChange, typeFilter }: ReportsTypeFilterPro
           {type === "" ? "All" : type}
         </button>
       ))}
+      <button
+        onClick={onGenerate}
+        className="ml-auto flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+      >
+        <Plus size={15} /> Generate report
+      </button>
     </div>
   );
 }
