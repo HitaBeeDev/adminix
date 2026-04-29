@@ -81,11 +81,9 @@ export function ActivityPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-4">
       <ActivityHeader
-        isExporting={isExporting}
         isLoading={isLoading}
-        onExport={() => void handleExport()}
         total={data?.total ?? 0}
       />
       <ActivityFilters
@@ -93,9 +91,11 @@ export function ActivityPage() {
         dateFrom={dateFrom}
         dateTo={dateTo}
         hasFilters={hasFilters}
+        isExporting={isExporting}
         isUsersError={isUsersError}
         isUsersLoading={isUsersLoading}
         onClearFilters={clearFilters}
+        onExport={() => void handleExport()}
         onFilterChange={handleFilter}
         onRetryUsers={() => void refetchUsers()}
         userId={userId}

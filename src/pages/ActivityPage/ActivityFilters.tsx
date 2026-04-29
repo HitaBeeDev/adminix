@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import { getErrorMessage } from "@/lib/errors";
 import { ACTION_OPTIONS, activitySelectClass } from "./activity.constants";
 import type { User } from "@/types/user";
@@ -9,7 +10,9 @@ interface ActivityFiltersProps {
   hasFilters: boolean;
   isUsersError: boolean;
   isUsersLoading: boolean;
+  isExporting: boolean;
   onClearFilters: () => void;
+  onExport: () => void;
   onFilterChange: (key: string, value: string) => void;
   onRetryUsers: () => void;
   userId: string;
@@ -22,9 +25,11 @@ export function ActivityFilters({
   dateFrom,
   dateTo,
   hasFilters,
+  isExporting,
   isUsersError,
   isUsersLoading,
   onClearFilters,
+  onExport,
   onFilterChange,
   onRetryUsers,
   userId,
@@ -32,7 +37,7 @@ export function ActivityFilters({
   usersError,
 }: ActivityFiltersProps) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       {isUsersLoading ? (
         <div className="h-10 w-32 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
       ) : isUsersError ? (
@@ -97,6 +102,15 @@ export function ActivityFilters({
           Clear filters
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={onExport}
+        disabled={isExporting}
+        className="ml-auto flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+      >
+        <Download size={14} /> {isExporting ? "Exporting..." : "Export CSV"}
+      </button>
     </div>
   );
 }
