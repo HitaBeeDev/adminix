@@ -1,4 +1,3 @@
-import { PieChart, Pie, Cell } from "recharts";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, MoreHorizontal, ShieldCheck } from "lucide-react";
 import type { DashboardStats } from "@/api/dashboard";
 import { ROLE_COLORS } from "./roleDistribution.constants";
@@ -39,12 +38,82 @@ const FALLBACK_STATUS = [
   { name: "Suspended", value: 768  },
 ];
 
+const RADIAL_RINGS = [
+  { radius: 67, width: 13, stroke: "#2f2bbf", track: "#eef1ff", rotate: 132 },
+  { radius: 50, width: 12, stroke: "#5957e8", track: "#eef1ff", rotate: 268 },
+  { radius: 34, width: 11, stroke: "#817eff", track: "#f2f3ff", rotate: 108 },
+];
+
 function getColor(name: string) {
   return STATUS_COLORS[name] ?? FALLBACK_COLOR;
 }
 
 function getTrend(name: string) {
   return MOCK_TRENDS[name] ?? { up: true, pct: "0.0" };
+}
+
+function AccountStatusRadialChart({
+  rings,
+  totalLabel,
+}: {
+  rings: { name: string; value: number }[];
+  totalLabel: string;
+}) {
+  const maxRingValue = Math.max(...rings.map((ring) => ring.value), 1);
+
+  return (
+    <div
+      className="relative grid h-[178px] w-[178px] place-items-center"
+      aria-label={`Total account status ${totalLabel}`}
+    >
+      <div className="absolute inset-[12px] rounded-full bg-[#f6f7ff] opacity-80 blur-[1px] dark:bg-[#1e1b4b]" />
+      <svg className="relative h-[154px] w-[154px] overflow-visible" viewBox="0 0 154 154" role="img">
+        <title>Account status radial distribution</title>
+        {RADIAL_RINGS.map((ring, index) => {
+          const value = rings[index]?.value ?? 0;
+          const circumference = 2 * Math.PI * ring.radius;
+          const ratio = Math.max(0.22, Math.min(0.92, value / maxRingValue));
+          const dash = circumference * ratio;
+          const gap = circumference - dash;
+
+          return (
+            <g key={ring.radius} transform={`rotate(${ring.rotate} 77 77)`}>
+              <circle
+                cx="77"
+                cy="77"
+                r={ring.radius}
+                fill="none"
+                stroke={ring.track}
+                strokeWidth={ring.width}
+                strokeLinecap="round"
+              />
+              <circle
+                cx="77"
+                cy="77"
+                r={ring.radius}
+                fill="none"
+                stroke={ring.stroke}
+                strokeWidth={ring.width}
+                strokeLinecap="round"
+                strokeDasharray={`${dash} ${gap}`}
+                className="drop-shadow-[0_2px_3px_rgba(47,43,191,0.22)]"
+              />
+            </g>
+          );
+        })}
+        <circle cx="77" cy="77" r="25" fill="white" className="dark:fill-[#0f172a]" />
+        <text
+          x="77"
+          y="78"
+          textAnchor="middle"
+          dominantBaseline="central"
+          className="fill-[#0f172a] text-[1.08rem] font-[800] tabular-nums dark:fill-white"
+        >
+          {totalLabel}
+        </text>
+      </svg>
+    </div>
+  );
 }
 
 interface Props {
@@ -118,35 +187,7 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
           {/* ── Donut chart + status summary ── */}
           <div className="mt-4 flex flex-1 flex-col justify-center">
             <div className="flex flex-col items-center gap-5">
-              <div className="relative h-[170px] w-[170px] shrink-0">
-                <PieChart width={170} height={170}>
-                  <Pie
-                    data={sorted}
-                    cx={85}
-                    cy={85}
-                    innerRadius={52}
-                    outerRadius={72}
-                    paddingAngle={3}
-                    dataKey="value"
-                    strokeWidth={0}
-                    startAngle={90}
-                    endAngle={-270}
-                  >
-                    {sorted.map((d) => (
-                      <Cell key={d.name} fill={getColor(d.name).bar} />
-                    ))}
-                  </Pie>
-                  <text
-                    x={85}
-                    y={85}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    className="fill-[#0f172a] text-[1.5rem] font-[800] tabular-nums dark:fill-white"
-                  >
-                    {totalLabel}
-                  </text>
-                </PieChart>
-              </div>
+              <AccountStatusRadialChart rings={sorted} totalLabel={totalLabel} />
 
               <div className="flex w-full min-w-0 flex-col gap-3.5">
                 {sorted.map((d) => {
