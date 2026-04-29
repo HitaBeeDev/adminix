@@ -21,17 +21,17 @@ export function AppearanceTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Theme</h3>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">Choose how Adminix looks to you</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {THEMES.map(({ value, label, icon: Icon, desc }) => (
             <button
               key={value}
               onClick={() => applyTheme(value)}
               className={cn(
-                "relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center",
+                "relative flex min-h-36 flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 text-center transition-all",
                 theme === value
                   ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
                   : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",
@@ -72,7 +72,7 @@ export function AppearanceTab() {
             <label
               key={value}
               className={cn(
-                "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all",
+                "flex items-center gap-3 rounded-xl border-2 p-3 cursor-pointer transition-all",
                 density === value
                   ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
                   : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600",

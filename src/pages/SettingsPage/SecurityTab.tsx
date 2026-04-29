@@ -63,12 +63,12 @@ export function SecurityTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Password</h3>
         <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">Update your account password</p>
-        <form onSubmit={handlePasswordSubmit(updatePassword)} className="space-y-3 max-w-sm">
-          <div>
+        <form onSubmit={handlePasswordSubmit(updatePassword)} className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="sm:col-span-2 xl:col-span-1">
             <label className={settingsLabelClass}>Current Password</label>
             <input type="password" {...registerPassword("currentPassword")} className={settingsFieldClass} placeholder="********" />
             {passwordErrors.currentPassword && <p className={settingsErrorClass}>{passwordErrors.currentPassword.message}</p>}
@@ -86,7 +86,7 @@ export function SecurityTab() {
           <button
             type="submit"
             disabled={isPasswordSubmitting}
-            className="mt-1 flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
+            className="mt-1 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 sm:col-span-2 xl:col-span-1 dark:focus-visible:ring-offset-gray-950"
           >
             <Key size={14} />
             {isPasswordSubmitting ? "Updating..." : "Update Password"}
@@ -94,7 +94,7 @@ export function SecurityTab() {
         </form>
       </div>
 
-      <div className={settingsSectionClass}>
+      <div className={cn(settingsSectionClass, "flex flex-col")}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Two-Factor Authentication</h3>
@@ -176,7 +176,7 @@ export function SecurityTab() {
         )}
       </div>
 
-      <div className={settingsSectionClass}>
+      <div className={cn(settingsSectionClass, "xl:col-span-2")}>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Active Sessions</h3>
