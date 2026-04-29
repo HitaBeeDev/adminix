@@ -32,18 +32,18 @@ export function UserDetailHeader({
         <span className="text-gray-900 dark:text-gray-100 font-medium">{user.name}</span>
       </nav>
 
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-4">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
             {user.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800" />
+              <img src={user.avatarUrl} alt={user.name} className="h-20 w-20 rounded-full object-cover ring-4 ring-indigo-50 dark:ring-indigo-900/20" />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xl">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600 text-2xl font-bold text-white ring-4 ring-indigo-50 dark:ring-indigo-900/20">
                 {initials(user.name)}
               </div>
             )}
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-[#181818]">{user.name}</h1>
+            <div className="min-w-0">
+              <h1 className="truncate text-2xl font-bold text-gray-900 dark:text-gray-100">{user.name}</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{user.email}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", ROLE_COLORS[user.role])}>
@@ -61,23 +61,23 @@ export function UserDetailHeader({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
             <button
               onClick={onResetPassword}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
             >
               <RotateCcw size={13} /> Reset Password
             </button>
             <button
               onClick={onSuspend}
               disabled={isPending}
-              className="px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+              className="rounded-lg border border-amber-200 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 disabled:opacity-50 dark:border-amber-800/60 dark:text-amber-400 dark:hover:bg-amber-900/20"
             >
               {isSuspended ? "Reactivate" : "Suspend"}
             </button>
             <button
               onClick={onDelete}
-              className="px-4 py-2 text-sm rounded-lg border border-rose-200 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
+              className="rounded-lg border border-rose-200 px-4 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-800/50 dark:text-rose-400 dark:hover:bg-rose-900/20"
             >
               Delete
             </button>

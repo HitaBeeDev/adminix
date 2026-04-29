@@ -8,7 +8,6 @@ import { toast } from "@/stores/toastStore";
 import { ROLES, ROLE_COLORS, ROLE_LABELS, userDetailInputClass, userDetailLabelClass } from "./userDetail.constants";
 import { editUserSchema, type EditUserValues } from "./userDetail.schema";
 import { fmt } from "./userDetail.utils";
-import { UserDetailInfoRow } from "./UserDetailInfoRow";
 import { useUserDetailContext } from "./UserDetailContext";
 
 export function ProfileTab() {
@@ -64,7 +63,7 @@ export function ProfileTab() {
             <button
               onClick={handleSubmit(onSubmit)}
               disabled={updateUser.isPending}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-[#4fc4cf] hover:brightness-105 text-[#181818] font-medium disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:opacity-50"
             >
               <Check size={13} /> {updateUser.isPending ? "Saving..." : "Save"}
             </button>
@@ -73,25 +72,34 @@ export function ProfileTab() {
       </div>
 
       {!isEditing ? (
-        <div>
-          <UserDetailInfoRow label="Full name" value={user.name} />
-          <UserDetailInfoRow label="Email" value={user.email} />
-          <UserDetailInfoRow
-            label="Role"
-            value={
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 dark:border-gray-800 dark:bg-gray-800/30">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Full name</p>
+            <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 dark:border-gray-800 dark:bg-gray-800/30">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Email</p>
+            <p className="mt-2 truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{user.email}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 dark:border-gray-800 dark:bg-gray-800/30">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Role</p>
+            <div className="mt-2">
               <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", ROLE_COLORS[user.role])}>
                 {ROLE_LABELS[user.role] ?? user.role}
               </span>
-            }
-          />
-          <UserDetailInfoRow
-            label="Account ID"
-            value={<span className="font-mono text-xs text-gray-500 dark:text-gray-400">{user.accountId ?? "-"}</span>}
-          />
-          <UserDetailInfoRow label="Member since" value={fmt(user.dateJoined)} />
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 dark:border-gray-800 dark:bg-gray-800/30">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Account ID</p>
+            <p className="mt-2 font-mono text-xs font-semibold text-gray-600 dark:text-gray-300">{user.accountId ?? "-"}</p>
+          </div>
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 md:col-span-2 dark:border-gray-800 dark:bg-gray-800/30">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">Member since</p>
+            <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{fmt(user.dateJoined)}</p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4 max-w-md">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className={userDetailLabelClass}>Full name</label>
             <input {...register("name")} className={userDetailInputClass} />

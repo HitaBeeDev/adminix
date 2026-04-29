@@ -61,8 +61,8 @@ export function PermissionsTab() {
                       <div key={permission.key} className="flex items-start gap-2.5">
                         <div
                           className={cn(
-                            "mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 text-[#181818]",
-                            granted ? "bg-[#4fc4cf]" : "bg-gray-100 dark:bg-gray-800",
+                            "mt-0.5 w-4 h-4 rounded flex items-center justify-center shrink-0 text-white",
+                            granted ? "bg-indigo-600" : "bg-gray-100 dark:bg-gray-800",
                           )}
                         >
                           {granted && <Check size={10} strokeWidth={3} />}

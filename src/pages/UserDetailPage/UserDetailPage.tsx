@@ -89,7 +89,7 @@ export function UserDetailPage() {
 
   return (
     <UserDetailContext.Provider value={{ user: currentUser, refreshUser: () => void refetch() }}>
-      <div className="space-y-6">
+      <div className="space-y-5 mt-4">
         <UserDetailHeader
           isPending={updateUser.isPending}
           isSuspended={isSuspended}
