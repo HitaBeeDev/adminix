@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import { AlertTriangle, ArrowDownRight, ArrowUpRight, MoreHorizontal, ShieldCheck } from "lucide-react";
 import type { DashboardStats } from "@/api/dashboard";
 
@@ -135,6 +137,8 @@ interface Props {
 }
 
 export default function AccountStatusChart({ data, isLoading }: Props) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const statusData = data?.usersByStatus?.length
     ? data.usersByStatus.map((d) => ({
         name: d.status.charAt(0).toUpperCase() + d.status.slice(1),
@@ -154,6 +158,27 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
   const totalLabel = total >= 1000 ? `${(total / 1000).toFixed(1)}k` : String(total);
   const maxValue = sorted[0]?.value ?? 1;
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
+
   return (
     <div className="bg-white rounded-[1.25rem] border border-[#e2e8f0] p-5 flex flex-col transition-all duration-200 shadow-[0_4px_24px_-8px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(15,23,42,0.13)] dark:border-[#1e293b] dark:bg-[#0f172a] dark:shadow-none">
 
@@ -165,13 +190,45 @@ export default function AccountStatusChart({ data, isLoading }: Props) {
           </h3>
           <p className="text-[0.75rem] text-[#94a3b8] mt-0.5">User account health</p>
         </div>
-        <button
-          type="button"
-          aria-label="Account status options"
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#64748b] transition-colors dark:hover:bg-[#1e293b] dark:hover:text-white"
-        >
-          <MoreHorizontal size={16} />
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Account status options"
+            aria-expanded={menuOpen}
+            aria-haspopup="menu"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#64748b] transition-colors dark:hover:bg-[#1e293b] dark:hover:text-white"
+          >
+            <MoreHorizontal size={16} />
+          </button>
+
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 top-9 z-20 w-40 rounded-xl border border-[#e2e8f0] bg-white p-1 shadow-[0_18px_50px_-30px_rgba(15,23,42,0.28)] dark:border-[#1e293b] dark:bg-[#111827]"
+            >
+              <Link
+                to="/users"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg px-3 py-2 text-[0.75rem] font-medium text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
+              >
+                View all users
+              </Link>
+              {sorted.map((status) => (
+                <Link
+                  key={status.name}
+                  to={`/users?status=${status.name.toLowerCase()}`}
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-[0.75rem] font-medium text-[#64748b] transition-colors hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"
+                >
+                  View {status.name.toLowerCase()}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
