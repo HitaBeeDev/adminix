@@ -41,7 +41,8 @@ export const USER_COLUMNS: { key: SortableColumn; label: string }[] = [
   { key: "dateJoined", label: "Joined" },
 ];
 
-export const VIRTUAL_PAGE_SIZE = 100_000;
-export const USER_ROW_HEIGHT = 60;
 export const USER_GRID_COLUMNS =
-  "44px minmax(220px, 1.25fr) minmax(260px, 1.4fr) 140px 130px 130px 64px";
+  "44px minmax(150px, 1.15fr) minmax(170px, 1.45fr) minmax(92px, 0.65fr) minmax(88px, 0.55fr) minmax(104px, 0.65fr) 48px";
+
+export const USER_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+export const DEFAULT_USER_PAGE_SIZE = 10;

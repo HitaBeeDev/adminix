@@ -1,22 +1,19 @@
-import type { Virtualizer } from "@tanstack/react-virtual";
-import type { PaginatedUsers, User } from "@/types/user";
+import type { PaginatedUsers } from "@/types/user";
 
 interface UsersTableFooterProps {
   data: PaginatedUsers | undefined;
-  rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
-  users: User[];
 }
 
-export function UsersTableFooter({ data, rowVirtualizer, users }: UsersTableFooterProps) {
+export function UsersTableFooter({ data }: UsersTableFooterProps) {
   if (!data) return null;
 
+  const start = data.total === 0 ? 0 : (data.page - 1) * data.pageSize + 1;
+  const end = Math.min(data.page * data.pageSize, data.total);
+
   return (
-    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+    <div className="text-sm text-gray-500 dark:text-gray-400">
       <span>
-        Showing {users.length.toLocaleString()} of {data.total.toLocaleString()} users
-      </span>
-      <span>
-        Rendering {rowVirtualizer.getVirtualItems().length.toLocaleString()} visible rows
+        Showing {start.toLocaleString()}-{end.toLocaleString()} of {data.total.toLocaleString()} users
       </span>
     </div>
   );

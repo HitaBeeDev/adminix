@@ -1,30 +1,41 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import InviteUserModal from "@/components/features/InviteUserModal";
 import { useDeleteUser, useUpdateUserInline, useUsers } from "@/hooks/useUsers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "@/stores/toastStore";
 import type { User, UserRole, UserStatus } from "@/types/user";
-import { USER_ROW_HEIGHT, VIRTUAL_PAGE_SIZE } from "./users.constants";
+import { DEFAULT_USER_PAGE_SIZE, USER_PAGE_SIZE_OPTIONS } from "./users.constants";
 import type { SortableColumn, SortDirection } from "./users.types";
 import { UsersBulkActions } from "./UsersBulkActions";
+import { UsersPagination } from "./UsersPagination";
+import { UsersTable } from "./UsersTable";
 import { UsersTableFooter } from "./UsersTableFooter";
 import { UsersToolbar } from "./UsersToolbar";
-import { UsersVirtualTable } from "./UsersVirtualTable";
 
 export function UsersPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tableScrollRef = useRef<HTMLDivElement>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [rowState, setRowState] = useState<{
+    expanded: Set<string>;
+    key: string;
+    selected: Set<string>;
+  }>({
+    expanded: new Set(),
+    key: "",
+    selected: new Set(),
+  });
 
   const searchInput = searchParams.get("search") ?? "";
   const role = (searchParams.get("role") ?? "") as UserRole | "";
   const status = (searchParams.get("status") ?? "") as UserStatus | "";
   const sortBy = (searchParams.get("sortBy") ?? "name") as SortableColumn;
   const sortDir = (searchParams.get("sortDir") ?? "asc") as SortDirection;
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
+  const requestedPageSize = Number(searchParams.get("pageSize") ?? DEFAULT_USER_PAGE_SIZE);
+  const pageSize = USER_PAGE_SIZE_OPTIONS.includes(requestedPageSize as (typeof USER_PAGE_SIZE_OPTIONS)[number])
+    ? requestedPageSize
+    : DEFAULT_USER_PAGE_SIZE;
   const debouncedSearch = useDebounce(searchInput, 300);
 
   const { data, isLoading, isError, error, refetch } = useUsers({
@@ -33,29 +44,17 @@ export function UsersPage() {
     status,
     sortBy,
     sortDir,
-    page: 1,
-    pageSize: VIRTUAL_PAGE_SIZE,
+    page,
+    pageSize,
   });
 
   const updateUser = useUpdateUserInline();
   const deleteUser = useDeleteUser();
   const users: User[] = data?.data ?? [];
 
-  // TanStack Virtual intentionally returns imperative helpers that React Compiler flags.
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const rowVirtualizer = useVirtualizer({
-    count: users.length,
-    getScrollElement: () => tableScrollRef.current,
-    estimateSize: () => USER_ROW_HEIGHT,
-    overscan: 12,
-    getItemKey: (index) => users[index]?.id ?? index,
-  });
-
   const pageKey = searchParams.toString();
-  useEffect(() => {
-    setSelected(new Set());
-    setExpanded(new Set());
-  }, [pageKey]);
+  const selected = rowState.key === pageKey ? rowState.selected : new Set<string>();
+  const expanded = rowState.key === pageKey ? rowState.expanded : new Set<string>();
 
   const allLoadedSelected = users.length > 0 && users.every((user) => selected.has(user.id));
   const someLoadedSelected = users.some((user) => selected.has(user.id)) && !allLoadedSelected;
@@ -65,6 +64,23 @@ export function UsersPage() {
       const next = new URLSearchParams(previous);
       if (value) next.set("search", value);
       else next.delete("search");
+      next.delete("page");
+      return next;
+    });
+  }
+
+  function handlePageChange(nextPage: number) {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set("page", String(nextPage));
+      return next;
+    });
+  }
+
+  function handlePageSizeChange(nextPageSize: number) {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set("pageSize", String(nextPageSize));
       next.delete("page");
       return next;
     });
@@ -97,7 +113,7 @@ export function UsersPage() {
   async function handleBulkDelete() {
     try {
       await Promise.all([...selected].map((id) => deleteUser.mutateAsync(id)));
-      setSelected(new Set());
+      setRowState((current) => ({ ...current, key: pageKey, selected: new Set() }));
       toast.success("Selected users deleted.");
     } catch {
       toast.error("Failed to delete selected users.");
@@ -109,7 +125,7 @@ export function UsersPage() {
       await Promise.all(
         [...selected].map((id) => updateUser.mutateAsync({ id, payload: { status: "suspended" } })),
       );
-      setSelected(new Set());
+      setRowState((current) => ({ ...current, key: pageKey, selected: new Set() }));
       toast.success("Selected users suspended.");
     } catch {
       toast.error("Failed to suspend selected users.");
@@ -117,34 +133,48 @@ export function UsersPage() {
   }
 
   function toggleAll() {
-    setSelected((previous) => {
+    setRowState((current) => {
+      const previous = current.key === pageKey ? current.selected : new Set<string>();
       const next = new Set(previous);
       if (allLoadedSelected) {
         users.forEach((user) => next.delete(user.id));
       } else {
         users.forEach((user) => next.add(user.id));
       }
-      return next;
+      return {
+        expanded: current.key === pageKey ? current.expanded : new Set(),
+        key: pageKey,
+        selected: next,
+      };
     });
   }
 
   function toggleOne(id: string) {
-    setSelected((previous) => {
+    setRowState((current) => {
+      const previous = current.key === pageKey ? current.selected : new Set<string>();
       const next = new Set(previous);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-      return next;
+      return {
+        expanded: current.key === pageKey ? current.expanded : new Set(),
+        key: pageKey,
+        selected: next,
+      };
     });
   }
 
   function toggleExpanded(id: string) {
-    setExpanded((previous) => {
+    setRowState((current) => {
+      const previous = current.key === pageKey ? current.expanded : new Set<string>();
       const next = new Set(previous);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-      return next;
+      return {
+        expanded: next,
+        key: pageKey,
+        selected: current.key === pageKey ? current.selected : new Set(),
+      };
     });
-    window.requestAnimationFrame(() => rowVirtualizer.measure());
   }
 
   return (
@@ -164,13 +194,13 @@ export function UsersPage() {
       />
       <UsersBulkActions
         deletePending={deleteUser.isPending}
-        onClear={() => setSelected(new Set())}
+        onClear={() => setRowState((current) => ({ ...current, key: pageKey, selected: new Set() }))}
         onDelete={handleBulkDelete}
         onSuspend={handleBulkSuspend}
         selectedCount={selected.size}
         updatePending={updateUser.isPending}
       />
-      <UsersVirtualTable
+      <UsersTable
         allLoadedSelected={allLoadedSelected}
         debouncedSearch={debouncedSearch}
         error={error}
@@ -196,8 +226,6 @@ export function UsersPage() {
           });
         }}
         role={role}
-        rowVirtualizer={rowVirtualizer}
-        scrollRef={tableScrollRef}
         selected={selected}
         someLoadedSelected={someLoadedSelected}
         sortBy={sortBy}
@@ -205,7 +233,15 @@ export function UsersPage() {
         status={status}
         users={users}
       />
-      <UsersTableFooter data={data} rowVirtualizer={rowVirtualizer} users={users} />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <UsersTableFooter data={data} />
+        <UsersPagination
+          data={data}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+        />
+      </div>
     </div>
   );
 }

@@ -1,18 +1,16 @@
-import type { RefObject } from "react";
 import { Link } from "react-router";
-import type { Virtualizer } from "@tanstack/react-virtual";
 import { ChevronDown, Search } from "lucide-react";
 import ErrorState from "@/components/ui/ErrorState";
 import { cn } from "@/lib/utils";
 import type { User, UserRole, UserStatus } from "@/types/user";
-import { ROLE_LABELS, STATUS_STYLES, USER_COLUMNS, USER_GRID_COLUMNS, USER_ROW_HEIGHT } from "./users.constants";
+import { ROLE_LABELS, STATUS_STYLES, USER_COLUMNS, USER_GRID_COLUMNS } from "./users.constants";
 import { formatUserDate, getUserInitials } from "./users.utils";
 import type { SortableColumn, SortDirection } from "./users.types";
 import { UserRowActionMenu } from "./UserRowActionMenu";
 import { UserRowSkeleton } from "./UserRowSkeleton";
 import { UsersSortIcon } from "./UsersSortIcon";
 
-interface UsersVirtualTableProps {
+interface UsersTableProps {
   allLoadedSelected: boolean;
   debouncedSearch: string;
   error: unknown;
@@ -28,8 +26,6 @@ interface UsersVirtualTableProps {
   onToggleOne: (id: string) => void;
   onUpdateUser: (args: { id: string; payload: { status: User["status"] } }, user: User) => void;
   role: UserRole | "";
-  rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
-  scrollRef: RefObject<HTMLDivElement | null>;
   selected: Set<string>;
   someLoadedSelected: boolean;
   sortBy: SortableColumn;
@@ -38,7 +34,7 @@ interface UsersVirtualTableProps {
   users: User[];
 }
 
-export function UsersVirtualTable({
+export function UsersTable({
   allLoadedSelected,
   debouncedSearch,
   error,
@@ -54,19 +50,17 @@ export function UsersVirtualTable({
   onToggleOne,
   onUpdateUser,
   role,
-  rowVirtualizer,
-  scrollRef,
   selected,
   someLoadedSelected,
   sortBy,
   sortDir,
   status,
   users,
-}: UsersVirtualTableProps) {
+}: UsersTableProps) {
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden">
-      <div className="overflow-x-auto">
-        <div className="min-w-[1120px] text-sm">
+      <div className="w-full min-w-0">
+        <div className="w-full min-w-0 text-sm">
           <div
             className="sticky top-0 z-10 grid border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50"
             style={{ gridTemplateColumns: USER_GRID_COLUMNS }}
@@ -97,13 +91,11 @@ export function UsersVirtualTable({
           </div>
 
           {isLoading ? (
-            <table className="w-full">
-              <tbody>
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <UserRowSkeleton key={index} />
-                ))}
-              </tbody>
-            </table>
+            <div>
+              {Array.from({ length: 8 }).map((_, index) => (
+                <UserRowSkeleton key={index} />
+              ))}
+            </div>
           ) : isError ? (
             <ErrorState error={error} onRetry={onRetry} />
           ) : users.length === 0 ? (
@@ -128,31 +120,21 @@ export function UsersVirtualTable({
               </div>
             </div>
           ) : (
-            <div ref={scrollRef} className="h-[640px] overflow-auto">
-              <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const user = users[virtualRow.index];
-                  if (!user) return null;
+            <div>
+              {users.map((user) => {
+                const isExpanded = expanded.has(user.id);
 
-                  const isExpanded = expanded.has(user.id);
-
-                  return (
-                    <div
-                      key={user.id}
-                      data-index={virtualRow.index}
-                      ref={rowVirtualizer.measureElement}
-                      className={cn(
-                        "absolute left-0 top-0 grid w-full border-b border-gray-50 dark:border-gray-800 transition-colors",
-                        selected.has(user.id)
-                          ? "bg-indigo-50/50 dark:bg-indigo-900/10"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
-                      )}
-                      style={{
-                        minHeight: USER_ROW_HEIGHT,
-                        gridTemplateColumns: USER_GRID_COLUMNS,
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    >
+                return (
+                  <div
+                    key={user.id}
+                    className={cn(
+                      "grid w-full min-w-0 border-b border-gray-50 dark:border-gray-800 transition-colors last:border-b-0",
+                      selected.has(user.id)
+                        ? "bg-indigo-50/50 dark:bg-indigo-900/10"
+                        : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                    )}
+                    style={{ gridTemplateColumns: USER_GRID_COLUMNS }}
+                  >
                       <div className="pl-4 pr-2 py-3 flex items-center">
                         <input
                           type="checkbox"
@@ -161,7 +143,7 @@ export function UsersVirtualTable({
                           className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                         />
                       </div>
-                      <div className="px-4 py-3 min-w-0">
+                      <div className="px-3 py-3 min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
                           <button
                             type="button"
@@ -175,7 +157,7 @@ export function UsersVirtualTable({
                               className={cn("transition-transform", isExpanded ? "rotate-0" : "-rotate-90")}
                             />
                           </button>
-                          <Link to={`/users/${user.id}`} className="flex items-center gap-3 group min-w-0">
+                          <Link to={`/users/${user.id}`} className="flex items-center gap-2.5 group min-w-0">
                             <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0">
                               {getUserInitials(user.name)}
                             </div>
@@ -185,21 +167,21 @@ export function UsersVirtualTable({
                           </Link>
                         </div>
                       </div>
-                      <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400 truncate">
-                        {user.email}
+                      <div className="px-3 py-3 flex min-w-0 items-center">
+                        <span className="truncate text-gray-500 dark:text-gray-400">{user.email}</span>
                       </div>
-                      <div className="px-4 py-3 flex items-center text-gray-600 dark:text-gray-300">
-                        {ROLE_LABELS[user.role]}
+                      <div className="px-3 py-3 flex min-w-0 items-center">
+                        <span className="truncate text-gray-600 dark:text-gray-300">{ROLE_LABELS[user.role]}</span>
                       </div>
-                      <div className="px-4 py-3 flex items-center">
+                      <div className="px-3 py-3 flex min-w-0 items-center">
                         <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize", STATUS_STYLES[user.status])}>
                           {user.status}
                         </span>
                       </div>
-                      <div className="px-4 py-3 flex items-center text-gray-500 dark:text-gray-400">
-                        {formatUserDate(user.dateJoined)}
+                      <div className="px-3 py-3 flex min-w-0 items-center">
+                        <span className="truncate text-gray-500 dark:text-gray-400">{formatUserDate(user.dateJoined)}</span>
                       </div>
-                      <div className="px-4 py-3 flex items-center justify-end">
+                      <div className="px-3 py-3 flex items-center justify-end">
                         <UserRowActionMenu
                           user={user}
                           onUpdate={(args) => onUpdateUser(args, user)}
@@ -208,22 +190,22 @@ export function UsersVirtualTable({
                       </div>
                       {isExpanded && (
                         <div className="col-span-full border-t border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-950/30 px-4 py-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
-                            <div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 text-xs">
+                            <div className="min-w-0">
                               <p className="font-medium text-gray-500 dark:text-gray-400">User ID</p>
-                              <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.id}</p>
+                              <p className="mt-1 truncate font-mono text-gray-800 dark:text-gray-100">{user.id}</p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <p className="font-medium text-gray-500 dark:text-gray-400">Account</p>
-                              <p className="mt-1 font-mono text-gray-800 dark:text-gray-100">{user.accountId ?? "Unassigned"}</p>
+                              <p className="mt-1 truncate font-mono text-gray-800 dark:text-gray-100">{user.accountId ?? "Unassigned"}</p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <p className="font-medium text-gray-500 dark:text-gray-400">Last active</p>
-                              <p className="mt-1 text-gray-800 dark:text-gray-100">{formatUserDate(user.lastActive)}</p>
+                              <p className="mt-1 truncate text-gray-800 dark:text-gray-100">{formatUserDate(user.lastActive)}</p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <p className="font-medium text-gray-500 dark:text-gray-400">Security</p>
-                              <p className="mt-1 text-gray-800 dark:text-gray-100">
+                              <p className="mt-1 truncate text-gray-800 dark:text-gray-100">
                                 {user.twoFactorEnabled ? "2FA enabled" : "2FA disabled"}
                                 {user.lastIp ? ` - ${user.lastIp}` : ""}
                               </p>
@@ -232,9 +214,8 @@ export function UsersVirtualTable({
                         </div>
                       )}
                     </div>
-                  );
-                })}
-              </div>
+                );
+              })}
             </div>
           )}
         </div>
