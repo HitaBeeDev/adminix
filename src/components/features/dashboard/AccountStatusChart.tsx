@@ -39,9 +39,9 @@ const FALLBACK_STATUS = [
 ];
 
 const RADIAL_RINGS = [
-  { radius: 79, width: 14, track: "#eef2f7", rotate: 132 },
-  { radius: 58, width: 13, track: "#eef2f7", rotate: 268 },
-  { radius: 39, width: 12, track: "#f3f6fa", rotate: 108 },
+  { radius: 78, width: 14, track: "#eef2f7", ratio: 0.82 },
+  { radius: 58, width: 13, track: "#eef2f7", ratio: 0.72 },
+  { radius: 39, width: 12, track: "#f3f6fa", ratio: 0.58 },
 ];
 
 function getColor(name: string) {
@@ -52,6 +52,23 @@ function getTrend(name: string) {
   return MOCK_TRENDS[name] ?? { up: true, pct: "0.0" };
 }
 
+function polarToCartesian(cx: number, cy: number, radius: number, angle: number) {
+  const angleInRadians = ((angle - 90) * Math.PI) / 180;
+
+  return {
+    x: cx + radius * Math.cos(angleInRadians),
+    y: cy + radius * Math.sin(angleInRadians),
+  };
+}
+
+function describeArc(cx: number, cy: number, radius: number, startAngle: number, endAngle: number) {
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+}
+
 function AccountStatusRadialChart({
   rings,
   totalLabel,
@@ -59,8 +76,6 @@ function AccountStatusRadialChart({
   rings: { name: string; value: number }[];
   totalLabel: string;
 }) {
-  const maxRingValue = Math.max(...rings.map((ring) => ring.value), 1);
-
   return (
     <div
       className="relative grid h-[214px] w-[214px] place-items-center"
@@ -71,33 +86,28 @@ function AccountStatusRadialChart({
         <title>Account status radial distribution</title>
         {RADIAL_RINGS.map((ring, index) => {
           const status = rings[index];
-          const value = status?.value ?? 0;
-          const circumference = 2 * Math.PI * ring.radius;
-          const ratio = Math.max(0.22, Math.min(0.92, value / maxRingValue));
-          const dash = circumference * ratio;
-          const gap = circumference - dash;
           const stroke = getColor(status?.name ?? "").bar;
+          const gapCenter = 210;
+          const gapSize = 360 * (1 - ring.ratio);
+          const startAngle = gapCenter + gapSize / 2;
+          const endAngle = gapCenter - gapSize / 2 + 360;
+          const arcPath = describeArc(92, 92, ring.radius, startAngle, endAngle);
 
           return (
-            <g key={ring.radius} transform={`rotate(${ring.rotate} 92 92)`}>
-              <circle
-                cx="92"
-                cy="92"
-                r={ring.radius}
+            <g key={ring.radius}>
+              <path
+                d={arcPath}
                 fill="none"
                 stroke={ring.track}
                 strokeWidth={ring.width}
                 strokeLinecap="round"
               />
-              <circle
-                cx="92"
-                cy="92"
-                r={ring.radius}
+              <path
+                d={arcPath}
                 fill="none"
                 stroke={stroke}
                 strokeWidth={ring.width}
                 strokeLinecap="round"
-                strokeDasharray={`${dash} ${gap}`}
                 className="drop-shadow-[0_2px_3px_rgba(15,23,42,0.14)]"
               />
             </g>
