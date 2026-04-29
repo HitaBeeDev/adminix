@@ -40,12 +40,12 @@ export function ProfileTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Avatar</h3>
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col gap-5">
           <div className="relative group">
-            <div className="w-20 h-20 rounded-full bg-[#4fc4cf] flex items-center justify-center text-xl font-bold text-[#181818] select-none">
+            <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white select-none">
               {user ? initials(user.name) : "AU"}
             </div>
             <button className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -66,7 +66,7 @@ export function ProfileTab() {
       <div className={settingsSectionClass}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Personal Information</h3>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <div>
               <label className={settingsLabelClass}>Full Name</label>
               <input {...register("name")} className={settingsFieldClass} />
@@ -96,7 +96,7 @@ export function ProfileTab() {
             <button
               type="submit"
               disabled={!isDirty || saving}
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

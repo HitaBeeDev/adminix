@@ -86,7 +86,7 @@ export function SecurityTab() {
           <button
             type="submit"
             disabled={isPasswordSubmitting}
-            className="mt-1 flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 transition"
+            className="mt-1 flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
           >
             <Key size={14} />
             {isPasswordSubmitting ? "Updating..." : "Update Password"}
@@ -145,7 +145,7 @@ export function SecurityTab() {
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={confirmEnable}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-[#4fc4cf] text-[#181818] hover:brightness-105 transition"
+                    className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                   >
                     <CheckCircle2 size={12} /> Confirm & Enable
                   </button>
