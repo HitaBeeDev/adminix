@@ -2,6 +2,19 @@
 
 An internal admin dashboard — the kind of tool an ops or support team would use to manage customer accounts, users, roles, and activity logs.
 
+<p align="center">
+  <img src="docs/assets/preview.png" alt="Adminix dashboard preview" width="800" />
+</p>
+
+## Performance
+
+| Metric | Score |
+|---|---|
+| Performance | 91 |
+| Accessibility | 96 |
+| Best Practices | 100 |
+| SEO | 100 |
+
 ---
 
 ## What it does
